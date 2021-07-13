@@ -15,20 +15,27 @@ Still working, but you can take a sneak peak:
 
 ## Already implemented in [4f4e37cb](https://github.com/burnoo/compose-swr/commit/4f4e37cb9fff9da1c811fda340da27873b1e4ff2):
 ```kotlin
-val result by useSWR(key = "example.com/api", fetcher = { url -> NetworkClient.getData(url) })
-    
-// Ported from React SWR
-val (data, exception) = result
-when {
-    exception != null -> Text(text = "Failed to load")
-    data != null -> Text(text = data)
-    else -> Text(text = "Loading")
-}
+@Composable
+fun App() {
+    val resultState = useSWR(
+        key = "example.com/api",
+        fetcher = { url -> NetworkClient.getData(url) }
+    )
+    val result = resultState.value
 
-// OR more Kotlin-styled
-when {
-    result is SWRResult.Success -> Text(text = "Failed to load")
-    result is SWRResult.Loading -> Text("Loading")
-    else -> Text(text = "Failed to load")
+    // ported from React SWR
+    val (data, exception) = result
+    when {
+        exception != null -> Text(text = "Failed to load")
+        data != null -> Text(text = data)
+        else -> Text(text = "Loading")
+    }
+    
+    // or more Kotlin-styled
+    when (result) {
+        is SWRResult.Success -> Text(text = result.data)
+        is SWRResult.Loading -> Text("Loading")
+        else -> Text(text = "Failed to load")
+    }
 }
 ```
