@@ -7,7 +7,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import dev.burnoo.compose.swr.SWRResult
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
@@ -27,19 +26,24 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val result by useSWR(key = "example.com/api", fetcher = { url -> NetworkClient.getData(url) })
+    val resultState = useSWR(
+        key = "example.com/api",
+        fetcher = { url -> NetworkClient.getData(url) }
+    )
+    val result = resultState.value
 
-    // Ported from React SWR
+    // ported from React SWR
     val (data, exception) = result
     when {
         exception != null -> Text(text = "Failed to load")
         data != null -> Text(text = data)
         else -> Text(text = "Loading")
     }
-    // OR more Kotlin-styled
-    when {
-        result is SWRResult.Success -> Text(text = "Failed to load")
-        result is SWRResult.Loading -> Text("Loading")
+
+    // or more Kotlin-styled
+    when (result) {
+        is SWRResult.Success -> Text(text = result.data)
+        is SWRResult.Loading -> Text("Loading")
         else -> Text(text = "Failed to load")
     }
 }
