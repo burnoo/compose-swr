@@ -7,9 +7,11 @@ Still working, but you can take a sneak peak:
 - [Usage](https://github.com/burnoo/compose-swr/blob/main/sample/src/main/java/dev/burnoo/compose/swr/sample/MainActivity.kt)
 
 ## TODO
-- config (polling on interval, smart error retry etc.)
+- configurarion (polling on interval, smart error retry etc.)
 - add Ktor fetcher module
+- global conifg
 - publish to MavenCentral
+- add multiplatform support
 
 ## Already implemented in [4f4e37cb](https://github.com/burnoo/compose-swr/commit/4f4e37cb9fff9da1c811fda340da27873b1e4ff2):
 ```kotlin
