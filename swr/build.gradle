@@ -8,14 +8,12 @@ plugins {
 apply from: 'maven-publishing.gradle'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 1
-        versionName lib_version
+        targetSdkVersion 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -42,5 +40,4 @@ android {
 dependencies {
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
-    implementation "androidx.datastore:datastore-preferences:$datastore_version"
 }
