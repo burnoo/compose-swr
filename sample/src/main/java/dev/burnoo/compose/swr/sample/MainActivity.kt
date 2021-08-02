@@ -44,6 +44,6 @@ fun App() {
     when (result) {
         is SWRResult.Success -> Text(text = result.data)
         is SWRResult.Loading -> Text("Loading")
-        else -> Text(text = "Failed to load")
+        is SWRResult.Error -> Text(text = "Failed to load")
     }
 }
