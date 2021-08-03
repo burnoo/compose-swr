@@ -8,18 +8,21 @@ Still working, but you can take a sneak peak:
 
 ## TODO
 - configurarion (polling on interval, smart error retry etc.)
-- add Ktor fetcher module
 - global conifg
 - publish to MavenCentral
 - add multiplatform support
 
 ## Already implemented in [4f4e37cb](https://github.com/burnoo/compose-swr/commit/4f4e37cb9fff9da1c811fda340da27873b1e4ff2):
 ```kotlin
+@Serializable
+data class IpResponse(val ip: String)
+
 @Composable
 fun App() {
-    val resultState = useSWR(
-        key = "example.com/api",
-        fetcher = { url -> NetworkClient.getData(url) }
+    val client = get<HttpClient>() // Using Koin for Jetpack Compose
+    val resultState = useSWR<String, IpResponse>(
+        key = "https://api.ipify.org?format=json",
+        fetcher = { client.request(it) }
     )
     val result = resultState.value
 
@@ -27,13 +30,13 @@ fun App() {
     val (data, exception) = result
     when {
         exception != null -> Text(text = "Failed to load")
-        data != null -> Text(text = data)
+        data != null -> Text(text = data.ip)
         else -> Text(text = "Loading")
     }
-    
+
     // or more Kotlin-styled
     when (result) {
-        is SWRResult.Success -> Text(text = result.data)
+        is SWRResult.Success -> Text(text = result.data.ip)
         is SWRResult.Loading -> Text("Loading")
         is SWRResult.Error -> Text(text = "Failed to load")
     }

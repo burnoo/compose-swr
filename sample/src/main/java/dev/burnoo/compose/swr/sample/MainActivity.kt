@@ -10,9 +10,10 @@ import androidx.compose.runtime.Composable
 import dev.burnoo.compose.swr.SWRResult
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
-import dev.burnoo.swr.ktor.swrKtorJsonClient
+import io.ktor.client.*
 import io.ktor.client.request.*
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.get
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,34 +21,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    KtorApp()
+                    App()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun App() {
-    val resultState = useSWR(
-        key = "example.com/api",
-        fetcher = { url -> NetworkClient.getData(url) }
-    )
-    val result = resultState.value
-
-    // ported from React SWR
-    val (data, exception) = result
-    when {
-        exception != null -> Text(text = "Failed to load")
-        data != null -> Text(text = data)
-        else -> Text(text = "Loading")
-    }
-
-    // or more Kotlin-styled
-    when (result) {
-        is SWRResult.Success -> Text(text = result.data)
-        is SWRResult.Loading -> Text("Loading")
-        is SWRResult.Error -> Text(text = "Failed to load")
     }
 }
 
@@ -55,14 +32,24 @@ fun App() {
 data class IpResponse(val ip: String)
 
 @Composable
-fun KtorApp() {
-    val client = swrKtorJsonClient()
+fun App() {
+    val client = get<HttpClient>() // Using Koin for Jetpack Compose
     val resultState = useSWR<String, IpResponse>(
         key = "https://api.ipify.org?format=json",
         fetcher = { client.request(it) }
     )
+    val result = resultState.value
 
-    when (val result = resultState.value) {
+    // ported from React SWR
+    val (data, exception) = result
+    when {
+        exception != null -> Text(text = "Failed to load")
+        data != null -> Text(text = data.ip)
+        else -> Text(text = "Loading")
+    }
+
+    // or more Kotlin-styled
+    when (result) {
         is SWRResult.Success -> Text(text = result.data.ip)
         is SWRResult.Loading -> Text("Loading")
         is SWRResult.Error -> Text(text = "Failed to load")
