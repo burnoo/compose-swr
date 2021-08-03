@@ -1,8 +1,6 @@
 package dev.burnoo.compose.swr
 
-import androidx.lifecycle.ViewModel
-
-internal class SWR : ViewModel() {
+internal class SWR {
 
     private val cacheMap = mapOf<Any, Any>()
 
