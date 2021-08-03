@@ -10,12 +10,14 @@ fun <K : Any, D> useSWR(
     key: K,
     fetcher: suspend (K) -> D,
 ): State<SWRResult<D>> {
-    val swr: SWR = get()
+    val swr = get<SWR>()
     val cachedData = swr.getFromCache<D>(key)
     val initialResult = cachedData?.let { Success(cachedData) } ?: Loading
     return produceState<SWRResult<D>>(initialResult, key) {
         value = try {
-            Success(fetcher(key))
+            val data = fetcher(key)
+            swr.saveToCache(key, data)
+            Success(data)
         } catch (e: Exception) {
             Error(e)
         }
