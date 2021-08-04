@@ -12,7 +12,7 @@ Still working, but you can take a sneak peak:
 - publish to MavenCentral
 - add multiplatform support
 
-## Already implemented in [4f4e37cb](https://github.com/burnoo/compose-swr/commit/4f4e37cb9fff9da1c811fda340da27873b1e4ff2):
+## Already implemented:
 ```kotlin
 @Serializable
 data class IpResponse(val ip: String)
@@ -37,6 +37,18 @@ fun App() {
     // or more Kotlin-styled
     when (result) {
         is SWRResult.Success -> Text(text = result.data.ip)
+        is SWRResult.Loading -> Text("Loading")
+        is SWRResult.Error -> Text(text = "Failed to load")
+    }
+}
+```
+Or even simpler with `swr-ktor`
+```kotlin
+@Composable
+fun KtorApp() {
+    val result by useSWRKtor<IpResponse>(url = "https://api.ipify.org?format=json")
+    when(result) {
+        is SWRResult.Success -> Text(text = result.requireData().ip)
         is SWRResult.Loading -> Text("Loading")
         is SWRResult.Error -> Text(text = "Failed to load")
     }

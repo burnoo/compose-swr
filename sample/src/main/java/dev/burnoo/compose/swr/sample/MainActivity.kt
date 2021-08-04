@@ -7,9 +7,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import dev.burnoo.compose.swr.SWRResult
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
+import dev.burnoo.swr.ktor.useSWRKtor
 import io.ktor.client.*
 import io.ktor.client.request.*
 import kotlinx.serialization.Serializable
@@ -51,6 +54,16 @@ fun App() {
     // or more Kotlin-styled
     when (result) {
         is SWRResult.Success -> Text(text = result.data.ip)
+        is SWRResult.Loading -> Text("Loading")
+        is SWRResult.Error -> Text(text = "Failed to load")
+    }
+}
+
+@Composable
+fun KtorApp() {
+    val result by useSWRKtor<IpResponse>(url = "https://api.ipify.org?format=json")
+    when(result) {
+        is SWRResult.Success -> Text(text = result.requireData().ip)
         is SWRResult.Loading -> Text("Loading")
         is SWRResult.Error -> Text(text = "Failed to load")
     }
