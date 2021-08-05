@@ -6,7 +6,7 @@ import org.koin.dsl.module
 
 internal object KoinContext {
     private val module = module {
-        single { SWR() }
+        single { Cache() }
     }
 
     val koinApp = koinApplication {

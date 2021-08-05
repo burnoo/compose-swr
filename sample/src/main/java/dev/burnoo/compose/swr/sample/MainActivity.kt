@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    App()
+                    KtorApp()
                 }
             }
         }
@@ -59,12 +59,27 @@ fun App() {
     }
 }
 
+@Serializable
+data class RandomUserResponse(
+    val results: List<Person>
+) {
+    @Serializable
+    data class Person(val email: String)
+
+    val firstEmail = results[0].email
+}
+
 @Composable
 fun KtorApp() {
-    val result by useSWRKtor<IpResponse>(url = "https://api.ipify.org?format=json")
-    when(result) {
-        is SWRResult.Success -> Text(text = result.requireData().ip)
+    val resultState =  useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
+        refreshInterval = 5000L
+    }
+    when(val result = resultState.value) {
+        is SWRResult.Success -> Text(text = result.data.firstEmail)
         is SWRResult.Loading -> Text("Loading")
-        is SWRResult.Error -> Text(text = "Failed to load")
+        is SWRResult.Error -> {
+            result.exception.printStackTrace()
+            Text(text = "Failed to load")
+        }
     }
 }

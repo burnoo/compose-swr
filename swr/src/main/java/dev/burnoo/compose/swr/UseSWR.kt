@@ -3,23 +3,18 @@ package dev.burnoo.compose.swr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
-import dev.burnoo.compose.swr.SWRResult.*
 
 @Composable
-fun <K : Any, D> useSWR(
+fun <K, D> useSWR(
     key: K,
     fetcher: suspend (K) -> D,
+    configBlock: SWRConfig<D>.() -> Unit = {}
 ): State<SWRResult<D>> {
-    val swr = get<SWR>()
-    val cachedData = swr.getFromCache<D>(key)
-    val initialResult = cachedData?.let { Success(cachedData) } ?: Loading
-    return produceState<SWRResult<D>>(initialResult, key) {
-        value = try {
-            val data = fetcher(key)
-            swr.saveToCache(key, data)
-            Success(data)
-        } catch (e: Exception) {
-            Error(e)
-        }
-    }
+    val swr = SWR(
+        cache = get(),
+        key = key,
+        fetcher = fetcher,
+        config = SWRConfig<D>().apply(configBlock)
+    )
+    return produceState(swr.getInitialResult(), key, swr::producer)
 }

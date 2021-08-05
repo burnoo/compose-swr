@@ -10,4 +10,6 @@ sealed class SWRResult<out T> {
     operator fun component2() = if (this is Error) exception else null
 
     fun requireData() = (this as Success<T>).data
+
+    fun requireException() = (this as Error).exception
 }
