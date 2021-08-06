@@ -11,8 +11,8 @@ import io.ktor.client.request.*
 @Composable
 inline fun <reified D> useSWRKtor(
     url: String,
-    noinline configBlock: SWRConfig<D>.() -> Unit = {}
+    noinline config: SWRConfig<String, D>.() -> Unit = {}
 ): State<SWRResult<D>> {
     val client = get<HttpClient>()
-    return useSWR(key = url, fetcher = { client.request(it) }, configBlock = configBlock)
+    return useSWR(key = url, fetcher = { client.request(it) }, config = config)
 }

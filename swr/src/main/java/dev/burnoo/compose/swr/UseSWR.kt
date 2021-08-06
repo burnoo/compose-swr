@@ -8,13 +8,13 @@ import androidx.compose.runtime.produceState
 fun <K, D> useSWR(
     key: K,
     fetcher: suspend (K) -> D,
-    configBlock: SWRConfig<D>.() -> Unit = {}
+    config: SWRConfig<K, D>.() -> Unit = {}
 ): State<SWRResult<D>> {
     val swr = SWR(
         cache = get(),
         key = key,
         fetcher = fetcher,
-        config = SWRConfig<D>().apply(configBlock)
+        config = SWRConfig<K, D>().apply(config)
     )
     return produceState(swr.getInitialResult(), key, swr::producer)
 }
