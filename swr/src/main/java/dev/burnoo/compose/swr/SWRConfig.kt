@@ -9,5 +9,5 @@ class SWRConfig<K, D> {
     var errorRetryInterval = 5000L
 
     var loadingTimeout = 3000L
-    var onSlowLoading: ((K, SWRConfig<K, D>) -> Unit)? = null
+    var onLoadingSlow: ((K, SWRConfig<K, D>) -> Unit)? = null
 }

@@ -50,7 +50,7 @@ internal class SWR<K, D>(
     private suspend fun <T> withSlowLoadingTimeout(getResult: suspend () -> SWRResult<T>): SWRResult<T> {
         val loadingTimeoutJob = scope.launch {
             delay(config.loadingTimeout)
-            config.onSlowLoading?.invoke(key, config)
+            config.onLoadingSlow?.invoke(key, config)
         }
         return getResult().also { loadingTimeoutJob.cancel() }
     }
