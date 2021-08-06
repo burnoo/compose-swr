@@ -1,6 +1,7 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.ProduceStateScope
+import dev.burnoo.compose.swr.SWRResult.Error
 import dev.burnoo.compose.swr.SWRResult.Loading
 import dev.burnoo.compose.swr.SWRResult.Success
 import kotlinx.coroutines.CoroutineScope
@@ -30,24 +31,27 @@ internal class SWR<K, D>(
         withRetrying {
             withSlowLoadingTimeout {
                 fetchAndCacheResult()
-            }.also { value = it }
+            }.also { result ->
+                handleCallbacks(result)
+                value = result
+            }
         }
     }
 
-    private suspend fun <T> withRetrying(getResult: suspend () -> SWRResult<T?>) {
+    private suspend fun withRetrying(getResult: suspend () -> SWRResult<D>) {
         while (true) {
             val result = getResult()
             when {
                 result is Success && config.refreshInterval <= 0L -> break
                 result is Success -> delay(config.refreshInterval)
-                result is SWRResult.Error && config.shouldRetryOnError ->
+                result is Error && config.shouldRetryOnError ->
                     delay(config.errorRetryInterval)
                 else -> break
             }
         }
     }
 
-    private suspend fun <T> withSlowLoadingTimeout(getResult: suspend () -> SWRResult<T>): SWRResult<T> {
+    private suspend fun withSlowLoadingTimeout(getResult: suspend () -> SWRResult<D>): SWRResult<D> {
         val loadingTimeoutJob = scope.launch {
             delay(config.loadingTimeout)
             config.onLoadingSlow?.invoke(key, config)
@@ -60,6 +64,14 @@ internal class SWR<K, D>(
         cache[key] = data
         Success(data)
     } catch (e: Exception) {
-        SWRResult.Error(e)
+        Error(e)
+    }
+
+    private fun handleCallbacks(result: SWRResult<D>) {
+        when (result) {
+            is Success -> config.onSuccess?.invoke(result.data, key, config)
+            is Error -> config.onError?.invoke(result.exception, key, config)
+            else -> Unit
+        }
     }
 }
