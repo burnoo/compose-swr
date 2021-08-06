@@ -39,7 +39,8 @@ internal class SWR<K, D>(
     }
 
     private suspend fun withRetrying(getResult: suspend () -> SWRResult<D>) {
-        while (true) {
+        var retryCount = 0
+        while (config.errorRetryCount <= 0 || retryCount <= config.errorRetryCount) {
             val result = getResult()
             when {
                 result is Success && config.refreshInterval <= 0L -> break
@@ -48,6 +49,7 @@ internal class SWR<K, D>(
                     delay(config.errorRetryInterval)
                 else -> break
             }
+            retryCount++
         }
     }
 
