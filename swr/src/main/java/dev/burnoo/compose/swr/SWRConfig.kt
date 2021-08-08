@@ -14,4 +14,6 @@ class SWRConfig<K, D> {
 
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onError: ((error: Exception, key : K, config: SWRConfig<K, D>) -> Unit)? = null
+
+    var dedupingInterval = 2000L
 }

@@ -3,18 +3,22 @@ package dev.burnoo.compose.swr.sample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import dev.burnoo.compose.swr.SWRResult
+import dev.burnoo.compose.swr.mutate
+import dev.burnoo.compose.swr.reactiveUseSWR
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
 import dev.burnoo.swr.ktor.useSWRKtor
 import io.ktor.client.*
 import io.ktor.client.request.*
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.get
 
@@ -24,7 +28,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    KtorApp()
+                    ReactiveApp()
                 }
             }
         }
@@ -59,6 +63,32 @@ fun App() {
     }
 }
 
+@Composable
+fun ReactiveApp() {
+    val client = get<HttpClient>() // Using Koin for Jetpack Compose
+    val resultState = reactiveUseSWR<String, RandomUserResponse>(
+        key = "https://randomuser.me/api/",
+        fetcher = { client.request(it) }
+    )
+    val result = resultState.value
+    val scope = rememberCoroutineScope()
+
+    Column {
+        when (result) {
+            is SWRResult.Success -> Text(text = result.data.firstEmail)
+            is SWRResult.Loading -> Text("Loading")
+            is SWRResult.Error -> Text(text = "Failed to load")
+        }
+        Button(onClick = {
+            scope.launch {
+                mutate(key = "https://randomuser.me/api/")
+            }
+        }) {
+            Text("Mutate")
+        }
+    }
+}
+
 @Serializable
 data class RandomUserResponse(
     val results: List<Person>
@@ -71,10 +101,10 @@ data class RandomUserResponse(
 
 @Composable
 fun KtorApp() {
-    val resultState =  useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
+    val resultState = useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
         refreshInterval = 5000L
     }
-    when(val result = resultState.value) {
+    when (val result = resultState.value) {
         is SWRResult.Success -> Text(text = result.data.firstEmail)
         is SWRResult.Loading -> Text("Loading")
         is SWRResult.Error -> {

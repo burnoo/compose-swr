@@ -1,13 +1,15 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.ProduceStateScope
-import dev.burnoo.compose.swr.SWRResult.Error
-import dev.burnoo.compose.swr.SWRResult.Loading
-import dev.burnoo.compose.swr.SWRResult.Success
+import dev.burnoo.compose.swr.SWRResult.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 internal class SWR<K, D>(
     private val cache: Cache,
@@ -75,5 +77,34 @@ internal class SWR<K, D>(
             is Error -> config.onError?.invoke(result.exception, key, config)
             else -> Unit
         }
+    }
+}
+
+internal class Revalidator<K>(
+    reactiveCache: ReactiveCache,
+    private val key: K
+) {
+    private val stateFlow = reactiveCache.getOrCreateStateFlow<K, Any>(key)
+    private val fetchUsage = reactiveCache.getFetchUsage<K, Any>(key)
+    private val config = reactiveCache.getConfig<K, Any>(key)
+
+    suspend fun revalidate() {
+        if (shouldRevalidate(fetchUsage.usageTimeInstant)) {
+            stateFlow.value = fetchResult(fetchUsage.fetcher)
+        }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    private fun shouldRevalidate(usageTimeInstant: Instant): Boolean {
+        val lastUsageAgo = Clock.System.now() - usageTimeInstant
+        val dedupingDuration = Duration.milliseconds(config.dedupingInterval)
+        return lastUsageAgo > dedupingDuration
+    }
+
+    private suspend fun fetchResult(fetcher: suspend (K) -> Any) = try {
+        val data = fetcher(key)
+        Success(data)
+    } catch (e: Exception) {
+        Error(e)
     }
 }
