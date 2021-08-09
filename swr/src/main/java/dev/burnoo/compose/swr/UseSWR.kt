@@ -8,32 +8,13 @@ fun <K, D> useSWR(
     fetcher: suspend (K) -> D,
     config: SWRConfig<K, D>.() -> Unit = {}
 ): State<SWRResult<D>> {
-    val swr = SWR(
-        cache = get(),
-        key = key,
-        fetcher = fetcher,
-        config = SWRConfig<K, D>().apply(config)
-    )
-    return produceState(swr.getInitialResult(), key, swr::producer)
-}
-
-@Composable
-fun <K, D> reactiveUseSWR(
-    key: K,
-    fetcher: suspend (K) -> D,
-    config: SWRConfig<K, D>.() -> Unit = {}
-): State<SWRResult<D>> {
-    val reactiveCache = get<ReactiveCache>()
-    reactiveCache.initIfNeeded(key, fetcher, SWRConfig<K, D>().apply(config))
+    val scope = rememberCoroutineScope()
+    val cache = get<Cache>()
+    val swrConfig = SWRConfig<K, D>().apply(config)
+    cache.initForKeyIfNeeded(key, fetcher, swrConfig)
     LaunchedEffect(key) {
-        Revalidator(reactiveCache, key).revalidate()
+        Revalidator(cache, key, scope).revalidate()
+        get<Refresher>().handleRefreshing(key, swrConfig.refreshInterval)
     }
-    return reactiveCache.getOrCreateStateFlow<K, D>(key).collectAsState()
-}
-
-suspend fun <K> mutate(key: K) {
-    Revalidator(
-        reactiveCache = get(),
-        key = key
-    ).revalidate()
+    return cache.getOrCreateStateFlow<K, D>(key).collectAsState()
 }

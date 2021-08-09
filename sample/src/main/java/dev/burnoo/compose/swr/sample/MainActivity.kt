@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import dev.burnoo.compose.swr.SWRResult
 import dev.burnoo.compose.swr.mutate
-import dev.burnoo.compose.swr.reactiveUseSWR
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
 import dev.burnoo.swr.ktor.useSWRKtor
@@ -28,7 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    ReactiveApp()
+                    MutationApp()
                 }
             }
         }
@@ -64,9 +63,9 @@ fun App() {
 }
 
 @Composable
-fun ReactiveApp() {
+fun MutationApp() {
     val client = get<HttpClient>() // Using Koin for Jetpack Compose
-    val resultState = reactiveUseSWR<String, RandomUserResponse>(
+    val resultState = useSWR<String, RandomUserResponse>(
         key = "https://randomuser.me/api/",
         fetcher = { client.request(it) }
     )
