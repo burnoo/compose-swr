@@ -13,7 +13,7 @@ fun <K, D> useSWR(
 ): State<SWRResult<D>> {
     val now = get<Now>()
     val cache = get<Cache>()
-    val swrConfig = SWRConfig<K, D>().apply(config)
+    val swrConfig = SWRConfig(block = config)
     cache.initForKeyIfNeeded(key, fetcher, swrConfig)
     LaunchedEffect(key) {
         val scope = get<RecomposeCoroutineScope>().scope ?: this

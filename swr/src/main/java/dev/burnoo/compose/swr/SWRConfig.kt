@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr
 
-class SWRConfig<K, D> {
+class SWRConfig<K, D>(block: SWRConfig<K, D>.() -> Unit = {}) {
 
     var initialData: D? = null
 
@@ -16,4 +16,8 @@ class SWRConfig<K, D> {
 
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onError: ((error: Exception, key : K, config: SWRConfig<K, D>) -> Unit)? = null
+
+    init {
+        apply(block)
+    }
 }
