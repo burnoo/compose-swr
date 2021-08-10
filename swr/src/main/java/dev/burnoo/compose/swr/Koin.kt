@@ -8,7 +8,7 @@ import org.koin.core.qualifier.qualifier
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
-internal enum class ScopeQualifiers {
+internal enum class CoroutineQualifiers {
     Refresher, Revalidator
 }
 
@@ -16,8 +16,8 @@ data class RecomposeCoroutineScope(val scope: CoroutineScope? = null)
 
 internal object KoinContext {
     private val testableModule = module {
-        factory(qualifier(ScopeQualifiers.Refresher)) { CoroutineScope(Dispatchers.Default) }
-        factory(qualifier(ScopeQualifiers.Revalidator)) { CoroutineScope(Dispatchers.Default) }
+        factory(CoroutineQualifiers.Refresher.qualifier) { CoroutineScope(Dispatchers.Default) }
+        factory(CoroutineQualifiers.Revalidator.qualifier) { CoroutineScope(Dispatchers.Default) }
         factory { RecomposeCoroutineScope() }
         factory { Now { Clock.System.now() } }
     }
@@ -28,8 +28,8 @@ internal object KoinContext {
             Refresher(
                 cache = get(),
                 now = get(),
-                refresherScope = get(qualifier(ScopeQualifiers.Refresher)),
-                revalidatorScope = get(qualifier(ScopeQualifiers.Revalidator))
+                refresherScope = get(CoroutineQualifiers.Refresher.qualifier),
+                revalidatorScope = get(CoroutineQualifiers.Revalidator.qualifier)
             )
         }
     }

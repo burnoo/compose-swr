@@ -5,6 +5,10 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
+import dev.burnoo.compose.swr.utils.FailingFetcher
+import dev.burnoo.compose.swr.utils.StringFetcher
+import dev.burnoo.compose.swr.utils.TestNow
+import dev.burnoo.compose.swr.utils.testKoinApplication
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking

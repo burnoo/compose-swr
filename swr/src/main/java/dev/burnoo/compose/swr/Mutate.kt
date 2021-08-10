@@ -7,6 +7,6 @@ fun <K> mutate(key: K) {
         cache = get(),
         now = get(),
         key = key,
-        scope = get(qualifier(ScopeQualifiers.Revalidator))
+        scope = get(CoroutineQualifiers.Revalidator.qualifier)
     ).revalidate(forced = true)
 }

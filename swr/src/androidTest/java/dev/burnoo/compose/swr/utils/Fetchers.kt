@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.utils
 
 import kotlinx.coroutines.delay
 

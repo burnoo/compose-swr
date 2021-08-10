@@ -9,11 +9,11 @@ class SWRConfig<K, D> {
     var errorRetryInterval = 5000L
     var errorRetryCount = 0
 
+    var dedupingInterval = 2000L
+
     var loadingTimeout = 3000L
     var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onError: ((error: Exception, key : K, config: SWRConfig<K, D>) -> Unit)? = null
-
-    var dedupingInterval = 2000L
 }
