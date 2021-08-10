@@ -5,10 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
-import dev.burnoo.compose.swr.utils.FailingFetcher
-import dev.burnoo.compose.swr.utils.StringFetcher
-import dev.burnoo.compose.swr.utils.TestNow
-import dev.burnoo.compose.swr.utils.testKoinApplication
+import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -127,6 +124,23 @@ class UseSWRTest {
         recomposeCoroutineScope.advanceTimeBy(3100)
         assertEquals(4, failingFetcher.failCount)
         assertText("Failure")
+    }
+
+    @Test
+    fun onLoadingSlow() {
+        val onLoadingSlow = OnLoadingSlow()
+        val slowFetcher = StringFetcher(delay = 10_000L)
+        val config: SWRConfig<String, String>.() -> Unit = {
+            this.onLoadingSlow = onLoadingSlow::invoke
+            loadingTimeout = 2000L
+        }
+        setContent(config, slowFetcher::fetch)
+
+        assertEquals(0, onLoadingSlow.invocations.size)
+
+        recomposeCoroutineScope.advanceTimeBy(2000L)
+        assertEquals(key, onLoadingSlow.invocations[0].key)
+        assertEquals(2000L, onLoadingSlow.invocations[0].config.loadingTimeout)
     }
 
     private fun setContent(

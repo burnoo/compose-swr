@@ -2,11 +2,11 @@ package dev.burnoo.compose.swr.utils
 
 import kotlinx.coroutines.delay
 
-class StringFetcher {
+class StringFetcher(private val delay: Long = 100L) {
     private var counter = 1
 
     suspend fun fetch(key: String): String {
-        delay(100);
+        delay(delay);
         return "$key${counter++}"
     }
 }
