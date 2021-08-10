@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
+import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -25,7 +26,7 @@ class UseSWRTest {
     private val recomposeCoroutineScope = TestCoroutineScope()
     private val testNow = TestNow()
 
-    private val fetcher = Fetcher()
+    private val stringFetcher = StringFetcher()
 
     @Before
     fun setUp() {
@@ -94,9 +95,42 @@ class UseSWRTest {
         assertTextRevalidated(2)
     }
 
-    private fun setContent(config: SWRConfig<String, String>.() -> Unit = {}) {
+    @Test
+    fun retryFailing() {
+        val failingFetcher = FailingFetcher()
+        setContent(config = {
+            errorRetryInterval = 3000
+            errorRetryCount = 3
+        }, fetcher = failingFetcher::fetch)
+        assertText("Loading")
+
+        recomposeCoroutineScope.advanceTimeBy(100)
+        assertEquals(1, failingFetcher.failCount)
+        assertText("Loading")
+
+        recomposeCoroutineScope.advanceTimeBy(2000)
+        assertEquals(1, failingFetcher.failCount)
+        assertText("Loading")
+
+        recomposeCoroutineScope.advanceTimeBy(1100)
+        assertEquals(2, failingFetcher.failCount)
+        assertText("Loading")
+
+        recomposeCoroutineScope.advanceTimeBy(3100)
+        assertEquals(3, failingFetcher.failCount)
+        assertText("Loading")
+
+        recomposeCoroutineScope.advanceTimeBy(3100)
+        assertEquals(4, failingFetcher.failCount)
+        assertText("Failure")
+    }
+
+    private fun setContent(
+        config: SWRConfig<String, String>.() -> Unit = {},
+        fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }
+    ) {
         composeTestRule.setContent {
-            val resultState = useSWR(key = key, fetcher = fetcher::fetch, config = config)
+            val resultState = useSWR(key = key, fetcher = fetcher, config = config)
             when (val result = resultState.value) {
                 is SWRResult.Loading -> Text("Loading")
                 is SWRResult.Success -> Text(result.data)
