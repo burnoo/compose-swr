@@ -22,21 +22,14 @@ class UseSWRTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val refresherCoroutineScope = TestCoroutineScope()
-    private val revalidatorCoroutineScope = TestCoroutineScope()
-    private val recomposeCoroutineScope = TestCoroutineScope()
+    private val testCoroutineScope = TestCoroutineScope()
     private val testNow = TestNow()
 
     private val stringFetcher = StringFetcher()
 
     @Before
     fun setUp() {
-        KoinContext.koinApp = testKoinApplication(
-            refresherCoroutineScope,
-            revalidatorCoroutineScope,
-            recomposeCoroutineScope,
-            testNow
-        )
+        KoinContext.koinApp = testKoinApplication(testCoroutineScope, testNow)
     }
 
     @Test
@@ -56,22 +49,22 @@ class UseSWRTest {
     @Test
     fun showSuccess() = runBlockingTest {
         setContent()
-        recomposeCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
     }
 
     @Test
     fun mutate() = runBlockingTest {
         setContent()
-        recomposeCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
 
         mutate("k")
-        revalidatorCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(2)
 
         mutate("k")
-        revalidatorCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(3)
     }
 
@@ -80,19 +73,17 @@ class UseSWRTest {
         setContent(config = {
             refreshInterval = 1000L
         })
-        recomposeCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceTimeBy(200L)
         assertTextRevalidated(1)
 
-        refresherCoroutineScope.advanceTimeBy(700L)
+        testCoroutineScope.advanceTimeBy(700L)
         assertTextRevalidated(1)
 
-        refresherCoroutineScope.advanceTimeBy(700L)
-        revalidatorCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceTimeBy(700L)
         assertTextRevalidated(1)
 
         testNow.advanceTimeBy(4000L) // To skip deduping
-        refresherCoroutineScope.advanceTimeBy(700L)
-        revalidatorCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceTimeBy(700L)
         assertTextRevalidated(2)
     }
 
@@ -105,23 +96,23 @@ class UseSWRTest {
         }, fetcher = failingFetcher::fetch)
         assertText("Loading")
 
-        recomposeCoroutineScope.advanceTimeBy(100)
+        testCoroutineScope.advanceTimeBy(100)
         assertEquals(1, failingFetcher.failCount)
         assertText("Loading")
 
-        recomposeCoroutineScope.advanceTimeBy(2000)
+        testCoroutineScope.advanceTimeBy(2000)
         assertEquals(1, failingFetcher.failCount)
         assertText("Loading")
 
-        recomposeCoroutineScope.advanceTimeBy(1100)
+        testCoroutineScope.advanceTimeBy(1100)
         assertEquals(2, failingFetcher.failCount)
         assertText("Loading")
 
-        recomposeCoroutineScope.advanceTimeBy(3100)
+        testCoroutineScope.advanceTimeBy(3100)
         assertEquals(3, failingFetcher.failCount)
         assertText("Loading")
 
-        recomposeCoroutineScope.advanceTimeBy(3100)
+        testCoroutineScope.advanceTimeBy(3100)
         assertEquals(4, failingFetcher.failCount)
         assertText("Failure")
     }
@@ -138,7 +129,7 @@ class UseSWRTest {
 
         assertEquals(0, onLoadingSlow.invocations.size)
 
-        recomposeCoroutineScope.advanceTimeBy(2000L)
+        testCoroutineScope.advanceTimeBy(2000L)
         assertEquals(key, onLoadingSlow.invocations[0].key)
         assertEquals(2000L, onLoadingSlow.invocations[0].config.loadingTimeout)
     }
@@ -152,7 +143,7 @@ class UseSWRTest {
 
         assertEquals(0, onSuccess.invocations.size)
 
-        recomposeCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceUntilIdle()
         assertEquals(key, onSuccess.invocations[0].key)
         assertEquals("${key}1", onSuccess.invocations[0].data)
         assertEquals(onSuccess::invoke, onSuccess.invocations[0].config.onSuccess)
@@ -170,7 +161,7 @@ class UseSWRTest {
 
         assertEquals(0, onError.invocations.size)
 
-        recomposeCoroutineScope.advanceUntilIdle()
+        testCoroutineScope.advanceUntilIdle()
         assertEquals(2, onError.invocations.size)
         assertEquals(key, onError.invocations[0].key)
         assertEquals(failingFetcher.exception, onError.invocations[0].error)
