@@ -44,6 +44,14 @@ class UseSWRTest {
     }
 
     @Test
+    fun initialData() {
+        setContent(config = {
+            initialData = "${key}0"
+        })
+        assertTextRevalidated(0)
+    }
+
+    @Test
     fun showSuccess() = runBlockingTest {
         setContent()
         recomposeCoroutineScope.advanceUntilIdle()
