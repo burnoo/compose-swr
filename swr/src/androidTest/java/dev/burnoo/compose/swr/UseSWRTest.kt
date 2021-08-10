@@ -158,6 +158,25 @@ class UseSWRTest {
         assertEquals(onSuccess::invoke, onSuccess.invocations[0].config.onSuccess)
     }
 
+    @Test
+    fun onError() {
+        val failingFetcher = FailingFetcher()
+        val onError = OnError()
+        setContent(config = {
+            this.onError = onError::invoke
+            errorRetryCount = 1
+            errorRetryInterval = 2000L
+        }, fetcher = failingFetcher::fetch)
+
+        assertEquals(0, onError.invocations.size)
+
+        recomposeCoroutineScope.advanceUntilIdle()
+        assertEquals(2, onError.invocations.size)
+        assertEquals(key, onError.invocations[0].key)
+        assertEquals(failingFetcher.exception, onError.invocations[0].error)
+        assertEquals(onError::invoke, onError.invocations[0].config.onError)
+    }
+
     private fun setContent(
         config: SWRConfig<String, String>.() -> Unit = {},
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }

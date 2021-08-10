@@ -12,11 +12,13 @@ class StringFetcher(private val delay: Long = 100L) {
 }
 
 class FailingFetcher {
+    val exception = Exception("Exception while fetching")
+
     var failCount = 0
 
     suspend fun fetch(key: String) : String {
         delay(100)
         failCount++
-        throw Exception("Exception while fetching $key")
+        throw exception
     }
 }
