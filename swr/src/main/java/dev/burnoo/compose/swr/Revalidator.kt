@@ -42,7 +42,7 @@ internal class Revalidator<K>(
         suspend fun rec(errorRetryCount: Int = 0): SWRResult<Any> {
             val result = getResult()
             return when {
-                result is Error && config.shouldRetryOnError && errorRetryCount < config.errorRetryCount -> {
+                result is Error && config.shouldRetryOnError && (config.errorRetryCount == 0 || errorRetryCount < config.errorRetryCount) -> {
                     delay(config.errorRetryInterval)
                     rec(errorRetryCount + 1)
                 }
