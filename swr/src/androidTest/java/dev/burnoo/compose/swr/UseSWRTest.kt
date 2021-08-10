@@ -143,6 +143,21 @@ class UseSWRTest {
         assertEquals(2000L, onLoadingSlow.invocations[0].config.loadingTimeout)
     }
 
+    @Test
+    fun onSuccess() {
+        val onSuccess = OnSuccess()
+        setContent(config = {
+            this.onSuccess = onSuccess::invoke
+        })
+
+        assertEquals(0, onSuccess.invocations.size)
+
+        recomposeCoroutineScope.advanceUntilIdle()
+        assertEquals(key, onSuccess.invocations[0].key)
+        assertEquals("${key}1", onSuccess.invocations[0].data)
+        assertEquals(onSuccess::invoke, onSuccess.invocations[0].config.onSuccess)
+    }
+
     private fun setContent(
         config: SWRConfig<String, String>.() -> Unit = {},
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }
