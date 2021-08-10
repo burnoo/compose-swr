@@ -1,7 +1,6 @@
 package dev.burnoo.compose.swr
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 internal data class FetchUsage<K, D>(
@@ -10,7 +9,7 @@ internal data class FetchUsage<K, D>(
 )
 
 @Suppress("UNCHECKED_CAST")
-internal class Cache {
+internal class Cache(val now: Now) {
     private val stateFlowCache = mutableMapOf<Any, MutableStateFlow<SWRResult<Any>>>()
     private val fetcherCache = mutableMapOf<Any, suspend (Any) -> Any>()
     private val usageTimeInstantCache = mutableMapOf<Any, Instant>()
@@ -56,6 +55,6 @@ internal class Cache {
     }
 
     fun <K> updateUsageTime(key: K) {
-        usageTimeInstantCache[key as Any] = Clock.System.now()
+        usageTimeInstantCache[key as Any] = now()
     }
 }

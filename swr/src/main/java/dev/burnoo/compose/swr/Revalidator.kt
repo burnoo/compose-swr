@@ -2,34 +2,38 @@ package dev.burnoo.compose.swr
 
 import dev.burnoo.compose.swr.SWRResult.Error
 import dev.burnoo.compose.swr.SWRResult.Success
-import kotlinx.coroutines.*
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 internal class Revalidator<K>(
     private val cache: Cache,
+    private val now: Now,
     private val key: K,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    private val scope: CoroutineScope
 ) {
     private val stateFlow = cache.getOrCreateStateFlow<K, Any>(key)
     private val fetchUsage = cache.getFetchUsage<K, Any>(key)
     private val config = cache.getConfig<K, Any>(key)
 
-    suspend fun revalidate(forced: Boolean = false) {
-        if (forced || shouldRevalidate()) {
-            stateFlow.value = withErrorRetrying {
-                cache.updateUsageTime(key)
-                withSlowLoadingTimeout {
-                    fetchResult { fetchUsage.fetcher(key) }
-                }.also(::handleCallbacks)
+    fun revalidate(forced: Boolean = false) {
+        scope.launch {
+            if (forced || shouldRevalidate()) {
+                stateFlow.value = withErrorRetrying {
+                    cache.updateUsageTime(key)
+                    withSlowLoadingTimeout {
+                        fetchResult { fetchUsage.fetcher(key) }
+                    }.also(::handleCallbacks)
+                }
             }
         }
     }
 
     @OptIn(ExperimentalTime::class)
     private fun shouldRevalidate(): Boolean {
-        val lastUsageAgo = Clock.System.now() - fetchUsage.usageTimeInstant
+        val lastUsageAgo = now() - fetchUsage.usageTimeInstant
         val dedupingDuration = Duration.milliseconds(config.dedupingInterval)
         return lastUsageAgo > dedupingDuration
     }

@@ -8,12 +8,12 @@ plugins {
 apply from: 'maven-publishing.gradle'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 30
     buildToolsVersion "31.0.0"
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 31
+        targetSdkVersion 30
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -38,6 +38,19 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
+        exclude("META-INF/*.kotlin_module")
+    }
 }
 
 kotlin.sourceSets.all {
@@ -48,4 +61,8 @@ dependencies {
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "io.insert-koin:koin-core:$koin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version"
+
+    androidTestImplementation "androidx.compose.material:material:$compose_version"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 }
