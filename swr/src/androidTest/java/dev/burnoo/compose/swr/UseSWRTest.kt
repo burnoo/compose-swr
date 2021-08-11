@@ -49,6 +49,7 @@ class UseSWRTest {
     @Test
     fun showSuccess() = runBlockingTest {
         setContent()
+        assertText("Loading")
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
     }
@@ -56,6 +57,8 @@ class UseSWRTest {
     @Test
     fun mutate() = runBlockingTest {
         setContent()
+        assertText("Loading")
+
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
 
@@ -72,18 +75,17 @@ class UseSWRTest {
     fun refreshDeduping() = runBlocking {
         setContent(config = {
             refreshInterval = 1000L
+            dedupingInterval = 2000L
         })
-        testCoroutineScope.advanceTimeBy(200L)
+        assertText("Loading")
+
+        advanceTimeBy(200L)
         assertTextRevalidated(1)
 
-        testCoroutineScope.advanceTimeBy(700L)
+        advanceTimeBy(1000L)
         assertTextRevalidated(1)
 
-        testCoroutineScope.advanceTimeBy(700L)
-        assertTextRevalidated(1)
-
-        testNow.advanceTimeBy(4000L) // To skip deduping
-        testCoroutineScope.advanceTimeBy(700L)
+        advanceTimeBy(1000L)
         assertTextRevalidated(2)
     }
 
@@ -126,10 +128,11 @@ class UseSWRTest {
             loadingTimeout = 2000L
         }
         setContent(config, slowFetcher::fetch)
-
+        assertText("Loading")
         assertEquals(0, onLoadingSlow.invocations.size)
 
         testCoroutineScope.advanceTimeBy(2000L)
+        assertText("Loading")
         assertEquals(key, onLoadingSlow.invocations[0].key)
         assertEquals(2000L, onLoadingSlow.invocations[0].config.loadingTimeout)
     }
@@ -140,10 +143,11 @@ class UseSWRTest {
         setContent(config = {
             this.onSuccess = onSuccess::invoke
         })
-
+        assertText("Loading")
         assertEquals(0, onSuccess.invocations.size)
 
         testCoroutineScope.advanceUntilIdle()
+        assertTextRevalidated(1)
         assertEquals(key, onSuccess.invocations[0].key)
         assertEquals("${key}1", onSuccess.invocations[0].data)
         assertEquals(onSuccess::invoke, onSuccess.invocations[0].config.onSuccess)
@@ -158,10 +162,11 @@ class UseSWRTest {
             errorRetryCount = 1
             errorRetryInterval = 2000L
         }, fetcher = failingFetcher::fetch)
-
+        assertText("Loading")
         assertEquals(0, onError.invocations.size)
 
         testCoroutineScope.advanceUntilIdle()
+        assertText("Failure")
         assertEquals(2, onError.invocations.size)
         assertEquals(key, onError.invocations[0].key)
         assertEquals(failingFetcher.exception, onError.invocations[0].error)
@@ -188,6 +193,11 @@ class UseSWRTest {
 
     private fun assertText(text: String) {
         composeTestRule.onNode(isRoot()).onChildAt(0).assertTextEquals(text)
+    }
+
+    private fun advanceTimeBy(durationMillis: Long) {
+        testNow.advanceTimeBy(durationMillis)
+        testCoroutineScope.advanceTimeBy(durationMillis)
     }
 }
 

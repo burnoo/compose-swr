@@ -9,7 +9,7 @@ internal data class FetchUsage<K, D>(
 )
 
 @Suppress("UNCHECKED_CAST")
-internal class Cache(val now: Now) {
+internal class Cache {
     private val stateFlowCache = mutableMapOf<Any, MutableStateFlow<SWRResult<Any>>>()
     private val fetcherCache = mutableMapOf<Any, suspend (Any) -> Any>()
     private val usageTimeInstantCache = mutableMapOf<Any, Instant>()
@@ -54,7 +54,7 @@ internal class Cache(val now: Now) {
         configCache[key as Any] = getConfig<K, D>(key).apply(config) as SWRConfig<Any, Any>
     }
 
-    fun <K> updateUsageTime(key: K) {
-        usageTimeInstantCache[key as Any] = now()
+    fun <K> updateUsageTime(key: K, now: Instant) {
+        usageTimeInstantCache[key as Any] = now
     }
 }

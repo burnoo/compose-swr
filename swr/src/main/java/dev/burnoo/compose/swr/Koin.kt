@@ -14,11 +14,11 @@ internal object KoinContext {
     private val testableModule = module {
         factory { CoroutineScope(Dispatchers.Default) }
         factory { RecomposeCoroutineScope() }
-        factory { Now { Clock.System.now() } }
+        single { Now { Clock.System.now() } }
     }
 
     fun getAppModule() = module {
-        single { Cache(now = get()) }
+        single { Cache() }
         single {
             Refresher(
                 cache = get(),

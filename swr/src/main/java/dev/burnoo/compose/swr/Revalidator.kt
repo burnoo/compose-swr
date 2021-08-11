@@ -22,7 +22,7 @@ internal class Revalidator<K>(
         scope.launch {
             if (forced || shouldRevalidate()) {
                 stateFlow.value = withErrorRetrying {
-                    cache.updateUsageTime(key)
+                    cache.updateUsageTime(key, now())
                     withSlowLoadingTimeout {
                         fetchResult { fetchUsage.fetcher(key) }
                     }.also(::handleCallbacks)
