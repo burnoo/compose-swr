@@ -11,6 +11,7 @@ import dev.burnoo.compose.swr.model.SWRResult
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -74,11 +75,11 @@ class UseSWRTest {
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
 
-        mutate("k")
+        testCoroutineScope.launch { mutate("k") }
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(2)
 
-        mutate("k")
+        testCoroutineScope.launch { mutate("k") }
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(3)
     }
@@ -98,7 +99,7 @@ class UseSWRTest {
         assertTextRevalidated(2)
 
         advanceTimeBy(1000L)
-        assertTextRevalidated(3)
+        assertTextRevalidated(2)
     }
 
     @Test
@@ -115,7 +116,7 @@ class UseSWRTest {
         advanceTimeBy(1000L)
         assertTextRevalidated(1)
 
-        advanceTimeBy(1000L)
+        advanceTimeBy(1100L)
         assertTextRevalidated(2)
     }
 
