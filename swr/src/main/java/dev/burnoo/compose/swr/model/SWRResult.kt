@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.model
 
 sealed class SWRResult<out T> {
     object Loading : SWRResult<Nothing>()

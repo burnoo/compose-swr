@@ -10,7 +10,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import dev.burnoo.compose.swr.SWRResult
+import dev.burnoo.compose.swr.model.SWRResult
 import dev.burnoo.compose.swr.mutate
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR

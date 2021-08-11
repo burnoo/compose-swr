@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.domain
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -8,15 +8,14 @@ import kotlinx.coroutines.launch
 internal class Refresher(
     private val cache: Cache,
     private val now: Now,
-    private val refresherScope: CoroutineScope,
-    private val revalidatorScope: CoroutineScope
+    private val scope: CoroutineScope
 ) {
     private val refresherMap = mutableMapOf<Any, Job>()
 
-    fun <K> handleRefreshing(key: K, newRefreshInterval: Long) {
-        val revalidator = Revalidator(cache, now, key, revalidatorScope)
-        val stateFlow = cache.getOrCreateStateFlow<K, Any>(key)
-        val config = cache.getConfig<K, Any>(key)
+    fun handleRefreshing(key: Any, newRefreshInterval: Long) {
+        val revalidator = Revalidator(cache, now, key, scope)
+        val stateFlow = cache.getOrCreateStateFlow<Any, Any>(key)
+        val config = cache.getConfig<Any, Any>(key)
 
         if (newRefreshInterval <= 0 && config.refreshInterval <= 0) return
         val refreshInterval = when {
@@ -24,9 +23,9 @@ internal class Refresher(
             newRefreshInterval <= 0 -> config.refreshInterval
             else -> minOf(newRefreshInterval, config.refreshInterval)
         }
-        cache.updateConfig<K, Any>(key, { this.refreshInterval = refreshInterval })
-        if (refresherMap[key as Any] != null) return
-        val refreshJob = refresherScope.launch {
+        cache.updateConfig<Any, Any>(key, { this.refreshInterval = refreshInterval })
+        if (refresherMap[key] != null) return
+        val refreshJob = scope.launch {
             while (true) {
                 delay(config.refreshInterval)
                 if (stateFlow.subscriptionCount.value > 0) {

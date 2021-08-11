@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr.utils
 
-import dev.burnoo.compose.swr.SWRConfig
+import dev.burnoo.compose.swr.model.SWRConfig
 
 class OnLoadingSlow {
     val invocations = mutableListOf<Args>()
@@ -25,7 +25,7 @@ class OnSuccess {
 class OnError {
     val invocations = mutableListOf<Args>()
 
-    operator fun invoke(error: Exception, key : String, config: SWRConfig<String, String>) {
+    operator fun invoke(error: Exception, key: String, config: SWRConfig<String, String>) {
         invocations.add(Args(error, key, config))
     }
 

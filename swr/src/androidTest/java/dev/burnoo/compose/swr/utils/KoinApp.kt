@@ -1,8 +1,8 @@
 package dev.burnoo.compose.swr.utils
 
-import dev.burnoo.compose.swr.KoinContext
-import dev.burnoo.compose.swr.Now
-import dev.burnoo.compose.swr.RecomposeCoroutineScope
+import dev.burnoo.compose.swr.di.KoinContext
+import dev.burnoo.compose.swr.domain.Now
+import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication

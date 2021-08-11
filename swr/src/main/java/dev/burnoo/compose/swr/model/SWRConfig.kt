@@ -1,6 +1,8 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.model
 
-class SWRConfig<K, D>(block: SWRConfig<K, D>.() -> Unit = {}) {
+typealias SWRConfigBlock<K, D> = SWRConfig<K, D>.() -> Unit
+
+class SWRConfig<K, D>(block: SWRConfigBlock<K, D> = {}) {
 
     var initialData: D? = null
 
@@ -15,7 +17,7 @@ class SWRConfig<K, D>(block: SWRConfig<K, D>.() -> Unit = {}) {
     var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
-    var onError: ((error: Exception, key : K, config: SWRConfig<K, D>) -> Unit)? = null
+    var onError: ((error: Exception, key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     init {
         apply(block)

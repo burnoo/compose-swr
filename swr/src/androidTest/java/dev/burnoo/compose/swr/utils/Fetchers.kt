@@ -16,7 +16,7 @@ class FailingFetcher {
 
     var failCount = 0
 
-    suspend fun fetch(key: String) : String {
+    suspend fun fetch(key: String): String {
         delay(100)
         failCount++
         throw exception

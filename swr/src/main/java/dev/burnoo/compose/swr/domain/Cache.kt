@@ -1,12 +1,10 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.domain
 
+import dev.burnoo.compose.swr.model.FetchUsage
+import dev.burnoo.compose.swr.model.SWRConfig
+import dev.burnoo.compose.swr.model.SWRResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Instant
-
-internal data class FetchUsage<K, D>(
-    val fetcher: suspend (K) -> D,
-    val usageTimeInstant: Instant
-)
 
 @Suppress("UNCHECKED_CAST")
 internal class Cache {

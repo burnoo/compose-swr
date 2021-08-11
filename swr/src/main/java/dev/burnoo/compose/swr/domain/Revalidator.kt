@@ -1,22 +1,23 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.domain
 
-import dev.burnoo.compose.swr.SWRResult.Error
-import dev.burnoo.compose.swr.SWRResult.Success
+import dev.burnoo.compose.swr.model.SWRResult
+import dev.burnoo.compose.swr.model.SWRResult.Error
+import dev.burnoo.compose.swr.model.SWRResult.Success
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
-internal class Revalidator<K>(
+internal class Revalidator(
     private val cache: Cache,
     private val now: Now,
-    private val key: K,
+    private val key: Any,
     private val scope: CoroutineScope
 ) {
-    private val stateFlow = cache.getOrCreateStateFlow<K, Any>(key)
-    private val fetchUsage = cache.getFetchUsage<K, Any>(key)
-    private val config = cache.getConfig<K, Any>(key)
+    private val stateFlow = cache.getOrCreateStateFlow<Any, Any>(key)
+    private val fetchUsage = cache.getFetchUsage<Any, Any>(key)
+    private val config = cache.getConfig<Any, Any>(key)
 
     fun revalidate(forced: Boolean = false) {
         scope.launch {

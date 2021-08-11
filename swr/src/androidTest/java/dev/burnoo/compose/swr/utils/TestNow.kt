@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr.utils
 
-import dev.burnoo.compose.swr.Now
+import dev.burnoo.compose.swr.domain.Now
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration

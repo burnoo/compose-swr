@@ -1,14 +1,13 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.di
 
+import dev.burnoo.compose.swr.domain.*
+import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import org.koin.core.qualifier.Qualifier
-import org.koin.core.qualifier.qualifier
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
-
-data class RecomposeCoroutineScope(val scope: CoroutineScope? = null)
 
 internal object KoinContext {
     private val testableModule = module {
@@ -23,8 +22,15 @@ internal object KoinContext {
             Refresher(
                 cache = get(),
                 now = get(),
-                refresherScope = get(),
-                revalidatorScope = get()
+                scope = get(),
+            )
+        }
+        single {
+            SWR(
+                cache = get(),
+                now = get(),
+                refresher = get(),
+                recomposeCoroutineScope = get()
             )
         }
     }
