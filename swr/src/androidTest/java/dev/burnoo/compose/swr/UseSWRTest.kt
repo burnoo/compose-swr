@@ -179,7 +179,6 @@ class UseSWRTest {
 
         testCoroutineScope.advanceUntilIdle()
         assertTextFailure()
-        assertEquals(2, onError.invocations.size)
         assertEquals(key, onError.invocations[0].key)
         assertEquals(failingFetcher.exception, onError.invocations[0].error)
         assertEquals(onError::invoke, onError.invocations[0].config.onError)
