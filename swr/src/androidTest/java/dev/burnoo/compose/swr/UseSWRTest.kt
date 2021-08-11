@@ -84,6 +84,24 @@ class UseSWRTest {
     }
 
     @Test
+    fun refresh() = runBlocking {
+        setContent(config = {
+            refreshInterval = 1000L
+            dedupingInterval = 0L
+        })
+        assertTextLoading()
+
+        advanceTimeBy(200L)
+        assertTextRevalidated(1)
+
+        advanceTimeBy(1000L)
+        assertTextRevalidated(2)
+
+        advanceTimeBy(1000L)
+        assertTextRevalidated(3)
+    }
+
+    @Test
     fun refreshDeduping() = runBlocking {
         setContent(config = {
             refreshInterval = 1000L
