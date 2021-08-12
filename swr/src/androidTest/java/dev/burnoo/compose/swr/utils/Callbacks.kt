@@ -25,9 +25,9 @@ class OnSuccess {
 class OnError {
     val invocations = mutableListOf<Args>()
 
-    operator fun invoke(error: Exception, key: String, config: SWRConfig<String, String>) {
+    operator fun invoke(error: Throwable, key: String, config: SWRConfig<String, String>) {
         invocations.add(Args(error, key, config))
     }
 
-    data class Args(val error: Exception, val key: String, val config: SWRConfig<String, String>)
+    data class Args(val error: Throwable, val key: String, val config: SWRConfig<String, String>)
 }

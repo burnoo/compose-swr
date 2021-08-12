@@ -1,7 +1,5 @@
 package dev.burnoo.compose.swr.domain
 
-import dev.burnoo.compose.swr.model.FetchUsage
-import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Instant
@@ -10,49 +8,28 @@ import kotlinx.datetime.Instant
 internal class Cache {
     private val stateFlowCache = mutableMapOf<Any, MutableStateFlow<SWRResult<Any>>>()
     private val fetcherCache = mutableMapOf<Any, suspend (Any) -> Any>()
-    private val usageTimeInstantCache = mutableMapOf<Any, Instant>()
-    private val configCache = mutableMapOf<Any, SWRConfig<Any, Any>>()
+    private val revalidationTimeCache = mutableMapOf<Any, Instant>()
 
-    fun <K, D> initForKeyIfNeeded(key: K, fetcher: suspend (K) -> D, config: SWRConfig<K, D>) {
+    fun <K, D> initForKey(key: K, fetcher: suspend (K) -> D) {
         fetcherCache.getOrPut(key as Any, { fetcher as suspend (Any) -> Any })
-        configCache.getOrPut(key as Any, { config as SWRConfig<Any, Any> })
+        stateFlowCache.getOrPut(key as Any, {
+            MutableStateFlow<SWRResult<D>>(SWRResult.Loading) as MutableStateFlow<SWRResult<Any>>
+        })
     }
 
-    fun <K, D> getOrCreateStateFlow(key: K): MutableStateFlow<SWRResult<D>> {
-        val cachedStateFlow = stateFlowCache[key as Any] as? MutableStateFlow<SWRResult<D>>
-        if (cachedStateFlow == null) {
-            val initialResult = getInitialResult<D, K>(key)
-            val newStateFlow = MutableStateFlow(initialResult)
-            stateFlowCache[key] = newStateFlow as MutableStateFlow<SWRResult<Any>>
-            return newStateFlow
-        }
-        return cachedStateFlow
+    fun <K, D> getMutableStateFlow(key: K): MutableStateFlow<SWRResult<D>> {
+        return stateFlowCache[key as Any] as MutableStateFlow<SWRResult<D>>
     }
 
-    private fun <D, K> getInitialResult(key: K): SWRResult<D> {
-        val config = configCache[key as Any] as SWRConfig<K, D>
-        return config.initialData?.let<D, SWRResult.Success<D>> {
-            SWRResult.Success(it)
-        } ?: SWRResult.Loading
+    fun <K, D> getFetcher(key: K): suspend (K) -> D {
+        return fetcherCache[key as Any] as suspend (K) -> D
     }
 
-    fun <K, D> getFetchUsage(key: K): FetchUsage<K, D> {
-        return FetchUsage(
-            fetcher = fetcherCache[key as Any] as suspend (K) -> D,
-            usageTimeInstant = usageTimeInstantCache.getOrDefault(key as Any, Instant.DISTANT_PAST)
-        )
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <K, D> getConfig(key: K): SWRConfig<K, D> {
-        return configCache[key as Any] as SWRConfig<K, D>
-    }
-
-    fun <K, D> updateConfig(key: K, config: SWRConfig<K, D>.() -> Unit) {
-        configCache[key as Any] = getConfig<K, D>(key).apply(config) as SWRConfig<Any, Any>
+    fun <K> getRevalidationTime(key: K): Instant {
+        return revalidationTimeCache.getOrDefault(key as Any, Instant.DISTANT_PAST)
     }
 
     fun <K> updateUsageTime(key: K, now: Instant) {
-        usageTimeInstantCache[key as Any] = now
+        revalidationTimeCache[key as Any] = now
     }
 }

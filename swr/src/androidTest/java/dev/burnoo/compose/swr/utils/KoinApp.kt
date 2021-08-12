@@ -13,8 +13,7 @@ fun testKoinApplication(
     testNow: Now
 ): KoinApplication {
     val testModule = module {
-        factory { testCoroutineScope }
-        factory { RecomposeCoroutineScope(get()) }
+        factory { RecomposeCoroutineScope(testCoroutineScope) }
         single { testNow }
     }
     return koinApplication { modules(testModule, KoinContext.getAppModule()) }

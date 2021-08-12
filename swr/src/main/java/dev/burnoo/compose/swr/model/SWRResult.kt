@@ -3,7 +3,7 @@ package dev.burnoo.compose.swr.model
 sealed class SWRResult<out T> {
     object Loading : SWRResult<Nothing>()
     class Success<T>(val data: T) : SWRResult<T>()
-    class Error(val exception: Exception) : SWRResult<Nothing>()
+    class Error(val exception: Throwable) : SWRResult<Nothing>()
 
     operator fun component1(): T? = if (this is Success) data else null
 

@@ -1,13 +1,9 @@
 package dev.burnoo.compose.swr
 
 import dev.burnoo.compose.swr.di.get
-import dev.burnoo.compose.swr.domain.Revalidator
+import dev.burnoo.compose.swr.domain.SWR
 
-fun <K> mutate(key: K) {
-    Revalidator(
-        cache = get(),
-        now = get(),
-        key = key as Any,
-        scope = get()
-    ).revalidate(forced = true)
+suspend fun <K> mutate(key: K) {
+    val swr = get<SWR>()
+    swr.mutate(key)
 }

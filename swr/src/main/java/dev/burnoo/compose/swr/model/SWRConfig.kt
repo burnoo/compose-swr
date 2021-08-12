@@ -17,7 +17,7 @@ class SWRConfig<K, D>(block: SWRConfigBlock<K, D> = {}) {
     var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
-    var onError: ((error: Exception, key: K, config: SWRConfig<K, D>) -> Unit)? = null
+    var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     init {
         apply(block)

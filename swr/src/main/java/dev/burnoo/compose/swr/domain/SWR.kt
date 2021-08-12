@@ -1,26 +1,48 @@
 package dev.burnoo.compose.swr.domain
 
-import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
+import dev.burnoo.compose.swr.domain.flow.*
 import dev.burnoo.compose.swr.model.SWRConfig
+import dev.burnoo.compose.swr.model.SWRConfigBlock
+import dev.burnoo.compose.swr.model.SWRRequest
 import dev.burnoo.compose.swr.model.SWRResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 
 internal class SWR(
     private val cache: Cache,
-    private val refresher: Refresher,
-    private val now: Now,
-    private val recomposeCoroutineScope: RecomposeCoroutineScope,
+    private val now: Now
 ) {
-    fun <K, D> init(key: K, fetcher: suspend (K) -> D, config: SWRConfig<K, D>) {
-        cache.initForKeyIfNeeded(key, fetcher, config)
+    fun <K, D> getFlow(
+        key: K,
+        fetcher: suspend (K) -> D,
+        configBlock: SWRConfigBlock<K, D>
+    ): Flow<SWRResult<D>> {
+        val config = SWRConfig(configBlock)
+        cache.initForKey(key, fetcher)
+        val globalMutableStateFlow = cache.getMutableStateFlow<K, D>(key)
+        return flowOf(SWRRequest(key, fetcher, config))
+            .withRefresh(config.refreshInterval)
+            .buffer(1)
+            .dedupe(
+                dedupingInterval = config.dedupingInterval,
+                getLastUsageTime = { cache.getRevalidationTime(key) },
+                getNow = { now() }
+            )
+            .onEach { cache.updateUsageTime(key, now()) }
+            .retryOnError { fetchResultWithCallbacks(key, config) }
+            .syncWithGlobalState(globalMutableStateFlow)
     }
 
-    fun <K> launch(key: K, refreshInterval: Long, scope: CoroutineScope) {
-        Revalidator(cache, now, key as Any, recomposeCoroutineScope.value ?: scope)
-            .revalidate()
-        refresher.handleRefreshing(key, refreshInterval)
+    fun <K, D> getInitialResult(configBlock: SWRConfigBlock<K, D> = {}): SWRResult<D> {
+        return SWRConfig(configBlock).initialData?.let { SWRResult.Success(it) }
+            ?: SWRResult.Loading
     }
 
-    fun <K, D> getStateFlow(key: K): StateFlow<SWRResult<D>> = cache.getOrCreateStateFlow(key)
+    suspend fun <K> mutate(key: K) {
+        val stateFlow = cache.getMutableStateFlow<K, Any>(key)
+        val fetcher = cache.getFetcher<K, Any>(key)
+        stateFlow.value = fetchResult { fetcher(key) }
+    }
 }
