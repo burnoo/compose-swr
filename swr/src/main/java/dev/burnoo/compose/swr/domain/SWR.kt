@@ -1,6 +1,8 @@
 package dev.burnoo.compose.swr.domain
 
 import dev.burnoo.compose.swr.domain.flow.*
+import dev.burnoo.compose.swr.domain.flow.dedupe
+import dev.burnoo.compose.swr.domain.flow.withRefresh
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRRequest
@@ -14,14 +16,17 @@ internal class SWR(
     private val cache: Cache,
     private val now: Now
 ) {
-    fun <K, D> getFlow(
+    fun <K, D> initIfNeeded(key: K, fetcher: suspend (K) -> D) {
+        cache.initForKeyIfNeeded(key, fetcher)
+    }
+
+    fun <K, D> getLocalFlow(
         key: K,
         fetcher: suspend (K) -> D,
         configBlock: SWRConfigBlock<K, D>
     ): Flow<SWRResult<D>> {
         val config = SWRConfig(configBlock)
-        cache.initForKey(key, fetcher)
-        val globalMutableStateFlow = cache.getMutableStateFlow<K, D>(key)
+        val globalSharedFlow = cache.getMutableSharedFlow<K, D>(key)
         return flowOf(SWRRequest(key, fetcher, config))
             .withRefresh(config.refreshInterval)
             .buffer(1)
@@ -32,8 +37,10 @@ internal class SWR(
             )
             .onEach { cache.updateUsageTime(key, now()) }
             .retryOnError { fetchResultWithCallbacks(key, config) }
-            .syncWithGlobalState(globalMutableStateFlow)
+            .syncWithGlobal(globalSharedFlow)
     }
+
+    fun <K, D> getGlobalFlow(key: K): Flow<SWRResult<D>> = cache.getMutableSharedFlow(key)
 
     fun <K, D> getInitialResult(configBlock: SWRConfigBlock<K, D> = {}): SWRResult<D> {
         return SWRConfig(configBlock).initialData?.let { SWRResult.Success(it) }
@@ -41,8 +48,8 @@ internal class SWR(
     }
 
     suspend fun <K> mutate(key: K) {
-        val stateFlow = cache.getMutableStateFlow<K, Any>(key)
+        val stateFlow = cache.getMutableSharedFlow<K, Any>(key)
         val fetcher = cache.getFetcher<K, Any>(key)
-        stateFlow.value = fetchResult { fetcher(key) }
+        stateFlow.emit(fetchResult { fetcher(key) })
     }
 }

@@ -86,20 +86,21 @@ class UseSWRTest {
 
     @Test
     fun refresh() = runBlocking {
+        val stringFetcher = StringFetcher(delay = 2000L)
         setContent(config = {
             refreshInterval = 1000L
             dedupingInterval = 0L
-        })
+        }, stringFetcher::fetch)
         assertTextLoading()
 
-        advanceTimeBy(200L)
+        advanceTimeBy(2000L)
         assertTextRevalidated(1)
 
-        advanceTimeBy(1000L)
+        advanceTimeBy(2000L)
         assertTextRevalidated(2)
 
-        advanceTimeBy(1000L)
-        assertTextRevalidated(2)
+        advanceTimeBy(2000L)
+        assertTextRevalidated(3)
     }
 
     @Test
@@ -124,6 +125,7 @@ class UseSWRTest {
     fun retryFailing() {
         val failingFetcher = FailingFetcher()
         setContent(config = {
+            shouldRetryOnError = true
             errorRetryInterval = 3000
             errorRetryCount = 3
         }, fetcher = failingFetcher::fetch)

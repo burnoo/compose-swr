@@ -1,24 +1,24 @@
 package dev.burnoo.compose.swr.domain
 
 import dev.burnoo.compose.swr.model.SWRResult
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.datetime.Instant
 
 @Suppress("UNCHECKED_CAST")
 internal class Cache {
-    private val stateFlowCache = mutableMapOf<Any, MutableStateFlow<SWRResult<Any>>>()
+    private val sharedFlowCache = mutableMapOf<Any, MutableSharedFlow<SWRResult<Any>>>()
     private val fetcherCache = mutableMapOf<Any, suspend (Any) -> Any>()
     private val revalidationTimeCache = mutableMapOf<Any, Instant>()
 
-    fun <K, D> initForKey(key: K, fetcher: suspend (K) -> D) {
+    fun <K, D> initForKeyIfNeeded(key: K, fetcher: suspend (K) -> D) {
         fetcherCache.getOrPut(key as Any, { fetcher as suspend (Any) -> Any })
-        stateFlowCache.getOrPut(key as Any, {
-            MutableStateFlow<SWRResult<D>>(SWRResult.Loading) as MutableStateFlow<SWRResult<Any>>
+        sharedFlowCache.getOrPut(key as Any, {
+            MutableSharedFlow<SWRResult<D>>() as MutableSharedFlow<SWRResult<Any>>
         })
     }
 
-    fun <K, D> getMutableStateFlow(key: K): MutableStateFlow<SWRResult<D>> {
-        return stateFlowCache[key as Any] as MutableStateFlow<SWRResult<D>>
+    fun <K, D> getMutableSharedFlow(key: K): MutableSharedFlow<SWRResult<D>> {
+        return sharedFlowCache[key as Any] as MutableSharedFlow<SWRResult<D>>
     }
 
     fun <K, D> getFetcher(key: K): suspend (K) -> D {
