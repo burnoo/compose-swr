@@ -18,8 +18,8 @@ fun <K, D> useSWR(
     config: SWRConfigBlock<K, D> = {}
 ): State<SWRResult<D>> {
     val swr = get<SWR>()
-    val scope = get<RecomposeCoroutineScope>().value ?: rememberCoroutineScope()
+    val scope = get<RecomposeCoroutineScope>().value
     return swr.getFlow(key, fetcher, config)
-        .flowOn(scope.coroutineContext)
+        .run { if(scope != null ) flowOn(scope.coroutineContext) else this }
         .collectAsState(initial = swr.getInitialResult(config))
 }
