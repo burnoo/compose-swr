@@ -14,7 +14,7 @@ internal fun <K, D> Flow<SWRRequest<K, D>>.fetchResultWithCallbacks(
     key: K,
     config: SWRConfig<K, D>
 ): Flow<SWRResult<D>> {
-    return map { (key, fetcher, _) -> fetchResult { fetcher(key) } }
+    return map { (key, fetcher, _) -> fetchResult(key, fetcher) }
         .handleCallbacks(key, config)
         .withTimeout(config.loadingTimeout) { config.onLoadingSlow?.invoke(key, config) }
 }

@@ -80,7 +80,7 @@ fun MutationApp() {
         }
         Button(onClick = {
             scope.launch {
-                mutate(key = "https://randomuser.me/api/")
+                result.mutate()
             }
         }) {
             Text("Mutate")

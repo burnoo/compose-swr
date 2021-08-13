@@ -26,5 +26,5 @@ fun <K, D> useSWR(
             .run { if (scope != null) flowOn(scope.coroutineContext) else this }
             .collect()
     }
-    return swr.getGlobalFlow<K, D>(key).collectAsState(initial = swr.getInitialResult(config))
+    return swr.getGlobalFlow<K, D>(key).collectAsState(initial = swr.getInitialResult(key, config))
 }

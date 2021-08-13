@@ -42,15 +42,14 @@ internal class SWR(
 
     fun <K, D> getGlobalFlow(key: K): Flow<SWRResult<D>> = cache.getMutableSharedFlow(key)
 
-    fun <K, D> getInitialResult(configBlock: SWRConfigBlock<K, D> = {}): SWRResult<D> {
-        return SWRConfig(configBlock).initialData?.let { SWRResult.Success(it) }
-            ?: SWRResult.Loading
+    fun <K, D> getInitialResult(key : K, configBlock: SWRConfigBlock<K, D> = {}): SWRResult<D> {
+        return SWRResult.fromData(key, data = SWRConfig(configBlock).initialData)
     }
 
     suspend fun <K> mutate(key: K) {
         val stateFlow = cache.getMutableSharedFlow<K, Any>(key)
         cache.updateUsageTime(key, now())
         val fetcher = cache.getFetcher<K, Any>(key)
-        stateFlow.emit(fetchResult { fetcher(key) })
+        stateFlow.emit(fetchResult(key, fetcher))
     }
 }
