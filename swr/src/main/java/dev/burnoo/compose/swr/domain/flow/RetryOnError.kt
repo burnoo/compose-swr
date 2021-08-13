@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.*
 internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
     getResultFlow: Flow<SWRRequest<K, D>>.() -> Flow<SWRResult<D>>
 ): Flow<SWRResult<D>> {
-    return retryRequestFlow(getResultFlow) { request, result, count ->
+    return retryMapFlow(getResultFlow) { request, result, attempt ->
         val config = request.config
         val shouldRetry = result is SWRResult.Error && config.shouldRetryOnError &&
-                (config.errorRetryCount == 0 || count < config.errorRetryCount)
+                (config.errorRetryCount == 0 || attempt < config.errorRetryCount)
         if (shouldRetry) {
             delay(config.errorRetryInterval)
         }
@@ -19,19 +19,19 @@ internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
     }
 }
 
-internal fun <Request, Result> Flow<Request>.retryRequest(
-    getResult: suspend (Request) -> Result,
-    predicate: suspend FlowCollector<Result>.(request: Request, result: Result, count: Int) -> Boolean
-): Flow<Result> {
+internal fun <T, R> Flow<T>.retryMap(
+    map: suspend (T) -> R,
+    predicate: suspend FlowCollector<R>.(value: T, result: R, attempt: Int) -> Boolean
+): Flow<R> {
     var retryCount = 0
 
-    suspend fun FlowCollector<Result>.resultCollector(
-        request: Request,
-        result: Result
+    suspend fun FlowCollector<R>.collector(
+        value: T,
+        result: R
     ) {
-        if (predicate(request, result, retryCount)) {
+        if (predicate(value, result, retryCount)) {
             retryCount++
-            resultCollector(request, getResult(request))
+            collector(value, map(value))
         } else {
             emit(result)
         }
@@ -39,17 +39,17 @@ internal fun <Request, Result> Flow<Request>.retryRequest(
 
     return flow {
         collect { request ->
-            resultCollector(request, getResult(request))
+            collector(request, map(request))
         }
     }
 }
 
-internal fun <Request, Result> Flow<Request>.retryRequestFlow(
-    mapToResult: Flow<Request>.() -> Flow<Result>,
-    predicate: suspend FlowCollector<Result>.(request: Request, result: Result, count: Int) -> Boolean
-): Flow<Result> {
-    return retryRequest(
-        getResult = { request -> flowOf(request).mapToResult().first() },
+internal fun <T, R> Flow<T>.retryMapFlow(
+    map: Flow<T>.() -> Flow<R>,
+    predicate: suspend FlowCollector<R>.(value: T, result: R, attempt: Int) -> Boolean
+): Flow<R> {
+    return retryMap(
+        map = { request -> flowOf(request).map().first() },
         predicate = predicate
     )
 }
