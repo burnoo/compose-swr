@@ -49,6 +49,7 @@ internal class SWR(
 
     suspend fun <K> mutate(key: K) {
         val stateFlow = cache.getMutableSharedFlow<K, Any>(key)
+        cache.updateUsageTime(key, now())
         val fetcher = cache.getFetcher<K, Any>(key)
         stateFlow.emit(fetchResult { fetcher(key) })
     }

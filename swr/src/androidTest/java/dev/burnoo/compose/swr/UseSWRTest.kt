@@ -122,6 +122,31 @@ class UseSWRTest {
     }
 
     @Test
+    fun mutateRefreshDeduping() = runBlocking {
+        setContent(config = {
+            refreshInterval = 2000L
+            dedupingInterval = 1000L
+        })
+        assertTextLoading()
+
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+
+        advanceTimeBy(1500L)
+        mutate(key)
+        assertTextRevalidated(2)
+
+        advanceTimeBy(500L)
+        assertTextRevalidated(2)
+
+        advanceTimeBy(1999L)
+        assertTextRevalidated(2)
+
+        advanceTimeBy(1L)
+        assertTextRevalidated(3)
+    }
+
+    @Test
     fun retryFailing() {
         val failingFetcher = FailingFetcher()
         setContent(config = {
