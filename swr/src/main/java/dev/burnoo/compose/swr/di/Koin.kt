@@ -8,16 +8,18 @@ import kotlinx.datetime.Clock
 import org.koin.core.qualifier.Qualifier
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import kotlin.random.Random
 
 internal object KoinContext {
     private val testableModule = module {
-        factory { RecomposeCoroutineScope() }
         single { Now { Clock.System.now() } }
+        factory { RecomposeCoroutineScope() }
+        factory<Random> { Random }
     }
 
     fun getAppModule() = module {
         single { Cache() }
-        factory { SWR(get(), get()) }
+        factory { SWR(get(), get(), get()) }
     }
 
     var koinApp = koinApplication {

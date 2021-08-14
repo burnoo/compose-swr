@@ -9,7 +9,7 @@ class SWRConfig<K, D>(block: SWRConfigBlock<K, D> = {}) {
     var refreshInterval = 0L
     var shouldRetryOnError = true
     var errorRetryInterval = 5000L
-    var errorRetryCount = 3 // Change to 0 after exponential error
+    var errorRetryCount: Int? = null
 
     var dedupingInterval = 2000L
 

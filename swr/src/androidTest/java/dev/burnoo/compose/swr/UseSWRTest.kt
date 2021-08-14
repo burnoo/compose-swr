@@ -6,6 +6,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import dev.burnoo.compose.swr.di.KoinContext
+import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.utils.*
@@ -18,6 +19,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.random.Random
 
 private const val key = "k"
 
@@ -84,7 +86,7 @@ class UseSWRTest {
     @Test
     fun showError() = runBlockingTest {
         val failingFetcher = FailingFetcher()
-        setContent(fetcher = failingFetcher::fetch)
+        setContent(fetcher = failingFetcher::fetch, config = { shouldRetryOnError = false })
         assertTextLoading()
         testCoroutineScope.advanceUntilIdle()
         assertTextFailure()
@@ -170,11 +172,16 @@ class UseSWRTest {
     }
 
     @Test
-    fun retryFailing() {
+    fun retryFailingExponential() {
+        val retryInterval = 3000L
+        val random = Random(0)
+        val delays = (1..3).map { attempt ->
+            exponentialBackoff(retryInterval, attempt) { random.nextDouble() }
+        }
         val failingFetcher = FailingFetcher()
         setContent(config = {
             shouldRetryOnError = true
-            errorRetryInterval = 3000
+            errorRetryInterval = retryInterval
             errorRetryCount = 3
         }, fetcher = failingFetcher::fetch)
         assertTextLoading()
@@ -183,19 +190,19 @@ class UseSWRTest {
         assertEquals(1, failingFetcher.failCount)
         assertTextLoading()
 
-        testCoroutineScope.advanceTimeBy(2000)
+        testCoroutineScope.advanceTimeBy(delays[0] - 100)
         assertEquals(1, failingFetcher.failCount)
         assertTextLoading()
 
-        testCoroutineScope.advanceTimeBy(1100)
+        testCoroutineScope.advanceTimeBy(200)
         assertEquals(2, failingFetcher.failCount)
         assertTextLoading()
 
-        testCoroutineScope.advanceTimeBy(3100)
+        testCoroutineScope.advanceTimeBy(delays[1] + 100)
         assertEquals(3, failingFetcher.failCount)
         assertTextLoading()
 
-        testCoroutineScope.advanceTimeBy(3100)
+        testCoroutineScope.advanceTimeBy(delays[2] + 100)
         assertEquals(4, failingFetcher.failCount)
         assertTextFailure()
     }

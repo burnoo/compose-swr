@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import kotlin.random.Random
 
 fun testKoinApplication(
     testCoroutineScope: CoroutineScope,
@@ -14,6 +15,7 @@ fun testKoinApplication(
 ): KoinApplication {
     val testModule = module {
         factory { RecomposeCoroutineScope(testCoroutineScope) }
+        factory { Random(0) }
         single { testNow }
     }
     return koinApplication { modules(testModule, KoinContext.getAppModule()) }

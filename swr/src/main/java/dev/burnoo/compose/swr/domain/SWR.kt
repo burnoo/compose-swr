@@ -6,10 +6,12 @@ import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRRequest
 import dev.burnoo.compose.swr.model.SWRState
 import kotlinx.coroutines.flow.*
+import kotlin.random.Random
 
 internal class SWR(
     private val cache: Cache,
-    private val now: Now
+    private val now: Now,
+    private val random: Random
 ) {
     fun <K, D> initIfNeeded(key: K, fetcher: suspend (K) -> D) {
         cache.initForKeyIfNeeded(key, fetcher)
@@ -32,7 +34,7 @@ internal class SWR(
                 getNow = { now() }
             )
             .onEach { cache.updateUsageTime(key, now()) }
-            .retryOnError { fetchStateWithCallbacks(key, config) }
+            .retryOnError(nextDouble = { random.nextDouble() }) { fetchStateWithCallbacks(key, config) }
             .syncWithGlobal(globalSharedFlow)
     }
 
