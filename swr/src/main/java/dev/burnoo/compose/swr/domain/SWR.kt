@@ -1,8 +1,6 @@
 package dev.burnoo.compose.swr.domain
 
 import dev.burnoo.compose.swr.domain.flow.*
-import dev.burnoo.compose.swr.domain.flow.dedupe
-import dev.burnoo.compose.swr.domain.flow.withRefresh
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRRequest
@@ -42,14 +40,19 @@ internal class SWR(
 
     fun <K, D> getGlobalFlow(key: K): Flow<SWRResult<D>> = cache.getMutableSharedFlow(key)
 
-    fun <K, D> getInitialResult(key : K, configBlock: SWRConfigBlock<K, D> = {}): SWRResult<D> {
+    fun <K, D> getInitialResult(key: K, configBlock: SWRConfigBlock<K, D> = {}): SWRResult<D> {
         return SWRResult.fromData(key, data = SWRConfig(configBlock).initialData)
     }
 
-    suspend fun <K> mutate(key: K) {
+    suspend fun <K, D> mutate(key: K, data: D?, shouldRevalidate: Boolean) {
         val stateFlow = cache.getMutableSharedFlow<K, Any>(key)
-        cache.updateUsageTime(key, now())
-        val fetcher = cache.getFetcher<K, Any>(key)
-        stateFlow.emit(fetchResult(key, fetcher))
+        if (data != null) {
+            stateFlow.emit(SWRResult.fromData(key, data))
+        }
+        if (shouldRevalidate) {
+            cache.updateUsageTime(key, now())
+            val fetcher = cache.getFetcher<K, Any>(key)
+            stateFlow.emit(fetchResult(key, fetcher))
+        }
     }
 }

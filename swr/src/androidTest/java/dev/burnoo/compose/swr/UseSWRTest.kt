@@ -68,7 +68,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun mutate() = runBlockingTest {
+    fun mutateTest() = runBlockingTest {
         setContent()
         assertTextLoading()
 
@@ -255,7 +255,7 @@ class UseSWRTest {
     private fun assertTextFailure() {
         assertText("Failure")
     }
-    
+
     private fun assertText(text: String) {
         composeTestRule.onNode(isRoot()).onChildAt(0).assertTextEquals(text)
     }

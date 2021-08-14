@@ -2,18 +2,20 @@ package dev.burnoo.compose.swr.model
 
 import dev.burnoo.compose.swr.mutate
 
-sealed class SWRResult<out T>(private val mutate: suspend () -> Unit) {
+private typealias Mutate<T> = suspend (data: T?, shouldRevalidate: Boolean) -> Unit
 
-    class Loading internal constructor(mutate: suspend () -> Unit) : SWRResult<Nothing>(mutate)
+sealed class SWRResult<T>(private val mutate: Mutate<T>) {
 
-    class Error internal constructor(
+    class Loading<T> internal constructor(mutate: Mutate<T>) : SWRResult<T>(mutate)
+
+    class Error<T> internal constructor(
         val exception: Throwable,
-        mutate: suspend () -> Unit
-    ) : SWRResult<Nothing>(mutate)
+        mutate: Mutate<T>
+    ) : SWRResult<T>(mutate)
 
     class Success<T> internal constructor(
         val data: T,
-        mutate: suspend () -> Unit
+        mutate: Mutate<T>
     ) : SWRResult<T>(mutate) {
 
         override fun equals(other: Any?): Boolean {
@@ -33,20 +35,25 @@ sealed class SWRResult<out T>(private val mutate: suspend () -> Unit) {
 
     operator fun component2() = if (this is Error) exception else null
 
-    operator fun component3() = mutate
+    operator fun component3(): Mutate<T> = mutate
 
     fun requireData() = (this as Success<T>).data
 
     fun requireException() = (this as Error).exception
 
-    suspend fun mutate() = mutate.invoke()
+    suspend fun mutate(data: T? = null, shouldRevalidate: Boolean = true) =
+        mutate.invoke(data, shouldRevalidate)
 
     companion object {
-        fun <K, D> fromData(key: K, data: D?): SWRResult<D> {
-            val mutateFunction: suspend () -> Unit = { mutate(key) }
-            return if (data == null) Loading(mutateFunction) else Success(data, mutateFunction)
+        private fun <K, D> getMutate(key: K): Mutate<D> = { newData, shouldRevalidate ->
+            mutate(key, newData, shouldRevalidate)
         }
 
-        fun <K> fromError(key: K, error: Throwable) = Error(error) { mutate(key) }
+        fun <K, D> fromData(key: K, data: D?): SWRResult<D> {
+            return if (data == null) Loading(getMutate(key)) else Success(data, getMutate(key))
+        }
+
+        fun <K, D> fromError(key: K, error: Throwable) =
+            Error<D>(error, getMutate(key))
     }
 }

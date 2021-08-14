@@ -11,12 +11,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import dev.burnoo.compose.swr.model.SWRResult
-import dev.burnoo.compose.swr.mutate
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
 import dev.burnoo.swr.ktor.useSWRKtor
 import io.ktor.client.*
 import io.ktor.client.request.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.get
@@ -62,25 +62,29 @@ fun App() {
     }
 }
 
+var counter = 0
+
 @Composable
 fun MutationApp() {
-    val client = get<HttpClient>() // Using Koin for Jetpack Compose
-    val resultState = useSWR<String, RandomUserResponse>(
-        key = "https://randomuser.me/api/",
-        fetcher = { client.request(it) }
-    )
+    val resultState = useSWR(
+        key = Unit,
+        fetcher = {
+            delay(100)
+            counter++.toString()
+        }
+    ) { refreshInterval = 1000L }
     val result = resultState.value
     val scope = rememberCoroutineScope()
 
     Column {
         when (result) {
-            is SWRResult.Success -> Text(text = result.data.firstEmail)
+            is SWRResult.Success -> Text(text = result.data)
             is SWRResult.Loading -> Text("Loading")
             is SWRResult.Error -> Text(text = "Failed to load")
         }
         Button(onClick = {
             scope.launch {
-                result.mutate()
+                result.mutate("7", false)
             }
         }) {
             Text("Mutate")
