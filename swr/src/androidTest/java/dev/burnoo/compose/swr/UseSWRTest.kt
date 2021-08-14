@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import dev.burnoo.compose.swr.di.KoinContext
 import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
-import dev.burnoo.compose.swr.model.SWRConfig
+import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
@@ -227,7 +227,7 @@ class UseSWRTest {
     fun onLoadingSlow() {
         val onLoadingSlow = OnLoadingSlow()
         val slowFetcher = StringFetcher(delay = 10_000L)
-        val config: SWRConfig<String, String>.() -> Unit = {
+        val config: SWRConfigBlock<String, String> = {
             this.onLoadingSlow = onLoadingSlow::invoke
             loadingTimeout = 2000L
         }
@@ -276,8 +276,20 @@ class UseSWRTest {
         assertEquals(onError::invoke, onError.invocations[0].config.onError)
     }
 
+    @Test
+    fun isPausedTest() = runBlocking {
+        setContent(config = {
+            isPaused = { true }
+            dedupingInterval = 0L
+            refreshInterval = 500L
+        })
+        assertTextLoading()
+
+        mutate(key)
+    }
+
     private fun setContent(
-        config: SWRConfig<String, String>.() -> Unit = {},
+        config: SWRConfigBlock<String, String> = {},
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }
     ) {
         composeTestRule.setContent {

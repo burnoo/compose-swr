@@ -1,8 +1,26 @@
 package dev.burnoo.compose.swr.model
 
-typealias SWRConfigBlock<K, D> = SWRConfig<K, D>.() -> Unit
+typealias SWRConfigBlock<K, D> = SWRConfigBody<K, D>.() -> Unit
 
-class SWRConfig<K, D>(block: SWRConfigBlock<K, D> = {}) {
+data class SWRConfig<K, D> internal constructor(
+    val initialData: D?,
+    val refreshInterval: Long,
+    val shouldRetryOnError: Boolean,
+    val errorRetryInterval: Long,
+    val errorRetryCount: Int?,
+    val dedupingInterval: Long,
+    val loadingTimeout: Long,
+    val onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?,
+    val onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?,
+    val onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?,
+    val revalidateOnMount: Boolean?,
+    val isPaused: () -> Boolean,
+) {
+
+    internal fun shouldRevalidateOnMount() = revalidateOnMount ?: (initialData == null)
+}
+
+class SWRConfigBody<K, D> internal constructor() {
 
     var initialData: D? = null
 
@@ -20,10 +38,25 @@ class SWRConfig<K, D>(block: SWRConfigBlock<K, D> = {}) {
     var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     var revalidateOnMount: Boolean? = null
+    var isPaused: () -> Boolean = { false }
+}
 
-    init {
-        apply(block)
+@Suppress("FunctionName")
+internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
+    return SWRConfigBody<K, D>().apply(block).run {
+        SWRConfig(
+            initialData = initialData,
+            refreshInterval = refreshInterval,
+            shouldRetryOnError = shouldRetryOnError,
+            errorRetryInterval = errorRetryInterval,
+            errorRetryCount = errorRetryCount,
+            dedupingInterval = dedupingInterval,
+            loadingTimeout = loadingTimeout,
+            onLoadingSlow = onLoadingSlow,
+            onSuccess = onSuccess,
+            onError = onError,
+            revalidateOnMount = revalidateOnMount,
+            isPaused = isPaused,
+        )
     }
-
-    internal fun getRevalidateOnMount() = revalidateOnMount ?: (initialData == null)
 }

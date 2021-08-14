@@ -27,14 +27,20 @@ internal class SWR(
         return flowOf(SWRRequest(key, fetcher, config))
             .withRefresh(config.refreshInterval)
             .buffer(1)
-            .run { if (!config.getRevalidateOnMount()) drop(1) else this }
+            .run { if (!config.shouldRevalidateOnMount()) drop(1) else this }
+            .filter { !config.isPaused() }
             .dedupe(
                 dedupingInterval = config.dedupingInterval,
                 getLastMutationTime = { cache.getMutationTime(key) },
                 getNow = { now() }
             )
             .onEach { cache.updateMutationTime(key, now()) }
-            .retryOnError(nextDouble = { random.nextDouble() }) { fetchStateWithCallbacks(key, config) }
+            .retryOnError(nextDouble = { random.nextDouble() }) {
+                fetchStateWithCallbacks(
+                    key,
+                    config
+                )
+            }
             .syncWithGlobal(globalSharedFlow)
     }
 
