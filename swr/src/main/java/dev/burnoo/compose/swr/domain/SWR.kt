@@ -5,10 +5,7 @@ import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRRequest
 import dev.burnoo.compose.swr.model.SWRState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 
 internal class SWR(
     private val cache: Cache,
@@ -28,6 +25,7 @@ internal class SWR(
         return flowOf(SWRRequest(key, fetcher, config))
             .withRefresh(config.refreshInterval)
             .buffer(1)
+            .run { if (!config.getRevalidateOnMount()) drop(1) else this }
             .dedupe(
                 dedupingInterval = config.dedupingInterval,
                 getLastUsageTime = { cache.getRevalidationTime(key) },

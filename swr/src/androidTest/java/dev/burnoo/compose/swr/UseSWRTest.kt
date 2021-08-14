@@ -51,6 +51,29 @@ class UseSWRTest {
     }
 
     @Test
+    fun defaultRevalidateOnMount() {
+        setContent(config = {
+            initialData = "${key}0"
+        })
+        assertTextRevalidated(0)
+
+        advanceTimeBy(10_000L)
+        assertTextRevalidated(0)
+    }
+
+    @Test
+    fun enabledRevalidateOnMount() {
+        setContent(config = {
+            initialData = "${key}0"
+            revalidateOnMount = true
+        })
+        assertTextRevalidated(0)
+
+        advanceTimeBy(200L)
+        assertTextRevalidated(1)
+    }
+
+    @Test
     fun showSuccess() = runBlockingTest {
         setContent()
         assertTextLoading()

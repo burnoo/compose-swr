@@ -19,7 +19,11 @@ class SWRConfig<K, D>(block: SWRConfigBlock<K, D> = {}) {
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
+    var revalidateOnMount: Boolean? = null
+
     init {
         apply(block)
     }
+
+    internal fun getRevalidateOnMount() = revalidateOnMount ?: (initialData == null)
 }
