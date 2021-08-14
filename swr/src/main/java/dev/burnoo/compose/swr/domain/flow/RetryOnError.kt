@@ -11,7 +11,7 @@ internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
     return retryMapFlow(getStateFlow) { request, result, attempt ->
         val config = request.config
         val shouldRetry = result is SWRState.Error && config.shouldRetryOnError &&
-                (config.errorRetryCount == 0 || attempt < config.errorRetryCount)
+                (config.errorRetryCount == 0 || attempt <= config.errorRetryCount)
         if (shouldRetry) {
             delay(config.errorRetryInterval)
         }
@@ -23,7 +23,7 @@ internal fun <T, R> Flow<T>.retryMap(
     map: suspend (T) -> R,
     predicate: suspend FlowCollector<R>.(value: T, result: R, attempt: Int) -> Boolean
 ): Flow<R> {
-    var retryCount = 0
+    var retryCount = 1
 
     suspend fun FlowCollector<R>.collector(
         value: T,
