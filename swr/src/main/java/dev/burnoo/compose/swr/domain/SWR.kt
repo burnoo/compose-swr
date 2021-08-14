@@ -30,10 +30,10 @@ internal class SWR(
             .run { if (!config.getRevalidateOnMount()) drop(1) else this }
             .dedupe(
                 dedupingInterval = config.dedupingInterval,
-                getLastUsageTime = { cache.getRevalidationTime(key) },
+                getLastMutationTime = { cache.getMutationTime(key) },
                 getNow = { now() }
             )
-            .onEach { cache.updateUsageTime(key, now()) }
+            .onEach { cache.updateMutationTime(key, now()) }
             .retryOnError(nextDouble = { random.nextDouble() }) { fetchStateWithCallbacks(key, config) }
             .syncWithGlobal(globalSharedFlow)
     }
@@ -46,11 +46,11 @@ internal class SWR(
 
     suspend fun <K, D> mutate(key: K, data: D?, shouldRevalidate: Boolean) {
         val stateFlow = cache.getMutableSharedFlow<K, Any>(key)
+        cache.updateMutationTime(key, now())
         if (data != null) {
             stateFlow.emit(SWRState.fromData(key, data))
         }
         if (shouldRevalidate) {
-            cache.updateUsageTime(key, now())
             val fetcher = cache.getFetcher<K, Any>(key)
             stateFlow.emit(fetchState(key, fetcher))
         }

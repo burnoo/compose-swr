@@ -10,12 +10,12 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 internal fun <T> Flow<T>.dedupe(
     dedupingInterval: Long,
-    getLastUsageTime: () -> Instant,
+    getLastMutationTime: () -> Instant,
     getNow: () -> Instant
 ): Flow<T> {
     return flow {
         collect {
-            val ago = getNow() - getLastUsageTime()
+            val ago = getNow() - getLastMutationTime()
             if (ago > Duration.milliseconds(dedupingInterval)) {
                 emit(it)
             }

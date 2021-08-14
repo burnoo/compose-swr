@@ -172,6 +172,22 @@ class UseSWRTest {
     }
 
     @Test
+    fun mutateWithoutRevalidationRefresh() = runBlocking {
+        setContent(config = {
+            refreshInterval = 2000L
+            dedupingInterval = 1000L
+        })
+        assertTextLoading()
+        advanceTimeBy(100L)
+
+        repeat(10) {
+            mutate(key, data = "${key}0", shouldRevalidate = false)
+            advanceTimeBy(999L)
+            assertTextRevalidated(0)
+        }
+    }
+
+    @Test
     fun retryFailingExponential() {
         val retryInterval = 3000L
         val random = Random(0)

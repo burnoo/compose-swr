@@ -8,7 +8,7 @@ import kotlinx.datetime.Instant
 internal class Cache {
     private val sharedFlowCache = mutableMapOf<Any, MutableSharedFlow<SWRState<Any>>>()
     private val fetcherCache = mutableMapOf<Any, suspend (Any) -> Any>()
-    private val revalidationTimeCache = mutableMapOf<Any, Instant>()
+    private val mutationTimeCache = mutableMapOf<Any, Instant>()
 
     fun <K, D> initForKeyIfNeeded(key: K, fetcher: suspend (K) -> D) {
         fetcherCache.getOrPut(key as Any, { fetcher as suspend (Any) -> Any })
@@ -25,11 +25,11 @@ internal class Cache {
         return fetcherCache[key as Any] as suspend (K) -> D
     }
 
-    fun <K> getRevalidationTime(key: K): Instant {
-        return revalidationTimeCache.getOrDefault(key as Any, Instant.DISTANT_PAST)
+    fun <K> getMutationTime(key: K): Instant {
+        return mutationTimeCache.getOrDefault(key as Any, Instant.DISTANT_PAST)
     }
 
-    fun <K> updateUsageTime(key: K, now: Instant) {
-        revalidationTimeCache[key as Any] = now
+    fun <K> updateMutationTime(key: K, now: Instant) {
+        mutationTimeCache[key as Any] = now
     }
 }
