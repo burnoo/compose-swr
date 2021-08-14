@@ -10,7 +10,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import dev.burnoo.compose.swr.model.SWRResult
+import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
 import dev.burnoo.swr.ktor.useSWRKtor
@@ -56,9 +56,9 @@ fun App() {
 
     // or more Kotlin-styled
     when (result) {
-        is SWRResult.Success -> Text(text = result.data.ip)
-        is SWRResult.Loading -> Text("Loading")
-        is SWRResult.Error -> Text(text = "Failed to load")
+        is SWRState.Success -> Text(text = result.data.ip)
+        is SWRState.Loading -> Text("Loading")
+        is SWRState.Error -> Text(text = "Failed to load")
     }
 }
 
@@ -78,9 +78,9 @@ fun MutationApp() {
 
     Column {
         when (result) {
-            is SWRResult.Success -> Text(text = result.data)
-            is SWRResult.Loading -> Text("Loading")
-            is SWRResult.Error -> Text(text = "Failed to load")
+            is SWRState.Success -> Text(text = result.data)
+            is SWRState.Loading -> Text("Loading")
+            is SWRState.Error -> Text(text = "Failed to load")
         }
         Button(onClick = {
             scope.launch {
@@ -108,9 +108,9 @@ fun KtorApp() {
         refreshInterval = 5000L
     }
     when (val result = resultState.value) {
-        is SWRResult.Success -> Text(text = result.data.firstEmail)
-        is SWRResult.Loading -> Text("Loading")
-        is SWRResult.Error -> {
+        is SWRState.Success -> Text(text = result.data.firstEmail)
+        is SWRState.Loading -> Text("Loading")
+        is SWRState.Error -> {
             result.exception.printStackTrace()
             Text(text = "Failed to load")
         }

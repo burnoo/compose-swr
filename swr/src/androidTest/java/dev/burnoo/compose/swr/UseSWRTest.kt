@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import dev.burnoo.compose.swr.di.KoinContext
 import dev.burnoo.compose.swr.model.SWRConfig
-import dev.burnoo.compose.swr.model.SWRResult
+import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -237,9 +237,9 @@ class UseSWRTest {
         composeTestRule.setContent {
             val resultState = useSWR(key = key, fetcher = fetcher, config = config)
             when (val result = resultState.value) {
-                is SWRResult.Loading -> Text("Loading")
-                is SWRResult.Success -> Text(result.data)
-                is SWRResult.Error -> Text("Failure")
+                is SWRState.Loading -> Text("Loading")
+                is SWRState.Success -> Text(result.data)
+                is SWRState.Error -> Text("Failure")
             }
         }
     }

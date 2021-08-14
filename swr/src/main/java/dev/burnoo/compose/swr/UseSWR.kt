@@ -8,7 +8,7 @@ import dev.burnoo.compose.swr.di.get
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
 import dev.burnoo.compose.swr.model.SWRConfigBlock
-import dev.burnoo.compose.swr.model.SWRResult
+import dev.burnoo.compose.swr.model.SWRState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 
@@ -17,7 +17,7 @@ fun <K, D> useSWR(
     key: K,
     fetcher: suspend (K) -> D,
     config: SWRConfigBlock<K, D> = {}
-): State<SWRResult<D>> {
+): State<SWRState<D>> {
     val swr = get<SWR>()
     val scope = get<RecomposeCoroutineScope>().value
     swr.initIfNeeded(key, fetcher)

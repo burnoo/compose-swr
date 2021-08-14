@@ -1,16 +1,16 @@
 package dev.burnoo.compose.swr.domain.flow
 
 import dev.burnoo.compose.swr.model.SWRRequest
-import dev.burnoo.compose.swr.model.SWRResult
+import dev.burnoo.compose.swr.model.SWRState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
 internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
-    getResultFlow: Flow<SWRRequest<K, D>>.() -> Flow<SWRResult<D>>
-): Flow<SWRResult<D>> {
-    return retryMapFlow(getResultFlow) { request, result, attempt ->
+    getStateFlow: Flow<SWRRequest<K, D>>.() -> Flow<SWRState<D>>
+): Flow<SWRState<D>> {
+    return retryMapFlow(getStateFlow) { request, result, attempt ->
         val config = request.config
-        val shouldRetry = result is SWRResult.Error && config.shouldRetryOnError &&
+        val shouldRetry = result is SWRState.Error && config.shouldRetryOnError &&
                 (config.errorRetryCount == 0 || attempt < config.errorRetryCount)
         if (shouldRetry) {
             delay(config.errorRetryInterval)

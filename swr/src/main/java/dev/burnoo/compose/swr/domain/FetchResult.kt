@@ -1,9 +1,9 @@
 package dev.burnoo.compose.swr.domain
 
-import dev.burnoo.compose.swr.model.SWRResult
+import dev.burnoo.compose.swr.model.SWRState
 
-internal suspend fun <K, D> fetchResult(key : K, fetcher: suspend (K) -> D) = try {
-    SWRResult.fromData(key, fetcher(key))
+internal suspend fun <K, D> fetchState(key : K, fetcher: suspend (K) -> D) = try {
+    SWRState.fromData(key, fetcher(key))
 } catch (e: Exception) {
-    SWRResult.fromError(key, e)
+    SWRState.fromError(key, e)
 }
