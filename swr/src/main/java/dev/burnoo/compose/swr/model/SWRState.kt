@@ -39,13 +39,17 @@ sealed class SWRState<T>(private val mutate: Mutate<T>) {
 
     operator fun component1(): T? = if (this is Success) data else null
 
-    operator fun component2() = if (this is Error) exception else null
+    operator fun component2() = when(this) {
+        is Error -> exception
+        is Loading.Retry -> exception
+        else -> null
+    }
 
     operator fun component3(): Mutate<T> = mutate
 
     fun requireData() = (this as Success<T>).data
 
-    fun requireException() = (this as Error).exception
+    fun requireException() = (this as? Loading.Retry)?.exception ?: (this as Error).exception
 
     suspend fun mutate(data: T? = null, shouldRevalidate: Boolean = true) =
         mutate.invoke(data, shouldRevalidate)
