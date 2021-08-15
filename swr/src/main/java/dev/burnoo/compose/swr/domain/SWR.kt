@@ -1,6 +1,9 @@
 package dev.burnoo.compose.swr.domain
 
-import dev.burnoo.compose.swr.domain.flow.*
+import dev.burnoo.compose.swr.domain.flow.dedupe
+import dev.burnoo.compose.swr.domain.flow.retryOnError
+import dev.burnoo.compose.swr.domain.flow.syncWithGlobal
+import dev.burnoo.compose.swr.domain.flow.withRefresh
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRRequest
@@ -24,7 +27,11 @@ internal class SWR(
     ): Flow<SWRState<D>> {
         val globalSharedFlow = cache.getMutableSharedFlow<K, D>(key)
         return flowOf(SWRRequest(key, fetcher, config))
-            .withRefresh(config.refreshInterval)
+            .withRefresh(
+                refreshInterval = config.refreshInterval,
+                getLastMutationTime = { cache.getMutationTime(key) },
+                getNow = { now() }
+            )
             .buffer(1)
             .run { if (!config.shouldRevalidateOnMount()) drop(1) else this }
             .filter { !config.isPaused() }

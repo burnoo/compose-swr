@@ -176,10 +176,10 @@ class UseSWRTest {
         advanceTimeBy(500L)
         assertTextRevalidated(2)
 
-        advanceTimeBy(1999L)
-        assertTextRevalidated(2)
+        advanceTimeBy(1500L)
+        assertTextRevalidated(3)
 
-        advanceTimeBy(1L)
+        advanceTimeBy(1999L)
         assertTextRevalidated(3)
     }
 
