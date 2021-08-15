@@ -242,6 +242,23 @@ class UseSWRTest {
     }
 
     @Test
+    fun onLoadingSlowNotTriggered() {
+        val onLoadingSlow = OnLoadingSlow()
+        val normalFetcher = StringFetcher(delay = 1000L)
+        val config: SWRConfigBlock<String, String> = {
+            this.onLoadingSlow = onLoadingSlow::invoke
+            loadingTimeout = 2000L
+        }
+        setContent(config, normalFetcher::fetch)
+        assertTextLoading()
+        assertEquals(0, onLoadingSlow.invocations.size)
+
+        testCoroutineScope.advanceTimeBy(2000L)
+        assertTextRevalidated(1)
+        assertEquals(0, onLoadingSlow.invocations.size)
+    }
+
+    @Test
     fun onSuccess() {
         val onSuccess = OnSuccess()
         setContent(config = {

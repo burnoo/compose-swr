@@ -35,12 +35,7 @@ internal class SWR(
                 getNow = { now() }
             )
             .onEach { cache.updateMutationTime(key, now()) }
-            .retryOnError(nextDouble = { random.nextDouble() }) {
-                fetchStateWithCallbacks(
-                    key,
-                    config
-                )
-            }
+            .retryOnError(nextDouble = { random.nextDouble() }, getState = ::getState)
             .syncWithGlobal(globalSharedFlow)
     }
 
@@ -58,7 +53,7 @@ internal class SWR(
         }
         if (shouldRevalidate) {
             val fetcher = cache.getFetcher<K, Any>(key)
-            stateFlow.emit(fetchState(key, fetcher))
+            stateFlow.emit(fetchAndWrapState(key, fetcher))
         }
     }
 }

@@ -14,9 +14,9 @@ internal fun exponentialBackoff(
 
 internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
     nextDouble: () -> Double,
-    getStateFlow: Flow<SWRRequest<K, D>>.() -> Flow<SWRState<D>>
+    getState: suspend (SWRRequest<K, D>) -> SWRState<D>
 ): Flow<SWRState<D>> {
-    return retryMapFlow(getStateFlow) { request, state, attempt ->
+    return retryMap(getState) { request, state, attempt ->
         val config = request.config
         if (state is SWRState.Error &&
             config.shouldRetryOnError &&
@@ -54,14 +54,4 @@ internal fun <T, R> Flow<T>.retryMap(
             collector(request, map(request))
         }
     }
-}
-
-internal fun <T, R> Flow<T>.retryMapFlow(
-    map: Flow<T>.() -> Flow<R>,
-    predicate: suspend FlowCollector<R>.(value: T, result: R, attempt: Int) -> Boolean
-): Flow<R> {
-    return retryMap(
-        map = { request -> flowOf(request).map().first() },
-        predicate = predicate
-    )
 }
