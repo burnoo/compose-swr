@@ -13,16 +13,15 @@ internal class SWR(
     private val now: Now,
     private val random: Random
 ) {
-    fun <K, D> initIfNeeded(key: K, fetcher: suspend (K) -> D) {
-        cache.initForKeyIfNeeded(key, fetcher)
+    fun <K, D> initIfNeeded(key: K, fetcher: suspend (K) -> D, config: SWRConfig<K, D>) {
+        cache.initForKeyIfNeeded(key, fetcher, config)
     }
 
     fun <K, D> getLocalFlow(
         key: K,
         fetcher: suspend (K) -> D,
-        configBlock: SWRConfigBlock<K, D>
+        config: SWRConfig<K, D>
     ): Flow<SWRState<D>> {
-        val config = SWRConfig(configBlock)
         val globalSharedFlow = cache.getMutableSharedFlow<K, D>(key)
         return flowOf(SWRRequest(key, fetcher, config))
             .withRefresh(config.refreshInterval)
@@ -53,7 +52,9 @@ internal class SWR(
         }
         if (shouldRevalidate) {
             val fetcher = cache.getFetcher<K, Any>(key)
-            stateFlow.emit(fetchAndWrapState(key, fetcher))
+            val config = cache.getConfig<K, Any>(key)
+            val request = SWRRequest(key, fetcher, config)
+            stateFlow.emit(value = getState(request))
         }
     }
 }

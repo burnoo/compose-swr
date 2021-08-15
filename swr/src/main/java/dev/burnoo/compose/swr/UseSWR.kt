@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import dev.burnoo.compose.swr.di.get
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
+import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
 import kotlinx.coroutines.flow.collect
@@ -20,9 +21,10 @@ fun <K, D> useSWR(
 ): State<SWRState<D>> {
     val swr = get<SWR>()
     val scope = get<RecomposeCoroutineScope>().value
-    swr.initIfNeeded(key, fetcher)
+    val swrConfig = SWRConfig(config)
+    swr.initIfNeeded(key, fetcher, swrConfig)
     LaunchedEffect(key) {
-        swr.getLocalFlow(key, fetcher, config)
+        swr.getLocalFlow(key, fetcher, swrConfig)
             .run { if (scope != null) flowOn(scope.coroutineContext) else this }
             .collect()
     }

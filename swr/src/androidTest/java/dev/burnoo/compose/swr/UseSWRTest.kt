@@ -110,6 +110,18 @@ class UseSWRTest {
     }
 
     @Test
+    fun mutateOnSuccessTest() = runBlocking {
+        val onSuccess = OnSuccess()
+        setContent(config = {
+            this.onSuccess = onSuccess::invoke
+        })
+        assertTextLoading()
+        mutate(key)
+        testCoroutineScope.advanceUntilIdle()
+        assertEquals(2, onSuccess.invocations.size)
+    }
+
+    @Test
     fun refresh() = runBlocking {
         val stringFetcher = StringFetcher(delay = 2000L)
         setContent(config = {
