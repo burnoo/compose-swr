@@ -47,7 +47,7 @@ internal class SWR(
 
     fun <K, D> getGlobalFlow(key: K): Flow<SWRState<D>> = cache.getMutableSharedFlow(key)
 
-    fun <K, D> getInitialResult(key: K, configBlock: SWRConfigBlock<K, D> = {}): SWRState<D> {
+    fun <K, D> getInitialState(key: K, configBlock: SWRConfigBlock<K, D> = {}): SWRState<D> {
         return SWRState.fromData(key, data = SWRConfig(configBlock).initialData)
     }
 

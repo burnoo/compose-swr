@@ -40,14 +40,14 @@ data class IpResponse(val ip: String)
 @Composable
 fun App() {
     val client = get<HttpClient>() // Using Koin for Jetpack Compose
-    val resultState = useSWR<String, IpResponse>(
+    val state = useSWR<String, IpResponse>(
         key = "https://api.ipify.org?format=json",
         fetcher = { client.request(it) }
     )
-    val result = resultState.value
+    val stateValue = state.value
 
     // ported from React SWR
-    val (data, exception) = result
+    val (data, exception) = stateValue
     when {
         exception != null -> Text(text = "Failed to load")
         data != null -> Text(text = data.ip)
@@ -55,8 +55,8 @@ fun App() {
     }
 
     // or more Kotlin-styled
-    when (result) {
-        is SWRState.Success -> Text(text = result.data.ip)
+    when (stateValue) {
+        is SWRState.Success -> Text(text = stateValue.data.ip)
         is SWRState.Loading -> Text("Loading")
         is SWRState.Error -> Text(text = "Failed to load")
     }
@@ -66,25 +66,25 @@ var counter = 0
 
 @Composable
 fun MutationApp() {
-    val resultState = useSWR(
+    val state = useSWR(
         key = Unit,
         fetcher = {
             delay(100)
             counter++.toString()
         }
     ) { refreshInterval = 1000L }
-    val result = resultState.value
+    val stateValue = state.value
     val scope = rememberCoroutineScope()
 
     Column {
-        when (result) {
-            is SWRState.Success -> Text(text = result.data)
+        when (stateValue) {
+            is SWRState.Success -> Text(text = stateValue.data)
             is SWRState.Loading -> Text("Loading")
             is SWRState.Error -> Text(text = "Failed to load")
         }
         Button(onClick = {
             scope.launch {
-                result.mutate("7", false)
+                stateValue.mutate("7", false)
             }
         }) {
             Text("Mutate")
@@ -104,14 +104,14 @@ data class RandomUserResponse(
 
 @Composable
 fun KtorApp() {
-    val resultState = useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
+    val state = useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
         refreshInterval = 5000L
     }
-    when (val result = resultState.value) {
-        is SWRState.Success -> Text(text = result.data.firstEmail)
+    when (val stateValue = state.value) {
+        is SWRState.Success -> Text(text = stateValue.data.firstEmail)
         is SWRState.Loading -> Text("Loading")
         is SWRState.Error -> {
-            result.exception.printStackTrace()
+            stateValue.exception.printStackTrace()
             Text(text = "Failed to load")
         }
     }
