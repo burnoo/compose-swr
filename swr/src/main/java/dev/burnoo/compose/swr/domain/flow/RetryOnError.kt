@@ -16,15 +16,18 @@ internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
     nextDouble: () -> Double,
     getStateFlow: Flow<SWRRequest<K, D>>.() -> Flow<SWRState<D>>
 ): Flow<SWRState<D>> {
-    return retryMapFlow(getStateFlow) { request, result, attempt ->
+    return retryMapFlow(getStateFlow) { request, state, attempt ->
         val config = request.config
-        val shouldRetry = result is SWRState.Error &&
-                config.shouldRetryOnError &&
-                config.errorRetryCount.let { it == null || attempt <= it }
-        if (shouldRetry) {
+        if (state is SWRState.Error &&
+            config.shouldRetryOnError &&
+            config.errorRetryCount.let { it == null || attempt <= it }
+        ) {
+            emit(SWRState.fromRetry(request.key, attempt, state.exception))
             delay(exponentialBackoff(config.errorRetryInterval, attempt, nextDouble))
+            true
+        } else {
+            false
         }
-        shouldRetry
     }
 }
 

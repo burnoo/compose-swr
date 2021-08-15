@@ -6,7 +6,13 @@ private typealias Mutate<T> = suspend (data: T?, shouldRevalidate: Boolean) -> U
 
 sealed class SWRState<T>(private val mutate: Mutate<T>) {
 
-    class Loading<T> internal constructor(mutate: Mutate<T>) : SWRState<T>(mutate)
+    open class Loading<T> internal constructor(mutate: Mutate<T>) : SWRState<T>(mutate) {
+        class Retry<T> internal constructor(
+            val attempt: Int,
+            val exception: Throwable,
+            mutate: Mutate<T>
+        ) : Loading<T>(mutate)
+    }
 
     class Error<T> internal constructor(
         val exception: Throwable,
@@ -55,5 +61,8 @@ sealed class SWRState<T>(private val mutate: Mutate<T>) {
 
         fun <K, D> fromError(key: K, error: Throwable) =
             Error<D>(error, getMutate(key))
+
+        fun <K, D> fromRetry(key: K, attempt: Int, error: Throwable) =
+            Loading.Retry<D>(attempt, error, getMutate(key))
     }
 }

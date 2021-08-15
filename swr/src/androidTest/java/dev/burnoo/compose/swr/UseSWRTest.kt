@@ -204,19 +204,19 @@ class UseSWRTest {
 
         testCoroutineScope.advanceTimeBy(100)
         assertEquals(1, failingFetcher.failCount)
-        assertTextLoading()
+        assertTextLoading(attempt = 1)
 
         testCoroutineScope.advanceTimeBy(delays[0] - 100)
         assertEquals(1, failingFetcher.failCount)
-        assertTextLoading()
+        assertTextLoading(attempt = 1)
 
         testCoroutineScope.advanceTimeBy(200)
         assertEquals(2, failingFetcher.failCount)
-        assertTextLoading()
+        assertTextLoading(attempt = 2)
 
         testCoroutineScope.advanceTimeBy(delays[1] + 100)
         assertEquals(3, failingFetcher.failCount)
-        assertTextLoading()
+        assertTextLoading(attempt = 3)
 
         testCoroutineScope.advanceTimeBy(delays[2] + 100)
         assertEquals(4, failingFetcher.failCount)
@@ -295,6 +295,7 @@ class UseSWRTest {
         composeTestRule.setContent {
             val resultState = useSWR(key = key, fetcher = fetcher, config = config)
             when (val result = resultState.value) {
+                is SWRState.Loading.Retry -> Text("Loading ${result.attempt}")
                 is SWRState.Loading -> Text("Loading")
                 is SWRState.Success -> Text(result.data)
                 is SWRState.Error -> Text("Failure")
@@ -306,8 +307,8 @@ class UseSWRTest {
         assertText("$key$count")
     }
 
-    private fun assertTextLoading() {
-        assertText("Loading")
+    private fun assertTextLoading(attempt: Int? = null) {
+        assertText("Loading${attempt?.let { " $it" } ?: ""}")
     }
 
     private fun assertTextFailure() {
