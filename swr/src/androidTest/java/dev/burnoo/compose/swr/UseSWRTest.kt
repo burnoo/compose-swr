@@ -48,7 +48,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun initialData() {
+    fun showInitialData() {
         setContent(config = {
             initialData = "${key}0"
         })
@@ -56,7 +56,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun defaultRevalidateOnMount() {
+    fun defaultRevalidateOnMountWithInitialData() {
         setContent(config = {
             initialData = "${key}0"
         })
@@ -67,7 +67,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun enabledRevalidateOnMount() {
+    fun enabledRevalidateOnMountWithInitialData() {
         setContent(config = {
             initialData = "${key}0"
             revalidateOnMount = true
@@ -96,7 +96,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun mutateTest() = runBlockingTest {
+    fun globalMuatate() = runBlockingTest {
         setContent()
         assertTextLoading()
 
@@ -113,7 +113,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun mutateOnSuccessTest() = runBlocking {
+    fun mutateWithOnSuccessCallback() = runBlocking {
         val onSuccess = OnSuccess()
         setContent(config = {
             this.onSuccess = onSuccess::invoke
@@ -144,7 +144,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun refreshDeduping() = runBlocking {
+    fun refreshWithDeduping() = runBlocking {
         setContent(config = {
             refreshInterval = 1000L
             dedupingInterval = 2000L
@@ -162,7 +162,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun mutateRefreshDeduping() = runBlocking {
+    fun mutateRefreshWithDeduping() = runBlocking {
         setContent(config = {
             refreshInterval = 2000L
             dedupingInterval = 1000L
@@ -239,7 +239,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun onLoadingSlow() {
+    fun onLoadingSlowTriggered() {
         val onLoadingSlow = OnLoadingSlow()
         val slowFetcher = StringFetcher(delay = 10_000L)
         val config: SWRConfigBlock<String, String> = {
@@ -421,4 +421,3 @@ class UseSWRTest {
         testCoroutineScope.advanceTimeBy(durationMillis)
     }
 }
-
