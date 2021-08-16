@@ -11,7 +11,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 internal fun <T> Flow<T>.withRefresh(
     refreshInterval: Long,
-    getLastMutationTime: () -> Instant,
+    getRevalidationTime: () -> Instant,
     getNow: () -> Instant
 ): Flow<T> {
     return flow {
@@ -21,9 +21,9 @@ internal fun <T> Flow<T>.withRefresh(
                 while (true) {
                     delay(refreshInterval)
                     val refreshDuration = Duration.milliseconds(refreshInterval)
-                    while (refreshDuration > getNow() - getLastMutationTime()) {
-                        val lastMutationAgo = getNow() - getLastMutationTime()
-                        delay(refreshDuration - lastMutationAgo)
+                    while (refreshDuration > getNow() - getRevalidationTime()) {
+                        val lastRevalidationAgo = getNow() - getRevalidationTime()
+                        delay(refreshDuration - lastRevalidationAgo)
                     }
                     emit(it)
                 }

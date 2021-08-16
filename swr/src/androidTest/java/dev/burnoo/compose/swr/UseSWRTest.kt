@@ -5,12 +5,13 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
+import app.cash.turbine.test
 import dev.burnoo.compose.swr.di.KoinContext
 import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.utils.*
-import junit.framework.Assert.assertEquals
+import junit.framework.Assert.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.random.Random
+import kotlin.time.ExperimentalTime
 
 private const val key = "k"
 
@@ -355,6 +357,32 @@ class UseSWRTest {
         testCoroutineScope.advanceTimeBy(3100)
         assertEquals(4, failingFetcher.failCount)
         assertTextFailure()
+    }
+
+    @OptIn(ExperimentalTime::class)
+    @Test
+    fun isValidatingTest() = runBlocking {
+        val retryInterval = 3000L
+        val random = Random(0)
+        val delay = exponentialBackoff(retryInterval, 1) { random.nextDouble() }
+        val failingFetcher = FailingFetcher()
+        setContent(
+            config = {
+                shouldRetryOnError = true
+                errorRetryCount = 1
+                errorRetryInterval = retryInterval
+            },
+            fetcher = failingFetcher::fetch
+        )
+        swrIsValidatingFlow(key).test {
+            assertEquals(true, awaitItem())
+            advanceTimeBy(100L)
+            assertEquals(false, awaitItem())
+            advanceTimeBy(delay)
+            assertEquals(true, awaitItem())
+            advanceTimeBy(100L)
+            assertEquals(false, awaitItem())
+        }
     }
 
     private fun setContent(
