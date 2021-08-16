@@ -12,6 +12,7 @@ import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -315,6 +316,45 @@ class UseSWRTest {
         assertTextLoading()
 
         mutate(key)
+    }
+
+    @Test
+    fun onErrorRetry() = runBlocking {
+        val failingFetcher = FailingFetcher()
+        setContent(config = {
+            errorRetryInterval = 3000L
+            errorRetryCount = 3
+            onErrorRetry = { error, key, config, attempt ->
+                if (config.shouldRetryOnError && config.errorRetryCount.let { it == null || attempt <= it }) {
+                    emit(SWRState.fromError(key, error))
+                    delay(config.errorRetryInterval)
+                    true
+                } else {
+                    false
+                }
+            }
+        }, fetcher = failingFetcher::fetch)
+        assertTextLoading()
+
+        advanceTimeBy(100L)
+        assertEquals(1, failingFetcher.failCount)
+        assertTextFailure()
+
+        testCoroutineScope.advanceTimeBy(2900)
+        assertEquals(1, failingFetcher.failCount)
+        assertTextFailure()
+
+        testCoroutineScope.advanceTimeBy(200)
+        assertEquals(2, failingFetcher.failCount)
+        assertTextFailure()
+
+        testCoroutineScope.advanceTimeBy(3100)
+        assertEquals(3, failingFetcher.failCount)
+        assertTextFailure()
+
+        testCoroutineScope.advanceTimeBy(3100)
+        assertEquals(4, failingFetcher.failCount)
+        assertTextFailure()
     }
 
     private fun setContent(

@@ -1,5 +1,7 @@
 package dev.burnoo.compose.swr.model
 
+import dev.burnoo.compose.swr.domain.flow.SWROnRetry
+
 typealias SWRConfigBlock<K, D> = SWRConfigBody<K, D>.() -> Unit
 
 data class SWRConfig<K, D> internal constructor(
@@ -14,6 +16,7 @@ data class SWRConfig<K, D> internal constructor(
     val onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?,
     val onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?,
     val revalidateOnMount: Boolean?,
+    val onErrorRetry: SWROnRetry<K, D>?,
     val isPaused: () -> Boolean,
 ) {
 
@@ -38,6 +41,8 @@ class SWRConfigBody<K, D> internal constructor() {
     var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
     var revalidateOnMount: Boolean? = null
+
+    var onErrorRetry: SWROnRetry<K, D>? = null
     var isPaused: () -> Boolean = { false }
 }
 
@@ -56,6 +61,7 @@ internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
             onSuccess = onSuccess,
             onError = onError,
             revalidateOnMount = revalidateOnMount,
+            onErrorRetry = onErrorRetry,
             isPaused = isPaused,
         )
     }

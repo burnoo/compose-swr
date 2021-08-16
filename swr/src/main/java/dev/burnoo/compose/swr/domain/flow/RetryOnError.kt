@@ -1,10 +1,30 @@
 package dev.burnoo.compose.swr.domain.flow
 
+import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRRequest
 import dev.burnoo.compose.swr.model.SWRState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlin.math.floor
+
+typealias SWROnRetry<K, D> = suspend FlowCollector<SWRState<D>>.(
+    error: Throwable, key: K, config: SWRConfig<K, D>, attempt: Int
+) -> Boolean
+
+internal fun <K, D> onRetryDefault(
+    nextDouble: () -> Double
+): SWROnRetry<K, D> = { error, key, config, attempt ->
+    if (config.shouldRetryOnError && config.errorRetryCount.let { it == null || attempt <= it }) {
+        emit(SWRState.fromRetry(key, attempt, error))
+        delay(exponentialBackoff(config.errorRetryInterval, attempt, nextDouble))
+        true
+    } else {
+        false
+    }
+}
 
 internal fun exponentialBackoff(
     errorRetryInterval: Long,
@@ -18,13 +38,9 @@ internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
 ): Flow<SWRState<D>> {
     return retryMap(getState) { request, state, attempt ->
         val config = request.config
-        if (state is SWRState.Error &&
-            config.shouldRetryOnError &&
-            config.errorRetryCount.let { it == null || attempt <= it }
-        ) {
-            emit(SWRState.fromRetry(request.key, attempt, state.exception))
-            delay(exponentialBackoff(config.errorRetryInterval, attempt, nextDouble))
-            true
+        if (state is SWRState.Error) {
+            val onErrorRetry = config.onErrorRetry ?: onRetryDefault(nextDouble)
+            this.onErrorRetry(state.exception, request.key, config, attempt)
         } else {
             false
         }
