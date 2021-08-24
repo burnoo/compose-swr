@@ -5,13 +5,13 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
-import app.cash.turbine.test
 import dev.burnoo.compose.swr.di.KoinContext
 import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
+import dev.burnoo.compose.swr.domain.now
+import dev.burnoo.compose.swr.domain.random
 import dev.burnoo.compose.swr.model.SWRConfigBlock
-import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.utils.*
-import junit.framework.Assert.*
+import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.random.Random
-import kotlin.time.ExperimentalTime
 
 private const val key = "k"
 
@@ -38,6 +37,8 @@ class UseSWRTest {
 
     @Before
     fun setUp() {
+        now = testNow
+        restartRandom()
         KoinContext.koinApp = testKoinApplication(testCoroutineScope, testNow)
     }
 
@@ -205,11 +206,9 @@ class UseSWRTest {
     @Test
     fun retryFailingExponential() {
         val retryInterval = 3000L
-        val random = Random(0)
-        val delays = (1..3).map { attempt ->
-            exponentialBackoff(retryInterval, attempt) { random.nextDouble() }
-        }
         val failingFetcher = FailingFetcher()
+        val delays = (1..3).map { attempt -> exponentialBackoff(retryInterval, attempt) }
+        restartRandom()
         setContent(config = {
             shouldRetryOnError = true
             errorRetryInterval = retryInterval
@@ -219,19 +218,19 @@ class UseSWRTest {
 
         testCoroutineScope.advanceTimeBy(100)
         assertEquals(1, failingFetcher.failCount)
-        assertTextLoading(attempt = 1)
+        assertTextFailure()
 
         testCoroutineScope.advanceTimeBy(delays[0] - 100)
         assertEquals(1, failingFetcher.failCount)
-        assertTextLoading(attempt = 1)
+        assertTextFailure()
 
         testCoroutineScope.advanceTimeBy(200)
         assertEquals(2, failingFetcher.failCount)
-        assertTextLoading(attempt = 2)
+        assertTextFailure()
 
         testCoroutineScope.advanceTimeBy(delays[1] + 100)
         assertEquals(3, failingFetcher.failCount)
-        assertTextLoading(attempt = 3)
+        assertTextFailure()
 
         testCoroutineScope.advanceTimeBy(delays[2] + 100)
         assertEquals(4, failingFetcher.failCount)
@@ -326,9 +325,8 @@ class UseSWRTest {
         setContent(config = {
             errorRetryInterval = 3000L
             errorRetryCount = 3
-            onErrorRetry = { error, key, config, attempt ->
+            onErrorRetry = { _, _, config, attempt ->
                 if (config.shouldRetryOnError && config.errorRetryCount.let { it == null || attempt <= it }) {
-                    emit(SWRState.fromError(key, error))
                     delay(config.errorRetryInterval)
                     true
                 } else {
@@ -359,30 +357,29 @@ class UseSWRTest {
         assertTextFailure()
     }
 
-    @OptIn(ExperimentalTime::class)
     @Test
     fun isValidatingTest() = runBlocking {
-        val retryInterval = 3000L
-        val random = Random(0)
-        val delay = exponentialBackoff(retryInterval, 1) { random.nextDouble() }
+        val errorDelay = 3000L
         val failingFetcher = FailingFetcher()
-        setContent(
-            config = {
-                shouldRetryOnError = true
-                errorRetryCount = 1
-                errorRetryInterval = retryInterval
-            },
-            fetcher = failingFetcher::fetch
-        )
-        swrIsValidatingFlow(key).test {
-            assertEquals(true, awaitItem())
-            advanceTimeBy(100L)
-            assertEquals(false, awaitItem())
-            advanceTimeBy(delay)
-            assertEquals(true, awaitItem())
-            advanceTimeBy(100L)
-            assertEquals(false, awaitItem())
+        composeTestRule.setContent {
+            val (_, _, isValidating) = useSWR(
+                key,
+                fetcher = { failingFetcher.fetch(it) },
+                config = {
+                    onErrorRetry = { _, _, _, _ ->
+                        delay(errorDelay)
+                        true
+                    }
+                })
+            Text(text = isValidating.toString())
         }
+        assertText("true")
+        advanceTimeBy(100L)
+        assertText("false")
+        advanceTimeBy(errorDelay)
+        assertText("true")
+        advanceTimeBy(100L)
+        assertText("false")
     }
 
     private fun setContent(
@@ -390,12 +387,11 @@ class UseSWRTest {
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }
     ) {
         composeTestRule.setContent {
-            val resultState = useSWR(key = key, fetcher = fetcher, config = config)
-            when (val result = resultState.value) {
-                is SWRState.Loading.Retry -> Text("Loading ${result.attempt}")
-                is SWRState.Loading -> Text("Loading")
-                is SWRState.Success -> Text(result.data)
-                is SWRState.Error -> Text("Failure")
+            val (data, error) = useSWR(key = key, fetcher = fetcher, config = config)
+            when {
+                error != null -> Text("Failure")
+                data != null -> Text(data)
+                else -> Text("Loading")
             }
         }
     }
@@ -404,8 +400,8 @@ class UseSWRTest {
         assertText("$key$count")
     }
 
-    private fun assertTextLoading(attempt: Int? = null) {
-        assertText("Loading${attempt?.let { " $it" } ?: ""}")
+    private fun assertTextLoading() {
+        assertText("Loading")
     }
 
     private fun assertTextFailure() {
@@ -419,5 +415,9 @@ class UseSWRTest {
     private fun advanceTimeBy(durationMillis: Long) {
         testNow.advanceTimeBy(durationMillis)
         testCoroutineScope.advanceTimeBy(durationMillis)
+    }
+
+    private fun restartRandom() {
+        random = Random(0)
     }
 }

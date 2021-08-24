@@ -10,7 +10,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
 import dev.burnoo.swr.ktor.useSWRKtor
@@ -44,21 +43,12 @@ fun App() {
         key = "https://api.ipify.org?format=json",
         fetcher = { client.request(it) }
     )
-    val stateValue = state.value
 
-    // ported from React SWR
-    val (data, exception) = stateValue
+    val (data, exception) = state
     when {
         exception != null -> Text(text = "Failed to load")
         data != null -> Text(text = data.ip)
         else -> Text(text = "Loading")
-    }
-
-    // or more Kotlin-styled
-    when (stateValue) {
-        is SWRState.Success -> Text(text = stateValue.data.ip)
-        is SWRState.Loading -> Text("Loading")
-        is SWRState.Error -> Text(text = "Failed to load")
     }
 }
 
@@ -73,18 +63,18 @@ fun MutationApp() {
             counter++.toString()
         }
     ) { refreshInterval = 1000L }
-    val stateValue = state.value
     val scope = rememberCoroutineScope()
 
+    val (data, error, isValidating) = state
     Column {
-        when (stateValue) {
-            is SWRState.Success -> Text(text = stateValue.data)
-            is SWRState.Loading -> Text("Loading")
-            is SWRState.Error -> Text(text = "Failed to load")
+        when {
+            error != null -> Text(text = "Failed to load")
+            data != null -> Text(text = "$data $isValidating")
+            else -> Text(text = "Loading")
         }
         Button(onClick = {
             scope.launch {
-                stateValue.mutate("7", false)
+                state.mutate("7", false)
             }
         }) {
             Text("Mutate")
@@ -107,12 +97,10 @@ fun KtorApp() {
     val state = useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
         refreshInterval = 5000L
     }
-    when (val stateValue = state.value) {
-        is SWRState.Success -> Text(text = stateValue.data.firstEmail)
-        is SWRState.Loading -> Text("Loading")
-        is SWRState.Error -> {
-            stateValue.exception.printStackTrace()
-            Text(text = "Failed to load")
-        }
+    val (data, error, isValidating) = state
+    when {
+        error != null -> Text(text = "Failed to load")
+        data != null -> Text(text = "${data.firstEmail} $isValidating")
+        else -> Text(text = "Loading")
     }
 }

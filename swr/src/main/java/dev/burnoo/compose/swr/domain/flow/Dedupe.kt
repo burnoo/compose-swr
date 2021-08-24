@@ -1,5 +1,6 @@
 package dev.burnoo.compose.swr.domain.flow
 
+import dev.burnoo.compose.swr.domain.now
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -10,12 +11,11 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 internal fun <T> Flow<T>.dedupe(
     dedupingInterval: Long,
-    getRevalidationTime: () -> Instant,
-    getNow: () -> Instant
+    getRevalidationTime: () -> Instant
 ): Flow<T> {
     return flow {
         collect {
-            val ago = getNow() - getRevalidationTime()
+            val ago = now() - getRevalidationTime()
             if (ago > Duration.milliseconds(dedupingInterval)) {
                 emit(it)
             }

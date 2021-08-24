@@ -1,72 +1,58 @@
 package dev.burnoo.compose.swr.model
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import dev.burnoo.compose.swr.di.get
+import dev.burnoo.compose.swr.domain.Cache
 import dev.burnoo.compose.swr.mutate
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 
-private typealias Mutate<T> = suspend (data: T?, shouldRevalidate: Boolean) -> Unit
+class SWRState<D> internal constructor(
+    private val stateFlow: StateFlow<InternalState<Any, D>>,
+    private val initialValue: D?
+) {
 
-sealed class SWRState<T>(private val mutate: Mutate<T>) {
+    @Composable
+    operator fun component1() = data
 
-    open class Loading<T> internal constructor(mutate: Mutate<T>) : SWRState<T>(mutate) {
-        class Retry<T> internal constructor(
-            val attempt: Int,
-            val exception: Throwable,
-            mutate: Mutate<T>
-        ) : Loading<T>(mutate)
-    }
+    @Composable
+    operator fun component2() = error
 
-    class Error<T> internal constructor(
-        val exception: Throwable,
-        mutate: Mutate<T>
-    ) : SWRState<T>(mutate)
+    @Composable
+    operator fun component3() = isValidating
 
-    class Success<T> internal constructor(
-        val data: T,
-        mutate: Mutate<T>
-    ) : SWRState<T>(mutate) {
+    operator fun component4(): suspend (data: Any?, shouldRevalidate: Boolean) -> Unit =
+        this::mutate
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-            other as Success<*>
-            if (data != other.data) return false
-            return true
-        }
+    val data: D?
+        @Composable
+        get() = stateFlow
+            .map { it.data }
+            .run { if (initialValue != null) drop(1) else this }
+            .collectAsState(initial = initialValue ?: stateFlow.value.data)
+            .value
 
-        override fun hashCode(): Int {
-            return data?.hashCode() ?: 0
-        }
-    }
+    val error: Throwable?
+        @Composable
+        get() = stateFlow
+            .map { it.error }
+            .collectAsState(initial = stateFlow.value.error)
+            .value
 
-    operator fun component1(): T? = if (this is Success) data else null
+    val isValidating: Boolean
+        @Composable
+        get() = stateFlow
+            .map { it.isValidating }
+            .drop(1)
+            .collectAsState(
+                initial = get<Cache>().getConfig<Any, D>(stateFlow.value.key)
+                    .shouldRevalidateOnMount()
+            )
+            .value
 
-    operator fun component2() = when(this) {
-        is Error -> exception
-        is Loading.Retry -> exception
-        else -> null
-    }
-
-    operator fun component3(): Mutate<T> = mutate
-
-    fun requireData() = (this as Success<T>).data
-
-    fun requireException() = (this as? Loading.Retry)?.exception ?: (this as Error).exception
-
-    suspend fun mutate(data: T? = null, shouldRevalidate: Boolean = true) =
-        mutate.invoke(data, shouldRevalidate)
-
-    companion object {
-        private fun <K, D> getMutate(key: K): Mutate<D> = { newData, shouldRevalidate ->
-            mutate(key, newData, shouldRevalidate)
-        }
-
-        fun <K, D> fromData(key: K, data: D?): SWRState<D> {
-            return if (data == null) Loading(getMutate(key)) else Success(data, getMutate(key))
-        }
-
-        fun <K, D> fromError(key: K, error: Throwable) =
-            Error<D>(error, getMutate(key))
-
-        fun <K, D> fromRetry(key: K, attempt: Int, error: Throwable) =
-            Loading.Retry<D>(attempt, error, getMutate(key))
+    suspend fun mutate(data: Any? = null, shouldRevalidate: Boolean = true) {
+        mutate(stateFlow.value.key, data, shouldRevalidate)
     }
 }

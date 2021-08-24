@@ -1,8 +1,8 @@
 package dev.burnoo.compose.swr.domain.flow
 
+import dev.burnoo.compose.swr.domain.random
 import dev.burnoo.compose.swr.model.SWRConfig
-import dev.burnoo.compose.swr.model.SWRRequest
-import dev.burnoo.compose.swr.model.SWRState
+import dev.burnoo.compose.swr.model.Request
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -10,16 +10,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlin.math.floor
 
-typealias SWROnRetry<K, D> = suspend FlowCollector<SWRState<D>>.(
+typealias SWROnRetry<K, D> = suspend (
     error: Throwable, key: K, config: SWRConfig<K, D>, attempt: Int
 ) -> Boolean
 
-internal fun <K, D> onRetryDefault(
-    nextDouble: () -> Double
-): SWROnRetry<K, D> = { error, key, config, attempt ->
+internal fun <K, D> onRetryDefault(): SWROnRetry<K, D> = { _, _, config, attempt ->
     if (config.shouldRetryOnError && config.errorRetryCount.let { it == null || attempt <= it }) {
-        emit(SWRState.fromRetry(key, attempt, error))
-        delay(exponentialBackoff(config.errorRetryInterval, attempt, nextDouble))
+        delay(exponentialBackoff(config.errorRetryInterval, attempt))
         true
     } else {
         false
@@ -28,22 +25,19 @@ internal fun <K, D> onRetryDefault(
 
 internal fun exponentialBackoff(
     errorRetryInterval: Long,
-    attempt: Int,
-    nextDouble: () -> Double,
-) = floor((nextDouble() + 0.5) * 1.shl(attempt)).toLong() * errorRetryInterval
+    attempt: Int
+) = floor((random.nextDouble() + 0.5) * 1.shl(attempt)).toLong() * errorRetryInterval
 
-internal fun <K, D> Flow<SWRRequest<K, D>>.retryOnError(
-    nextDouble: () -> Double,
-    getState: suspend (SWRRequest<K, D>) -> SWRState<D>
-): Flow<SWRState<D>> {
-    return retryMap(getState) { request, state, attempt ->
+internal fun <K, D> Flow<Request<K, D>>.retryOnError(
+    getResult: suspend (Request<K, D>) -> Result<D>
+): Flow<Result<D>> {
+    return retryMap(getResult) { request, result, attempt ->
         val config = request.config
-        if (state is SWRState.Error) {
-            val onErrorRetry = config.onErrorRetry ?: onRetryDefault(nextDouble)
-            this.onErrorRetry(state.exception, request.key, config, attempt)
-        } else {
-            false
+        result.onFailure {
+            val onErrorRetry: SWROnRetry<K, D> = config.onErrorRetry ?: onRetryDefault()
+            return@retryMap onErrorRetry(it, request.key, config, attempt)
         }
+        false
     }
 }
 

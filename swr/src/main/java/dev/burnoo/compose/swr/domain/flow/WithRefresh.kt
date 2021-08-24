@@ -1,5 +1,6 @@
 package dev.burnoo.compose.swr.domain.flow
 
+import dev.burnoo.compose.swr.domain.now
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -12,7 +13,6 @@ import kotlin.time.ExperimentalTime
 internal fun <T> Flow<T>.withRefresh(
     refreshInterval: Long,
     getRevalidationTime: () -> Instant,
-    getNow: () -> Instant
 ): Flow<T> {
     return flow {
         collect {
@@ -21,8 +21,8 @@ internal fun <T> Flow<T>.withRefresh(
                 while (true) {
                     delay(refreshInterval)
                     val refreshDuration = Duration.milliseconds(refreshInterval)
-                    while (refreshDuration > getNow() - getRevalidationTime()) {
-                        val lastRevalidationAgo = getNow() - getRevalidationTime()
+                    while (refreshDuration > now() - getRevalidationTime()) {
+                        val lastRevalidationAgo = now() - getRevalidationTime()
                         delay(refreshDuration - lastRevalidationAgo)
                     }
                     emit(it)

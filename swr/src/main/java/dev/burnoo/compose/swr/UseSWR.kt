@@ -2,8 +2,6 @@ package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import dev.burnoo.compose.swr.di.get
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
@@ -18,7 +16,7 @@ fun <K, D> useSWR(
     key: K,
     fetcher: suspend (K) -> D,
     config: SWRConfigBlock<K, D> = {}
-): State<SWRState<D>> {
+): SWRState<D> {
     val swr = get<SWR>()
     val scope = get<RecomposeCoroutineScope>().value
     val swrConfig = SWRConfig(config)
@@ -28,5 +26,6 @@ fun <K, D> useSWR(
             .run { if (scope != null) flowOn(scope.coroutineContext) else this }
             .collect()
     }
-    return swr.getGlobalFlow<K, D>(key).collectAsState(initial = swr.getInitialState(key, config))
+    val globalStateFlow = swr.getGlobalFlow<Any, D>(key as Any)
+    return SWRState(stateFlow = globalStateFlow, initialValue = swrConfig.initialData)
 }
