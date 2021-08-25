@@ -8,8 +8,7 @@ import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 
 @Composable
 fun <K, D> useSWR(
@@ -18,13 +17,12 @@ fun <K, D> useSWR(
     config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
     val swr = get<SWR>()
-    val scope = get<RecomposeCoroutineScope>().value
+    val overriddenScope = get<RecomposeCoroutineScope>().value
     val swrConfig = SWRConfig(config)
     swr.initIfNeeded(key, fetcher, swrConfig)
     LaunchedEffect(key) {
         swr.getLocalFlow(key, fetcher, swrConfig)
-            .run { if (scope != null) flowOn(scope.coroutineContext) else this }
-            .collect()
+            .launchIn(overriddenScope ?: this)
     }
     val globalStateFlow = swr.getGlobalFlow<Any, D>(key as Any)
     return SWRState(stateFlow = globalStateFlow, initialValue = swrConfig.initialData)
