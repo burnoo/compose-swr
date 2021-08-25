@@ -25,5 +25,9 @@ fun <K, D> useSWR(
             .launchIn(overriddenScope ?: this)
     }
     val globalStateFlow = swr.getGlobalFlow<Any, D>(key as Any)
-    return SWRState(stateFlow = globalStateFlow, initialValue = swrConfig.initialData)
+    return SWRState(
+        stateFlow = globalStateFlow,
+        initialValue = swrConfig.initialData,
+        config = swrConfig
+    )
 }

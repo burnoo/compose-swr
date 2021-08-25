@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 
 class SWRState<D> internal constructor(
     private val stateFlow: StateFlow<InternalState<Any, D>>,
+    private val config: SWRConfig<*, *>,
     private val initialValue: D?
 ) {
 
@@ -46,10 +47,7 @@ class SWRState<D> internal constructor(
         get() = stateFlow
             .map { it.isValidating }
             .drop(1)
-            .collectAsState(
-                initial = get<Cache>().getConfig<Any, D>(stateFlow.value.key)
-                    .shouldRevalidateOnMount()
-            )
+            .collectAsState(initial = config.shouldRevalidateOnMount())
             .value
 
     suspend fun mutate(data: Any? = null, shouldRevalidate: Boolean = true) {

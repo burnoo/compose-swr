@@ -361,6 +361,7 @@ class UseSWRTest {
     fun isValidatingTest() = runBlocking {
         val errorDelay = 3000L
         val failingFetcher = FailingFetcher()
+        var recompositionCount = 0
         composeTestRule.setContent {
             val (_, _, isValidating) = useSWR(
                 key,
@@ -371,6 +372,7 @@ class UseSWRTest {
                         true
                     }
                 })
+            recompositionCount++
             Text(text = isValidating.toString())
         }
         assertText("true")
@@ -380,6 +382,7 @@ class UseSWRTest {
         assertText("true")
         advanceTimeBy(100L)
         assertText("false")
+        assertEquals(4, recompositionCount)
     }
 
     private fun setContent(
