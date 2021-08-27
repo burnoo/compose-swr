@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr.domain
 
 import dev.burnoo.compose.swr.model.SWRConfig
-import dev.burnoo.compose.swr.model.InternalState
+import dev.burnoo.compose.swr.model.internal.InternalState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Instant

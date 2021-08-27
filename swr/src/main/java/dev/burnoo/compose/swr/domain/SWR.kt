@@ -4,10 +4,10 @@ import dev.burnoo.compose.swr.domain.flow.dedupe
 import dev.burnoo.compose.swr.domain.flow.retryOnError
 import dev.burnoo.compose.swr.domain.flow.syncWithGlobal
 import dev.burnoo.compose.swr.domain.flow.withRefresh
-import dev.burnoo.compose.swr.model.InternalState
-import dev.burnoo.compose.swr.model.Request
+import dev.burnoo.compose.swr.model.internal.InternalState
+import dev.burnoo.compose.swr.model.internal.Request
 import dev.burnoo.compose.swr.model.SWRConfig
-import dev.burnoo.compose.swr.model.SWREvent
+import dev.burnoo.compose.swr.model.internal.Event
 import kotlinx.coroutines.flow.*
 
 internal class SWR(
@@ -21,7 +21,7 @@ internal class SWR(
         key: K,
         fetcher: suspend (K) -> D,
         config: SWRConfig<K, D>
-    ): Flow<SWREvent<D>> {
+    ): Flow<Event<D>> {
         val stateFlow = cache.getStateFlow<K, D>(key)
         return flowOf(Request(key, fetcher, config))
             .withRefresh(
@@ -45,26 +45,26 @@ internal class SWR(
     suspend fun <K, D> mutate(key: K, data: D?, shouldRevalidate: Boolean) {
         val stateFlow = cache.getStateFlow<K, Any>(key)
         if (data != null) {
-            stateFlow.value += SWREvent.Local(data)
+            stateFlow.value += Event.Local(data)
         }
         if (shouldRevalidate) {
-            stateFlow.value += SWREvent.StartValidating
+            stateFlow.value += Event.StartValidating
             val fetcher = cache.getFetcher<K, Any>(key)
             val config = cache.getConfig<K, Any>(key)
             val request = Request(key, fetcher, config)
             getResult(request)
-                .onSuccess { d -> stateFlow.value += SWREvent.Success(d) }
-                .onFailure { e -> stateFlow.value += SWREvent.Error(e) }
+                .onSuccess { d -> stateFlow.value += Event.Success(d) }
+                .onFailure { e -> stateFlow.value += Event.Error(e) }
         }
     }
 
-    private suspend fun <D, K> FlowCollector<SWREvent<D>>.revalidate(request: Request<K, D>) {
+    private suspend fun <D, K> FlowCollector<Event<D>>.revalidate(request: Request<K, D>) {
         flowOf(request)
             .retryOnError {
-                emit(SWREvent.StartValidating)
+                emit(Event.StartValidating)
                 getResult(it)
-                    .onSuccess { data -> emit(SWREvent.Success(data)) }
-                    .onFailure { e -> emit(SWREvent.Error(e)) }
+                    .onSuccess { data -> emit(Event.Success(data)) }
+                    .onFailure { e -> emit(Event.Error(e)) }
             }
             .collect()
     }

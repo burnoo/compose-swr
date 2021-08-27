@@ -2,8 +2,7 @@ package dev.burnoo.compose.swr.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import dev.burnoo.compose.swr.di.get
-import dev.burnoo.compose.swr.domain.Cache
+import dev.burnoo.compose.swr.model.internal.InternalState
 import dev.burnoo.compose.swr.mutate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop

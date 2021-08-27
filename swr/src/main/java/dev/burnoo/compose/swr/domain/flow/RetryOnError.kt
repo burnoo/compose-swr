@@ -2,7 +2,7 @@ package dev.burnoo.compose.swr.domain.flow
 
 import dev.burnoo.compose.swr.domain.random
 import dev.burnoo.compose.swr.model.SWRConfig
-import dev.burnoo.compose.swr.model.Request
+import dev.burnoo.compose.swr.model.internal.Request
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
