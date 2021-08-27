@@ -12,7 +12,7 @@ internal suspend fun <K, D> getResult(request: Request<K, D>): Result<D> {
     return withOnLoadingSlow(
         timeoutMillis = config.loadingTimeout,
         onLoadingSlow = { config.onLoadingSlow?.invoke(key, config) },
-        function = { fetchAndWrapState(key, fetcher) }
+        function = { fetchAndWrapResult(key, fetcher) }
     ).also { handleCallbacks(it, key, config) }
 }
 
@@ -28,7 +28,7 @@ internal suspend fun <T> withOnLoadingSlow(
     return function().also { job.cancel() }
 }
 
-internal suspend fun <K, D> fetchAndWrapState(key: K, fetcher: suspend (K) -> D) = try {
+internal suspend fun <K, D> fetchAndWrapResult(key: K, fetcher: suspend (K) -> D) = try {
     Result.success(fetcher(key))
 } catch (e: Exception) {
     Result.failure(e)
