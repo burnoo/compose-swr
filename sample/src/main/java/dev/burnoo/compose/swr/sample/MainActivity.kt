@@ -39,14 +39,13 @@ data class IpResponse(val ip: String)
 @Composable
 fun App() {
     val client = get<HttpClient>() // Using Koin for Jetpack Compose
-    val state = useSWR<String, IpResponse>(
+    val (data, error) = useSWR(
         key = "https://api.ipify.org?format=json",
-        fetcher = { client.request(it) }
+        fetcher = { client.request<IpResponse>(it) }
     )
 
-    val (data, exception) = state
     when {
-        exception != null -> Text(text = "Failed to load")
+        error != null -> Text(text = "Failed to load")
         data != null -> Text(text = data.ip)
         else -> Text(text = "Loading")
     }
