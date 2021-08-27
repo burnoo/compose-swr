@@ -91,7 +91,7 @@ class UseSWRTest {
     @Test
     fun showError() = runBlockingTest {
         val failingFetcher = FailingFetcher()
-        setContent(fetcher = failingFetcher::fetch, config = { shouldRetryOnError = false })
+        setContent(fetcher = failingFetcher::fetch) { shouldRetryOnError = false }
         assertTextLoading()
         testCoroutineScope.advanceUntilIdle()
         assertTextFailure()
@@ -129,10 +129,10 @@ class UseSWRTest {
     @Test
     fun refresh() = runBlocking {
         val stringFetcher = StringFetcher(delay = 2000L)
-        setContent(config = {
+        setContent(stringFetcher::fetch) {
             refreshInterval = 1000L
             dedupingInterval = 0L
-        }, stringFetcher::fetch)
+        }
         assertTextLoading()
 
         advanceTimeBy(2000L)
@@ -210,11 +210,11 @@ class UseSWRTest {
         val failingFetcher = FailingFetcher()
         val delays = (1..3).map { attempt -> exponentialBackoff(retryInterval, attempt) }
         restartRandom()
-        setContent(config = {
+        setContent(fetcher = failingFetcher::fetch) {
             shouldRetryOnError = true
             errorRetryInterval = retryInterval
             errorRetryCount = 3
-        }, fetcher = failingFetcher::fetch)
+        }
         assertTextLoading()
 
         testCoroutineScope.advanceTimeBy(100)
@@ -246,7 +246,7 @@ class UseSWRTest {
             this.onLoadingSlow = onLoadingSlow::invoke
             loadingTimeout = 2000L
         }
-        setContent(config, slowFetcher::fetch)
+        setContent(slowFetcher::fetch, config)
         assertTextLoading()
         assertEquals(0, onLoadingSlow.invocations.size)
 
@@ -264,7 +264,7 @@ class UseSWRTest {
             this.onLoadingSlow = onLoadingSlow::invoke
             loadingTimeout = 2000L
         }
-        setContent(config, normalFetcher::fetch)
+        setContent(normalFetcher::fetch, config)
         assertTextLoading()
         assertEquals(0, onLoadingSlow.invocations.size)
 
@@ -293,11 +293,11 @@ class UseSWRTest {
     fun onError() {
         val failingFetcher = FailingFetcher()
         val onError = OnError()
-        setContent(config = {
+        setContent(fetcher = failingFetcher::fetch) {
             this.onError = onError::invoke
             errorRetryCount = 1
             errorRetryInterval = 2000L
-        }, fetcher = failingFetcher::fetch)
+        }
         assertTextLoading()
         assertEquals(0, onError.invocations.size)
 
@@ -323,7 +323,7 @@ class UseSWRTest {
     @Test
     fun onErrorRetry() = runBlocking {
         val failingFetcher = FailingFetcher()
-        setContent(config = {
+        setContent(fetcher = failingFetcher::fetch) {
             errorRetryInterval = 3000L
             errorRetryCount = 3
             onErrorRetry = { _, _, config, attempt ->
@@ -334,7 +334,7 @@ class UseSWRTest {
                     false
                 }
             }
-        }, fetcher = failingFetcher::fetch)
+        }
         assertTextLoading()
 
         advanceTimeBy(100L)
@@ -387,9 +387,40 @@ class UseSWRTest {
         assertEquals(4, recompositionCount)
     }
 
+    @Test
+    fun fetcherOverriding() {
+        val fetcher = stringFetcher::fetch
+        val onSuccess = OnSuccess()
+        setContent(config = {
+            this.onSuccess = onSuccess::invoke
+            this.fetcher = FailingFetcher()::fetch
+        }, fetcher = fetcher)
+        advanceTimeBy(100L)
+        assertEquals(fetcher, onSuccess.invocations.first().config.fetcher)
+    }
+
+    @Test
+    fun fetcherFromConfigSuccess() {
+        composeTestRule.setContent {
+            val (data, error) = useSWR<String, String>(
+                key = key,
+                config = {
+                    scope = testCoroutineScope
+                    fetcher = stringFetcher::fetch
+                })
+            when {
+                error != null -> Text("Failure")
+                data != null -> Text(data)
+                else -> Text("Loading")
+            }
+        }
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+    }
+
     private fun setContent(
-        config: SWRConfigBlock<String, String> = {},
-        fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }
+        fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
+        config: SWRConfigBlock<String, String> = {}
     ) {
         composeTestRule.setContent {
             val (data, error) = useSWR(

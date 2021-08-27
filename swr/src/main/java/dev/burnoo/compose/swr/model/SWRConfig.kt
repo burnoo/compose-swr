@@ -16,6 +16,7 @@ operator fun <K, D> SWRConfigBlock<K, D>.plus(
 
 data class SWRConfig<K, D> internal constructor(
     val initialData: D?,
+    val fetcher: suspend (K) -> D,
     val refreshInterval: Long,
     val shouldRetryOnError: Boolean,
     val errorRetryInterval: Long,
@@ -36,9 +37,10 @@ data class SWRConfig<K, D> internal constructor(
 
 @Suppress("FunctionName")
 internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
-    return SWRConfigBody<K, D>().apply(block).run {
+    return SWRConfigBody<K,D>().apply(block).run {
         SWRConfig(
             initialData = initialData,
+            fetcher = fetcher ?: throw IllegalStateException("Fetcher cannot be null"),
             refreshInterval = refreshInterval,
             shouldRetryOnError = shouldRetryOnError,
             errorRetryInterval = errorRetryInterval,
@@ -59,6 +61,8 @@ internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
 class SWRConfigBody<K, D> internal constructor() {
 
     var initialData: D? = null
+
+    var fetcher: (suspend (K) -> D)? = null
 
     var refreshInterval = 0L
     var shouldRetryOnError = true

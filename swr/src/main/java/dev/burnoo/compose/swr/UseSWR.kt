@@ -7,6 +7,7 @@ import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
+import dev.burnoo.compose.swr.model.plus
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
@@ -16,7 +17,7 @@ fun <K, D> useSWR(
     config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
     val swr = get<SWR>()
-    val swrConfig = SWRConfig(config)
+    val swrConfig = SWRConfig(config + { this.fetcher = fetcher })
     swr.initIfNeeded(key, fetcher, swrConfig)
     LaunchedEffect(key) {
         swr.getLocalFlow(key, fetcher, swrConfig)
@@ -28,4 +29,13 @@ fun <K, D> useSWR(
         initialValue = swrConfig.initialData,
         config = swrConfig
     )
+}
+
+@Composable
+fun <K, D> useSWR(
+    key: K,
+    config: SWRConfigBlock<K, D>
+): SWRState<D> {
+    val fetcher = SWRConfig(config).fetcher
+    return useSWR(key, fetcher, config)
 }
