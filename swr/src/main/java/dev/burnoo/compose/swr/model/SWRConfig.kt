@@ -1,8 +1,18 @@
 package dev.burnoo.compose.swr.model
 
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
+import kotlinx.coroutines.CoroutineScope
 
 typealias SWRConfigBlock<K, D> = SWRConfigBody<K, D>.() -> Unit
+
+operator fun <K, D> SWRConfigBlock<K, D>.plus(
+    configBlock: SWRConfigBlock<K, D>
+): SWRConfigBlock<K, D> {
+    return {
+        this@plus(this)
+        configBlock(this)
+    }
+}
 
 data class SWRConfig<K, D> internal constructor(
     val initialData: D?,
@@ -18,9 +28,32 @@ data class SWRConfig<K, D> internal constructor(
     val revalidateOnMount: Boolean?,
     val onErrorRetry: SWROnRetry<K, D>?,
     val isPaused: () -> Boolean,
+    val scope: CoroutineScope? = null
 ) {
 
     internal fun shouldRevalidateOnMount() = revalidateOnMount ?: (initialData == null)
+}
+
+@Suppress("FunctionName")
+internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
+    return SWRConfigBody<K, D>().apply(block).run {
+        SWRConfig(
+            initialData = initialData,
+            refreshInterval = refreshInterval,
+            shouldRetryOnError = shouldRetryOnError,
+            errorRetryInterval = errorRetryInterval,
+            errorRetryCount = errorRetryCount,
+            dedupingInterval = dedupingInterval,
+            loadingTimeout = loadingTimeout,
+            onLoadingSlow = onLoadingSlow,
+            onSuccess = onSuccess,
+            onError = onError,
+            revalidateOnMount = revalidateOnMount,
+            onErrorRetry = onErrorRetry,
+            isPaused = isPaused,
+            scope = scope
+        )
+    }
 }
 
 class SWRConfigBody<K, D> internal constructor() {
@@ -44,25 +77,6 @@ class SWRConfigBody<K, D> internal constructor() {
 
     var onErrorRetry: SWROnRetry<K, D>? = null
     var isPaused: () -> Boolean = { false }
-}
 
-@Suppress("FunctionName")
-internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
-    return SWRConfigBody<K, D>().apply(block).run {
-        SWRConfig(
-            initialData = initialData,
-            refreshInterval = refreshInterval,
-            shouldRetryOnError = shouldRetryOnError,
-            errorRetryInterval = errorRetryInterval,
-            errorRetryCount = errorRetryCount,
-            dedupingInterval = dedupingInterval,
-            loadingTimeout = loadingTimeout,
-            onLoadingSlow = onLoadingSlow,
-            onSuccess = onSuccess,
-            onError = onError,
-            revalidateOnMount = revalidateOnMount,
-            onErrorRetry = onErrorRetry,
-            isPaused = isPaused,
-        )
-    }
+    var scope: CoroutineScope? = null
 }

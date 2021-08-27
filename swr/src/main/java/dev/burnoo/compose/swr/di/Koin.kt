@@ -1,24 +1,28 @@
 package dev.burnoo.compose.swr.di
 
+import androidx.annotation.VisibleForTesting
 import dev.burnoo.compose.swr.domain.Cache
 import dev.burnoo.compose.swr.domain.SWR
-import dev.burnoo.compose.swr.model.RecomposeCoroutineScope
 import org.koin.core.qualifier.Qualifier
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
 internal object KoinContext {
-    private val testableModule = module {
-        factory { RecomposeCoroutineScope() }
+
+    var koinApp = createKoinApp()
+
+    private fun createKoinApp() = koinApplication {
+        modules(getAppModule())
     }
 
-    fun getAppModule() = module {
+    private fun getAppModule() = module {
         single { Cache() }
         factory { SWR(get()) }
     }
 
-    var koinApp = koinApplication {
-        modules(testableModule, getAppModule())
+    @VisibleForTesting
+    fun restart() {
+        koinApp = createKoinApp()
     }
 }
 

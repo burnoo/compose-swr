@@ -10,6 +10,7 @@ import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
 import dev.burnoo.compose.swr.domain.now
 import dev.burnoo.compose.swr.domain.random
 import dev.burnoo.compose.swr.model.SWRConfigBlock
+import dev.burnoo.compose.swr.model.plus
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,7 +40,7 @@ class UseSWRTest {
     fun setUp() {
         now = testNow
         restartRandom()
-        KoinContext.koinApp = testKoinApplication(testCoroutineScope, testNow)
+        KoinContext.restart()
     }
 
     @Test
@@ -371,6 +372,7 @@ class UseSWRTest {
                         delay(errorDelay)
                         true
                     }
+                    scope = testCoroutineScope
                 })
             recompositionCount++
             Text(text = isValidating.toString())
@@ -390,7 +392,10 @@ class UseSWRTest {
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) }
     ) {
         composeTestRule.setContent {
-            val (data, error) = useSWR(key = key, fetcher = fetcher, config = config)
+            val (data, error) = useSWR(
+                key = key,
+                fetcher = fetcher,
+                config = config + { scope = testCoroutineScope })
             when {
                 error != null -> Text("Failure")
                 data != null -> Text(data)
