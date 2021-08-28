@@ -58,21 +58,10 @@ class UseSWRTest {
     }
 
     @Test
-    fun defaultRevalidateOnMountWithInitialData() {
+    fun enabledRevalidateIfStaleWithInitialData() {
         setContent(config = {
             initialData = "${key}0"
-        })
-        assertTextRevalidated(0)
-
-        advanceTimeBy(10_000L)
-        assertTextRevalidated(0)
-    }
-
-    @Test
-    fun enabledRevalidateOnMountWithInitialData() {
-        setContent(config = {
-            initialData = "${key}0"
-            revalidateOnMount = true
+            revalidateIfStale = true
         })
         assertTextRevalidated(0)
 

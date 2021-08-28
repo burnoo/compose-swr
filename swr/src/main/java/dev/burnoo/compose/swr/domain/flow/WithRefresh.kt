@@ -16,7 +16,6 @@ internal fun <T> Flow<T>.withRefresh(
 ): Flow<T> {
     return flow {
         collect {
-            emit(it)
             if (refreshInterval > 0) {
                 while (true) {
                     delay(refreshInterval)

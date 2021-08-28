@@ -4,10 +4,11 @@ import dev.burnoo.compose.swr.domain.flow.dedupe
 import dev.burnoo.compose.swr.domain.flow.retryOnError
 import dev.burnoo.compose.swr.domain.flow.syncWithGlobal
 import dev.burnoo.compose.swr.domain.flow.withRefresh
-import dev.burnoo.compose.swr.model.internal.InternalState
-import dev.burnoo.compose.swr.model.internal.Request
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.internal.Event
+import dev.burnoo.compose.swr.model.internal.InternalState
+import dev.burnoo.compose.swr.model.internal.Request
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 internal class SWR(
@@ -17,24 +18,30 @@ internal class SWR(
         cache.initForKeyIfNeeded(key, fetcher, config)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun <K, D> getLocalFlow(
         key: K,
         fetcher: suspend (K) -> D,
         config: SWRConfig<K, D>
     ): Flow<Event<D>> {
         val stateFlow = cache.getStateFlow<K, D>(key)
-        return flowOf(Request(key, fetcher, config))
-            .withRefresh(
-                refreshInterval = config.refreshInterval,
-                getRevalidationTime = { stateFlow.value.revalidationTime }
-            )
+        val revalidationFlow = flow {
+            if (stateFlow.value.data == null || config.revalidateIfStale) {
+                emit(Unit)
+            }
+        }
+        val refreshFlow = flowOf(Unit).withRefresh(
+            refreshInterval = config.refreshInterval,
+            getRevalidationTime = { stateFlow.value.revalidationTime }
+        )
+        return merge(revalidationFlow, refreshFlow)
             .buffer(1)
-            .run { if (!config.shouldRevalidateOnMount()) drop(1) else this }
             .dropWhile { config.isPaused() || stateFlow.value.isValidating }
             .dedupe(
                 dedupingInterval = config.dedupingInterval,
                 getRevalidationTime = { stateFlow.value.revalidationTime }
             )
+            .map { Request(key, fetcher, config) }
             .transform { revalidate(it) }
             .syncWithGlobal(stateFlow)
     }
