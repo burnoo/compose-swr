@@ -29,8 +29,8 @@ class SWRState<D> internal constructor(
         @Composable
         get() = stateFlow
             .map { it.data }
-            .run { if (config.initialData != null) drop(1) else this }
-            .collectAsState(initial = config.initialData ?: stateFlow.value.data)
+            .run { if (config.fallbackData != null) drop(1) else this }
+            .collectAsState(initial = config.fallbackData ?: stateFlow.value.data)
             .value
 
     val error: Throwable?

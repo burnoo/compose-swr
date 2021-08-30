@@ -50,17 +50,17 @@ class UseSWRTest {
     }
 
     @Test
-    fun showInitialData() {
+    fun showFallbackData() {
         setContent(config = {
-            initialData = "${key}0"
+            fallbackData = "${key}0"
         })
         assertTextRevalidated(0)
     }
 
     @Test
-    fun enabledRevalidateIfStaleWithInitialData() {
+    fun enabledRevalidateIfStaleWithFallbackData() {
         setContent(config = {
-            initialData = "${key}0"
+            fallbackData = "${key}0"
             revalidateIfStale = true
         })
         assertTextRevalidated(0)
@@ -72,7 +72,7 @@ class UseSWRTest {
     @Test
     fun revalidateOnMount() {
         setContent(config = {
-            initialData = "${key}0"
+            fallbackData = "${key}0"
             revalidateIfStale = false
             revalidateOnMount = true
         })
