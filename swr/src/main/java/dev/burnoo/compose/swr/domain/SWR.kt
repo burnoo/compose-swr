@@ -3,7 +3,7 @@ package dev.burnoo.compose.swr.domain
 import dev.burnoo.compose.swr.domain.flow.dedupe
 import dev.burnoo.compose.swr.domain.flow.retryOnError
 import dev.burnoo.compose.swr.domain.flow.syncWithGlobal
-import dev.burnoo.compose.swr.domain.flow.withRefresh
+import dev.burnoo.compose.swr.domain.flow.refresh
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.internal.Event
 import dev.burnoo.compose.swr.model.internal.InternalState
@@ -30,7 +30,7 @@ internal class SWR(
                 emit(Unit)
             }
         }
-        val refreshFlow = flowOf(Unit).withRefresh(
+        val refreshFlow = flowOf(Unit).refresh(
             refreshInterval = config.refreshInterval,
             getRevalidationTime = { stateFlow.value.revalidationTime }
         )

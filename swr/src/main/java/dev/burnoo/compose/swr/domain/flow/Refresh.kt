@@ -10,7 +10,7 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-internal fun <T> Flow<T>.withRefresh(
+internal fun <T> Flow<T>.refresh(
     refreshInterval: Long,
     getRevalidationTime: () -> Instant,
 ): Flow<T> {
