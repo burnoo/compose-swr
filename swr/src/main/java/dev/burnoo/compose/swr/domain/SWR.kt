@@ -26,7 +26,9 @@ internal class SWR(
     ): Flow<Event<D>> {
         val stateFlow = cache.getStateFlow<K, D>(key)
         val revalidationFlow = flow {
-            if (stateFlow.value.data == null || config.revalidateIfStale) {
+            val shouldRevalidate = config.revalidateOnMount
+                ?: (stateFlow.value.data == null || config.revalidateIfStale)
+            if (shouldRevalidate) {
                 emit(Unit)
             }
         }
@@ -50,14 +52,14 @@ internal class SWR(
         cache.getStateFlow(key)
 
     suspend fun <K, D> mutate(key: K, data: D?, shouldRevalidate: Boolean) {
-        val stateFlow = cache.getStateFlow<K, Any>(key)
+        val stateFlow = cache.getStateFlow<K, D>(key)
         if (data != null) {
             stateFlow.value += Event.Local(data)
         }
         if (shouldRevalidate) {
             stateFlow.value += Event.StartValidating
-            val fetcher = cache.getFetcher<K, Any>(key)
-            val config = cache.getConfig<K, Any>(key)
+            val fetcher = cache.getFetcher<K, D>(key)
+            val config = cache.getConfig<K, D>(key)
             val request = Request(key, fetcher, config)
             getResult(request)
                 .onSuccess { d -> stateFlow.value += Event.Success(d) }
@@ -70,7 +72,7 @@ internal class SWR(
             .retryOnError {
                 emit(Event.StartValidating)
                 getResult(it)
-                    .onSuccess { data -> emit(Event.Success(data)) }
+                    .onSuccess { d -> emit(Event.Success(d)) }
                     .onFailure { e -> emit(Event.Error(e)) }
             }
             .collect()

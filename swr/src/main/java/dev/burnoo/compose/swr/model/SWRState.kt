@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 
 class SWRState<D> internal constructor(
-    private val stateFlow: StateFlow<InternalState<Any, D>>,
-    private val initialValue: D?
+    private val stateFlow: StateFlow<InternalState<*, D>>,
+    private val config: SWRConfig<*, D>,
 ) {
 
     @Composable
@@ -29,8 +29,8 @@ class SWRState<D> internal constructor(
         @Composable
         get() = stateFlow
             .map { it.data }
-            .run { if (initialValue != null) drop(1) else this }
-            .collectAsState(initial = initialValue ?: stateFlow.value.data)
+            .run { if (config.initialData != null) drop(1) else this }
+            .collectAsState(initial = config.initialData ?: stateFlow.value.data)
             .value
 
     val error: Throwable?
@@ -45,7 +45,7 @@ class SWRState<D> internal constructor(
         get() = stateFlow
             .map { it.isValidating }
             .drop(1)
-            .collectAsState(initial = true)
+            .collectAsState(initial = config.revalidateOnMount != false)
             .value
 
     suspend fun mutate(data: Any? = null, shouldRevalidate: Boolean = true) {

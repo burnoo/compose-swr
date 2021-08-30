@@ -23,11 +23,7 @@ fun <K, D> useSWR(
         swr.getLocalFlow(key, fetcher, swrConfig)
             .launchIn(swrConfig.scope ?: this)
     }
-    val globalStateFlow = swr.getGlobalFlow<Any, D>(key as Any)
-    return SWRState(
-        stateFlow = globalStateFlow,
-        initialValue = swrConfig.initialData
-    )
+    return SWRState(stateFlow = swr.getGlobalFlow(key), config = swrConfig)
 }
 
 @Composable

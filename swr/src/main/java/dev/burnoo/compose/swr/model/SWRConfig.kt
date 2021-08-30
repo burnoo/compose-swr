@@ -26,6 +26,7 @@ data class SWRConfig<K, D> internal constructor(
     val onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?,
     val onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?,
     val onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?,
+    val revalidateOnMount: Boolean?,
     val revalidateIfStale: Boolean,
     val onErrorRetry: SWROnRetry<K, D>?,
     val isPaused: () -> Boolean,
@@ -47,6 +48,7 @@ internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
             onLoadingSlow = onLoadingSlow,
             onSuccess = onSuccess,
             onError = onError,
+            revalidateOnMount = revalidateOnMount,
             revalidateIfStale = revalidateIfStale,
             onErrorRetry = onErrorRetry,
             isPaused = isPaused,
@@ -74,6 +76,7 @@ class SWRConfigBody<K, D> internal constructor() {
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
 
+    var revalidateOnMount: Boolean? = null
     var revalidateIfStale = true
 
     var onErrorRetry: SWROnRetry<K, D>? = null
