@@ -15,20 +15,20 @@ operator fun <K, D> SWRConfigBlock<K, D>.plus(
 }
 
 data class SWRConfig<K, D> internal constructor(
-    val fallbackData: D?,
     val fetcher: suspend (K) -> D,
+    val revalidateIfStale: Boolean,
+    val revalidateOnMount: Boolean?,
     val refreshInterval: Long,
     val shouldRetryOnError: Boolean,
-    val errorRetryInterval: Long,
-    val errorRetryCount: Int?,
     val dedupingInterval: Long,
     val loadingTimeout: Long,
-    val onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?,
+    val errorRetryInterval: Long,
+    val errorRetryCount: Int?,
+    val fallbackData: D?,
     val onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?,
     val onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?,
-    val revalidateOnMount: Boolean?,
-    val revalidateIfStale: Boolean,
     val onErrorRetry: SWROnRetry<K, D>?,
+    val onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?,
     val isPaused: () -> Boolean,
     val scope: CoroutineScope? = null
 )
@@ -37,20 +37,20 @@ data class SWRConfig<K, D> internal constructor(
 internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
     return SWRConfigBody<K,D>().apply(block).run {
         SWRConfig(
-            fallbackData = fallbackData,
             fetcher = fetcher ?: throw IllegalStateException("Fetcher cannot be null"),
+            revalidateIfStale = revalidateIfStale,
+            revalidateOnMount = revalidateOnMount,
             refreshInterval = refreshInterval,
             shouldRetryOnError = shouldRetryOnError,
-            errorRetryInterval = errorRetryInterval,
-            errorRetryCount = errorRetryCount,
             dedupingInterval = dedupingInterval,
             loadingTimeout = loadingTimeout,
-            onLoadingSlow = onLoadingSlow,
+            errorRetryInterval = errorRetryInterval,
+            errorRetryCount = errorRetryCount,
+            fallbackData = fallbackData,
             onSuccess = onSuccess,
             onError = onError,
-            revalidateOnMount = revalidateOnMount,
-            revalidateIfStale = revalidateIfStale,
             onErrorRetry = onErrorRetry,
+            onLoadingSlow = onLoadingSlow,
             isPaused = isPaused,
             scope = scope
         )
@@ -59,28 +59,20 @@ internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
 
 class SWRConfigBody<K, D> internal constructor() {
 
-    var fallbackData: D? = null
-
     var fetcher: (suspend (K) -> D)? = null
-
-    var refreshInterval = 0L
-    var shouldRetryOnError = true
-    var errorRetryInterval = 5000L
-    var errorRetryCount: Int? = null
-
-    var dedupingInterval = 2000L
-
-    var loadingTimeout = 3000L
-    var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
-
-    var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
-    var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
-
     var revalidateOnMount: Boolean? = null
     var revalidateIfStale = true
-
+    var refreshInterval = 0L
+    var shouldRetryOnError = true
+    var dedupingInterval = 2000L
+    var loadingTimeout = 3000L
+    var errorRetryInterval = 5000L
+    var errorRetryCount: Int? = null
+    var fallbackData: D? = null
+    var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
+    var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
+    var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onErrorRetry: SWROnRetry<K, D>? = null
     var isPaused: () -> Boolean = { false }
-
     var scope: CoroutineScope? = null
 }
