@@ -52,8 +52,9 @@ inline fun <reified K, reified D> SWRConfigProvider(
     noinline value: SWRConfigBlock<K, D>,
     noinline content: @Composable () -> Unit
 ) {
-    val localConfigBody = getConfigBlockComposition<K, D>()
-    CompositionLocalProvider(localConfigBody provides value) {
+    val localConfigBlock = getConfigBlockComposition<K, D>()
+    val currentConfigBlock = localConfigBlock.current
+    CompositionLocalProvider(localConfigBlock provides (currentConfigBlock + value)) {
         content()
     }
 }
