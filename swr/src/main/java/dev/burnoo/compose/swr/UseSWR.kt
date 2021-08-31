@@ -39,9 +39,9 @@ internal fun <K, D> useSWRInternal(
 ): SWRState<D> {
     val swr = get<SWR>()
     val config = SWRConfig(block = configBlock)
-    swr.initIfNeeded(key, config.fetcher, config)
+    swr.initIfNeeded(key, config)
     LaunchedEffect(key) {
-        swr.getLocalFlow(key, config.fetcher, config)
+        swr.getLocalFlow(key, config)
             .launchIn(config.scope ?: this)
     }
     return SWRState(stateFlow = swr.getGlobalFlow(key), config = config)

@@ -14,14 +14,13 @@ import kotlinx.coroutines.flow.*
 internal class SWR(
     private val cache: Cache
 ) {
-    fun <K, D> initIfNeeded(key: K, fetcher: suspend (K) -> D, config: SWRConfig<K, D>) {
-        cache.initForKeyIfNeeded(key, fetcher, config)
+    fun <K, D> initIfNeeded(key: K, config: SWRConfig<K, D>) {
+        cache.initForKeyIfNeeded(key, config)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <K, D> getLocalFlow(
         key: K,
-        fetcher: suspend (K) -> D,
         config: SWRConfig<K, D>
     ): Flow<Event<D>> {
         val stateFlow = cache.getStateFlow<K, D>(key)
@@ -43,7 +42,7 @@ internal class SWR(
                 dedupingInterval = config.dedupingInterval,
                 getRevalidationTime = { stateFlow.value.revalidationTime }
             )
-            .map { Request(key, fetcher, config) }
+            .map { Request(key, config) }
             .transform { revalidate(it) }
             .syncWithGlobal(stateFlow)
     }
@@ -58,9 +57,8 @@ internal class SWR(
         }
         if (shouldRevalidate) {
             stateFlow.value += Event.StartValidating
-            val fetcher = cache.getFetcher<K, D>(key)
             val config = cache.getConfig<K, D>(key)
-            val request = Request(key, fetcher, config)
+            val request = Request(key, config)
             getResult(request)
                 .onSuccess { d -> stateFlow.value += Event.Success(d) }
                 .onFailure { e -> stateFlow.value += Event.Error(e) }

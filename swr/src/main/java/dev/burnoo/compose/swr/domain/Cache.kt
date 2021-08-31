@@ -9,11 +9,9 @@ import kotlinx.datetime.Instant
 @Suppress("UNCHECKED_CAST")
 internal class Cache {
     private val stateFlowCache = mutableMapOf<Any, StateFlow<InternalState<Any, Any>>>()
-    private val fetcherCache = mutableMapOf<Any, suspend (Any) -> Any>()
     private val configCache = mutableMapOf<Any, SWRConfig<Any, Any>>()
 
-    fun <K, D> initForKeyIfNeeded(key: K, fetcher: suspend (K) -> D, config: SWRConfig<K, D>) {
-        fetcherCache.getOrPut(key as Any, { fetcher as suspend (Any) -> Any })
+    fun <K, D> initForKeyIfNeeded(key: K, config: SWRConfig<K, D>) {
         configCache.getOrPut(key as Any, { config as SWRConfig<Any, Any> })
         stateFlowCache.getOrPut(key as Any, {
             MutableStateFlow(
@@ -31,10 +29,6 @@ internal class Cache {
 
     fun <K, D> getStateFlow(key: K): MutableStateFlow<InternalState<K, D>> {
         return stateFlowCache[key as Any] as MutableStateFlow<InternalState<K, D>>
-    }
-
-    fun <K, D> getFetcher(key: K): suspend (K) -> D {
-        return fetcherCache[key as Any] as suspend (K) -> D
     }
 
     fun <K, D> getConfig(key: K): SWRConfig<K, D> {

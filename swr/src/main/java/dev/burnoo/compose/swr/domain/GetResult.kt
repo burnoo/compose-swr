@@ -8,11 +8,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal suspend fun <K, D> getResult(request: Request<K, D>): Result<D> {
-    val (key, fetcher, config) = request
+    val (key, config) = request
     return withOnLoadingSlow(
         timeoutMillis = config.loadingTimeout,
         onLoadingSlow = { config.onLoadingSlow?.invoke(key, config) },
-        function = { fetchAndWrapResult(key, fetcher) }
+        function = { fetchAndWrapResult(key, config.fetcher) }
     ).also { handleCallbacks(it, key, config) }
 }
 
