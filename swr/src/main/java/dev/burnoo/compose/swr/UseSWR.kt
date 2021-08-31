@@ -1,9 +1,11 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import dev.burnoo.compose.swr.di.get
 import dev.burnoo.compose.swr.domain.SWR
+import dev.burnoo.compose.swr.domain.getConfigBlockComposition
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
@@ -11,26 +13,47 @@ import dev.burnoo.compose.swr.model.plus
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
-fun <K, D> useSWR(
+inline fun <reified K, reified D> useSWR(
     key: K,
-    fetcher: suspend (K) -> D,
-    config: SWRConfigBlock<K, D> = {}
+    noinline fetcher: suspend (K) -> D,
+    noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
-    val swr = get<SWR>()
-    val swrConfig = SWRConfig(config + { this.fetcher = fetcher })
-    swr.initIfNeeded(key, fetcher, swrConfig)
-    LaunchedEffect(key) {
-        swr.getLocalFlow(key, fetcher, swrConfig)
-            .launchIn(swrConfig.scope ?: this)
-    }
-    return SWRState(stateFlow = swr.getGlobalFlow(key), config = swrConfig)
+    return useSWR(key, config + { this.fetcher = fetcher })
 }
 
 @Composable
-fun <K, D> useSWR(
+inline fun <reified K, reified D> useSWR(
     key: K,
-    config: SWRConfigBlock<K, D>
+    noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
-    val fetcher = SWRConfig(config).fetcher
-    return useSWR(key, fetcher, config)
+    val globalConfigBody = getConfigBlockComposition<K, D>().current
+    val swrConfig = globalConfigBody + config
+    return useSWRInternal(key, swrConfig)
+}
+
+@PublishedApi
+@Composable
+internal fun <K, D> useSWRInternal(
+    key: K,
+    configBlock: SWRConfigBlock<K, D>
+): SWRState<D> {
+    val swr = get<SWR>()
+    val config = SWRConfig(block = configBlock)
+    swr.initIfNeeded(key, config.fetcher, config)
+    LaunchedEffect(key) {
+        swr.getLocalFlow(key, config.fetcher, config)
+            .launchIn(config.scope ?: this)
+    }
+    return SWRState(stateFlow = swr.getGlobalFlow(key), config = config)
+}
+
+@Composable
+inline fun <reified K, reified D> SWRConfigProvider(
+    noinline value: SWRConfigBlock<K, D>,
+    noinline content: @Composable () -> Unit
+) {
+    val localConfigBody = getConfigBlockComposition<K, D>()
+    CompositionLocalProvider(localConfigBody provides value) {
+        content()
+    }
 }

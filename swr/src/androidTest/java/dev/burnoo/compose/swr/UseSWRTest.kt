@@ -432,6 +432,27 @@ class UseSWRTest {
         assertTextRevalidated(1)
     }
 
+    @Test
+    fun showSuccessFromGlobal() = runBlockingTest {
+        composeTestRule.setContent {
+            val config: SWRConfigBlock<String, String> = {
+                fetcher = { stringFetcher.fetch(it) }
+                scope = testCoroutineScope
+            }
+            SWRConfigProvider(value = config) {
+                val (data, error) = useSWR<String, String>(key = key)
+                when {
+                    error != null -> Text("Failure")
+                    data != null -> Text(data)
+                    else -> Text("Loading")
+                }
+            }
+        }
+        assertTextLoading()
+        testCoroutineScope.advanceUntilIdle()
+        assertTextRevalidated(1)
+    }
+
     private fun setContent(
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
         config: SWRConfigBlock<String, String> = {}
