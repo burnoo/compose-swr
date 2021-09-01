@@ -478,6 +478,22 @@ class UseSWRTest {
         assertTextRevalidated(1)
     }
 
+    @Test
+    fun useSWRConfig() = runBlockingTest {
+        composeTestRule.setContent {
+            val parentConfig: SWRConfigBlock<String, String> = {
+                fetcher = { stringFetcher.fetch(it) }
+                scope = testCoroutineScope
+                refreshInterval = 123L
+            }
+            SWRConfigProvider(value = parentConfig) {
+                val config = useSWRConfig<String, String>()
+                Text(text = config.refreshInterval.toString())
+            }
+        }
+        assertText("123")
+    }
+
     private fun setContent(
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
         config: SWRConfigBlock<String, String> = {}

@@ -1,7 +1,6 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import dev.burnoo.compose.swr.di.get
 import dev.burnoo.compose.swr.domain.SWR
@@ -47,14 +46,3 @@ internal fun <K, D> useSWRInternal(
     return SWRState(stateFlow = swr.getGlobalFlow(key), config = config)
 }
 
-@Composable
-inline fun <reified K, reified D> SWRConfigProvider(
-    noinline value: SWRConfigBlock<K, D>,
-    noinline content: @Composable () -> Unit
-) {
-    val localConfigBlock = getConfigBlockComposition<K, D>()
-    val currentConfigBlock = localConfigBlock.current
-    CompositionLocalProvider(localConfigBlock provides (currentConfigBlock + value)) {
-        content()
-    }
-}

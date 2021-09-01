@@ -33,6 +33,7 @@ data class SWRConfig<K, D> internal constructor(
     val scope: CoroutineScope? = null
 )
 
+@PublishedApi
 @Suppress("FunctionName")
 internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
     return SWRConfigBody<K,D>().apply(block).run {
