@@ -2,7 +2,7 @@ package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import dev.burnoo.compose.swr.di.get
+import dev.burnoo.compose.swr.domain.LocalCache
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.domain.getConfigBlockComposition
 import dev.burnoo.compose.swr.model.SWRConfig
@@ -25,8 +25,9 @@ inline fun <reified K, reified D> useSWR(
     key: K,
     noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
-    val globalConfigBody = getConfigBlockComposition<K, D>().current
-    val swrConfig = globalConfigBody + config
+    val localConfigBlock = getConfigBlockComposition<K, D>().current
+    val configBlock = localConfigBlock + config
+    val swrConfig = SWRConfig(configBlock)
     return useSWRInternal(key, swrConfig)
 }
 
@@ -34,15 +35,13 @@ inline fun <reified K, reified D> useSWR(
 @Composable
 internal fun <K, D> useSWRInternal(
     key: K,
-    configBlock: SWRConfigBlock<K, D>
+    config: SWRConfig<K, D>
 ): SWRState<D> {
-    val swr = get<SWR>()
-    val config = SWRConfig(block = configBlock)
-    swr.initIfNeeded(key, config)
+    val cache = LocalCache.current
+    val swr = SWR(key, config, cache)
     LaunchedEffect(key) {
-        swr.getLocalFlow(key, config)
-            .launchIn(config.scope ?: this)
+        swr.getLocalFlow().launchIn(config.scope ?: this)
     }
-    return SWRState(stateFlow = swr.getGlobalFlow(key), config = config)
+    return SWRState(swr.getGlobalFlow(), config, cache)
 }
 

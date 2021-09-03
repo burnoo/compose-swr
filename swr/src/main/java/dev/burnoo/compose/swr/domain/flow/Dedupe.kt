@@ -11,11 +11,11 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 internal fun <T> Flow<T>.dedupe(
     dedupingInterval: Long,
-    getRevalidationTime: () -> Instant
+    getLastUsageTime: () -> Instant
 ): Flow<T> {
     return flow {
         collect {
-            val ago = now() - getRevalidationTime()
+            val ago = now() - getLastUsageTime()
             if (ago > Duration.milliseconds(dedupingInterval)) {
                 emit(it)
             }

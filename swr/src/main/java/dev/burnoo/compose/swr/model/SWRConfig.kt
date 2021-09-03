@@ -1,5 +1,7 @@
 package dev.burnoo.compose.swr.model
 
+import dev.burnoo.compose.swr.domain.DefaultCache
+import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
 
@@ -15,7 +17,7 @@ operator fun <K, D> SWRConfigBlock<K, D>.plus(
 }
 
 data class SWRConfig<K, D> internal constructor(
-    val fetcher: suspend (K) -> D,
+    val fetcher: (suspend (K) -> D)?,
     val revalidateIfStale: Boolean,
     val revalidateOnMount: Boolean?,
     val refreshInterval: Long,
@@ -30,15 +32,19 @@ data class SWRConfig<K, D> internal constructor(
     val onErrorRetry: SWROnRetry<K, D>?,
     val onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?,
     val isPaused: () -> Boolean,
-    val scope: CoroutineScope? = null
-)
+    val provider: () -> SWRCache,
+    val scope: CoroutineScope?
+) {
+
+    fun requireFetcher() = fetcher ?: throw IllegalStateException("Fetcher cannot be null")
+}
 
 @PublishedApi
 @Suppress("FunctionName")
 internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
     return SWRConfigBody<K,D>().apply(block).run {
         SWRConfig(
-            fetcher = fetcher ?: throw IllegalStateException("Fetcher cannot be null"),
+            fetcher = fetcher,
             revalidateIfStale = revalidateIfStale,
             revalidateOnMount = revalidateOnMount,
             refreshInterval = refreshInterval,
@@ -53,6 +59,7 @@ internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
             onErrorRetry = onErrorRetry,
             onLoadingSlow = onLoadingSlow,
             isPaused = isPaused,
+            provider = provider,
             scope = scope
         )
     }
@@ -75,5 +82,6 @@ class SWRConfigBody<K, D> internal constructor() {
     var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
     var onErrorRetry: SWROnRetry<K, D>? = null
     var isPaused: () -> Boolean = { false }
+    var provider: () -> SWRCache = { DefaultCache() }
     var scope: CoroutineScope? = null
 }

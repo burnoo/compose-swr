@@ -2,16 +2,33 @@ package dev.burnoo.compose.swr.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import dev.burnoo.compose.swr.domain.SWR
+import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.model.internal.InternalState
-import dev.burnoo.compose.swr.mutate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 
+@Suppress("UNCHECKED_CAST", "FunctionName")
+internal fun <K, D> SWRState(
+    stateFlow: StateFlow<InternalState<K, D>>,
+    config: SWRConfig<K, D>,
+    cache: SWRCache
+): SWRState<D> {
+    return SWRState(
+        stateFlow as StateFlow<InternalState<Any, D>>,
+        config as SWRConfig<Any, D>,
+        cache
+    )
+}
+
 class SWRState<D> internal constructor(
-    private val stateFlow: StateFlow<InternalState<*, D>>,
-    private val config: SWRConfig<*, D>,
+    private val stateFlow: StateFlow<InternalState<Any, D>>,
+    private val config: SWRConfig<Any, D>,
+    cache: SWRCache
 ) {
+
+    private val swr = SWR(stateFlow.value.key, config, cache)
 
     @Composable
     operator fun component1() = data
@@ -22,7 +39,7 @@ class SWRState<D> internal constructor(
     @Composable
     operator fun component3() = isValidating
 
-    operator fun component4(): suspend (data: Any?, shouldRevalidate: Boolean) -> Unit =
+    operator fun component4(): suspend (data: D?, shouldRevalidate: Boolean) -> Unit =
         this::mutate
 
     val data: D?
@@ -48,7 +65,7 @@ class SWRState<D> internal constructor(
             .collectAsState(initial = config.revalidateOnMount != false)
             .value
 
-    suspend fun mutate(data: Any? = null, shouldRevalidate: Boolean = true) {
-        mutate(stateFlow.value.key, data, shouldRevalidate)
+    suspend fun mutate(data: D? = null, shouldRevalidate: Boolean = true) {
+        swr.mutate(data, shouldRevalidate)
     }
 }

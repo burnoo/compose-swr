@@ -12,7 +12,7 @@ internal suspend fun <K, D> getResult(request: Request<K, D>): Result<D> {
     return withOnLoadingSlow(
         timeoutMillis = config.loadingTimeout,
         onLoadingSlow = { config.onLoadingSlow?.invoke(key, config) },
-        function = { fetchAndWrapResult(key, config.fetcher) }
+        function = { fetchAndWrapResult(key, config.requireFetcher()) }
     ).also { handleCallbacks(it, key, config) }
 }
 

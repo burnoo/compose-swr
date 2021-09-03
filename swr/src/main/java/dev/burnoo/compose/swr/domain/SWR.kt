@@ -1,9 +1,9 @@
 package dev.burnoo.compose.swr.domain
 
 import dev.burnoo.compose.swr.domain.flow.dedupe
+import dev.burnoo.compose.swr.domain.flow.refresh
 import dev.burnoo.compose.swr.domain.flow.retryOnError
 import dev.burnoo.compose.swr.domain.flow.syncWithGlobal
-import dev.burnoo.compose.swr.domain.flow.refresh
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.internal.Event
 import dev.burnoo.compose.swr.model.internal.InternalState
@@ -11,20 +11,20 @@ import dev.burnoo.compose.swr.model.internal.Request
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
-internal class SWR(
-    private val cache: Cache
+internal class SWR<K, D>(
+    private val key: K,
+    private val config: SWRConfig<K, D>,
+    private val cache: SWRCache
 ) {
-    fun <K, D> initIfNeeded(key: K, config: SWRConfig<K, D>) {
-        cache.initForKeyIfNeeded(key, config)
+
+    init {
+        cache.initForKeyIfNeeded<K, D>(key)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun <K, D> getLocalFlow(
-        key: K,
-        config: SWRConfig<K, D>
-    ): Flow<Event<D>> {
+    fun getLocalFlow(): Flow<Event<D>> {
         val stateFlow = cache.getStateFlow<K, D>(key)
-        val revalidationFlow = flow {
+        val initialFlow = flow {
             val shouldRevalidate = config.revalidateOnMount
                 ?: (stateFlow.value.data == null || config.revalidateIfStale)
             if (shouldRevalidate) {
@@ -33,31 +33,30 @@ internal class SWR(
         }
         val refreshFlow = flowOf(Unit).refresh(
             refreshInterval = config.refreshInterval,
-            getRevalidationTime = { stateFlow.value.revalidationTime }
+            getLastUsageTime = { stateFlow.value.revalidationTime }
         )
-        return merge(revalidationFlow, refreshFlow)
+        return merge(initialFlow, refreshFlow)
             .buffer(1)
             .dropWhile { config.isPaused() || stateFlow.value.isValidating }
             .dedupe(
                 dedupingInterval = config.dedupingInterval,
-                getRevalidationTime = { stateFlow.value.revalidationTime }
+                getLastUsageTime = { stateFlow.value.revalidationTime }
             )
             .map { Request(key, config) }
             .transform { revalidate(it) }
             .syncWithGlobal(stateFlow)
     }
 
-    fun <K, D> getGlobalFlow(key: K): StateFlow<InternalState<K, D>> =
+    fun getGlobalFlow(): StateFlow<InternalState<K, D>> =
         cache.getStateFlow(key)
 
-    suspend fun <K, D> mutate(key: K, data: D?, shouldRevalidate: Boolean) {
+    suspend fun mutate(data: D?, shouldRevalidate: Boolean) {
         val stateFlow = cache.getStateFlow<K, D>(key)
         if (data != null) {
             stateFlow.value += Event.Local(data)
         }
         if (shouldRevalidate) {
             stateFlow.value += Event.StartValidating
-            val config = cache.getConfig<K, D>(key)
             val request = Request(key, config)
             getResult(request)
                 .onSuccess { d -> stateFlow.value += Event.Success(d) }

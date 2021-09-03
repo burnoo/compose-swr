@@ -12,7 +12,7 @@ internal data class InternalState<K, D> internal constructor(
     val mutationTime: Instant,
 ) {
 
-    internal operator fun plus(event: Event<D>): InternalState<K, D> {
+    operator fun plus(event: Event<D>): InternalState<K, D> {
         return when (event) {
             is Event.StartValidating -> copy(isValidating = true, revalidationTime = now())
             is Event.Success -> copy(
@@ -32,5 +32,16 @@ internal data class InternalState<K, D> internal constructor(
                 mutationTime = now()
             )
         }
+    }
+
+    companion object {
+        fun <K, D> initial(key: K) = InternalState<K, D>(
+            key = key,
+            data = null,
+            error = null,
+            isValidating = false,
+            revalidationTime = Instant.DISTANT_PAST,
+            mutationTime = Instant.DISTANT_PAST
+        )
     }
 }

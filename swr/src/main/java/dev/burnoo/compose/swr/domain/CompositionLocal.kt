@@ -22,3 +22,6 @@ internal inline fun <reified K, reified D> getConfigBlockComposition(): Providab
         configBlockCompositions[p] as ProvidableCompositionLocal<SWRConfigBlock<K, D>>
     }
 }
+
+@PublishedApi
+internal var LocalCache = compositionLocalOf<SWRCache> { DefaultCache() }

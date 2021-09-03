@@ -1,14 +1,12 @@
 package dev.burnoo.compose.swr
 
+import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.isRoot
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChildAt
-import dev.burnoo.compose.swr.di.KoinContext
+import dev.burnoo.compose.swr.domain.*
 import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
-import dev.burnoo.compose.swr.domain.now
-import dev.burnoo.compose.swr.domain.random
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.plus
 import dev.burnoo.compose.swr.utils.*
@@ -40,18 +38,19 @@ class UseSWRTest {
     fun setUp() {
         now = testNow
         restartRandom()
-        KoinContext.restart()
+        LocalCache = compositionLocalOf { DefaultCache() }
+        configBlockCompositions.clear()
     }
 
     @Test
     fun showLoading() {
-        setContent()
+        setDefaultContent()
         assertTextLoading()
     }
 
     @Test
     fun showFallbackData() {
-        setContent(config = {
+        setDefaultContent(config = {
             fallbackData = "${key}0"
         })
         assertTextRevalidated(0)
@@ -59,7 +58,7 @@ class UseSWRTest {
 
     @Test
     fun enabledRevalidateIfStaleWithFallbackData() {
-        setContent(config = {
+        setDefaultContent(config = {
             fallbackData = "${key}0"
             revalidateIfStale = true
         })
@@ -71,7 +70,7 @@ class UseSWRTest {
 
     @Test
     fun revalidateOnMount() {
-        setContent(config = {
+        setDefaultContent(config = {
             fallbackData = "${key}0"
             revalidateIfStale = false
             revalidateOnMount = true
@@ -84,7 +83,7 @@ class UseSWRTest {
 
     @Test
     fun doNotRevalidateOnMount() {
-        setContent(config = {
+        setDefaultContent(config = {
             revalidateIfStale = true
             revalidateOnMount = false
         })
@@ -96,7 +95,7 @@ class UseSWRTest {
 
     @Test
     fun showSuccess() = runBlockingTest {
-        setContent()
+        setDefaultContent()
         assertTextLoading()
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
@@ -105,25 +104,25 @@ class UseSWRTest {
     @Test
     fun showError() = runBlockingTest {
         val failingFetcher = FailingFetcher()
-        setContent(fetcher = failingFetcher::fetch) { shouldRetryOnError = false }
+        setDefaultContent(fetcher = failingFetcher::fetch) { shouldRetryOnError = false }
         assertTextLoading()
         testCoroutineScope.advanceUntilIdle()
         assertTextFailure()
     }
 
     @Test
-    fun globalMuatate() = runBlockingTest {
-        setContent()
+    fun mutateRevalidate() = runBlockingTest {
+        setMutationContent()
         assertTextLoading()
 
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(1)
 
-        testCoroutineScope.launch { mutate("k") }
+        clickMutate()
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(2)
 
-        testCoroutineScope.launch { mutate("k") }
+        clickMutate()
         testCoroutineScope.advanceUntilIdle()
         assertTextRevalidated(3)
     }
@@ -131,11 +130,11 @@ class UseSWRTest {
     @Test
     fun mutateWithOnSuccessCallback() = runBlocking {
         val onSuccess = OnSuccess()
-        setContent(config = {
+        setMutationContent(config = {
             this.onSuccess = onSuccess::invoke
         })
         assertTextLoading()
-        mutate(key)
+        clickMutate()
         testCoroutineScope.advanceUntilIdle()
         assertEquals(2, onSuccess.invocations.size)
     }
@@ -143,7 +142,7 @@ class UseSWRTest {
     @Test
     fun refresh() = runBlocking {
         val stringFetcher = StringFetcher(delay = 2000L)
-        setContent(stringFetcher::fetch) {
+        setDefaultContent(stringFetcher::fetch) {
             refreshInterval = 1000L
             dedupingInterval = 0L
         }
@@ -161,7 +160,7 @@ class UseSWRTest {
 
     @Test
     fun refreshWithDeduping() = runBlocking {
-        setContent(config = {
+        setDefaultContent(config = {
             refreshInterval = 1000L
             dedupingInterval = 2000L
         })
@@ -179,9 +178,10 @@ class UseSWRTest {
 
     @Test
     fun mutateRefreshWithDeduping() = runBlocking {
-        setContent(config = {
+        setMutationContent(config = {
             refreshInterval = 2000L
             dedupingInterval = 1000L
+            scope = testCoroutineScope
         })
         assertTextLoading()
 
@@ -189,7 +189,8 @@ class UseSWRTest {
         assertTextRevalidated(1)
 
         advanceTimeBy(1500L)
-        mutate(key)
+        clickMutate()
+        advanceTimeBy(100L)
         assertTextRevalidated(2)
 
         advanceTimeBy(500L)
@@ -204,15 +205,16 @@ class UseSWRTest {
 
     @Test
     fun mutateWithoutRevalidationRefresh() = runBlocking {
-        setContent(config = {
+        setMutationContent(config = {
             refreshInterval = 2000L
             dedupingInterval = 1000L
-        })
+            scope = testCoroutineScope
+        }, mutationData = "${key}0", shouldRevalidate = false)
         assertTextLoading()
         advanceTimeBy(100L)
 
         repeat(10) {
-            mutate(key, data = "${key}0", shouldRevalidate = false)
+            clickMutate()
             advanceTimeBy(999L)
             assertTextRevalidated(0)
         }
@@ -224,7 +226,7 @@ class UseSWRTest {
         val failingFetcher = FailingFetcher()
         val delays = (1..3).map { attempt -> exponentialBackoff(retryInterval, attempt) }
         restartRandom()
-        setContent(fetcher = failingFetcher::fetch) {
+        setDefaultContent(fetcher = failingFetcher::fetch) {
             shouldRetryOnError = true
             errorRetryInterval = retryInterval
             errorRetryCount = 3
@@ -260,7 +262,7 @@ class UseSWRTest {
             this.onLoadingSlow = onLoadingSlow::invoke
             loadingTimeout = 2000L
         }
-        setContent(slowFetcher::fetch, config)
+        setDefaultContent(slowFetcher::fetch, config)
         assertTextLoading()
         assertEquals(0, onLoadingSlow.invocations.size)
 
@@ -278,7 +280,7 @@ class UseSWRTest {
             this.onLoadingSlow = onLoadingSlow::invoke
             loadingTimeout = 2000L
         }
-        setContent(normalFetcher::fetch, config)
+        setDefaultContent(normalFetcher::fetch, config)
         assertTextLoading()
         assertEquals(0, onLoadingSlow.invocations.size)
 
@@ -290,7 +292,7 @@ class UseSWRTest {
     @Test
     fun onSuccess() {
         val onSuccess = OnSuccess()
-        setContent(config = {
+        setDefaultContent(config = {
             this.onSuccess = onSuccess::invoke
         })
         assertTextLoading()
@@ -307,7 +309,7 @@ class UseSWRTest {
     fun onError() {
         val failingFetcher = FailingFetcher()
         val onError = OnError()
-        setContent(fetcher = failingFetcher::fetch) {
+        setDefaultContent(fetcher = failingFetcher::fetch) {
             this.onError = onError::invoke
             errorRetryCount = 1
             errorRetryInterval = 2000L
@@ -324,20 +326,21 @@ class UseSWRTest {
 
     @Test
     fun isPausedTest() = runBlocking {
-        setContent(config = {
+        setDefaultContent(config = {
             isPaused = { true }
             dedupingInterval = 0L
             refreshInterval = 500L
         })
         assertTextLoading()
 
-        mutate(key)
+        advanceTimeBy(100000L)
+        assertTextLoading()
     }
 
     @Test
     fun onErrorRetry() = runBlocking {
         val failingFetcher = FailingFetcher()
-        setContent(fetcher = failingFetcher::fetch) {
+        setDefaultContent(fetcher = failingFetcher::fetch) {
             errorRetryInterval = 3000L
             errorRetryCount = 3
             onErrorRetry = { _, _, config, attempt ->
@@ -405,7 +408,7 @@ class UseSWRTest {
     fun fetcherOverriding() {
         val fetcher = stringFetcher::fetch
         val onSuccess = OnSuccess()
-        setContent(config = {
+        setDefaultContent(config = {
             this.onSuccess = onSuccess::invoke
             this.fetcher = FailingFetcher()::fetch
         }, fetcher = fetcher)
@@ -487,14 +490,93 @@ class UseSWRTest {
                 refreshInterval = 123L
             }
             SWRConfigProvider(value = parentConfig) {
-                val config = useSWRConfig<String, String>()
+                val (_, _, config) = useSWRConfig<String, String>()
                 Text(text = config.refreshInterval.toString())
             }
         }
         assertText("123")
     }
 
-    private fun setContent(
+    @Test
+    fun clearCustomCache() {
+        val cache = DefaultCache()
+        composeTestRule.setContent {
+            SWRConfigProvider<String, String>(value = {
+                provider = { cache }
+                scope = testCoroutineScope
+            }) {
+                val (data, error) = useSWR(
+                    key = key,
+                    fetcher = { stringFetcher.fetch(it) }
+                )
+                when {
+                    error != null -> Text("Failure")
+                    data != null -> Text(data)
+                    else -> Text("Loading")
+                }
+            }
+        }
+        assertTextLoading()
+
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+
+        cache.clear()
+        assertTextLoading()
+    }
+
+    @Test
+    fun getDataFromCustomCache() {
+        val cache = DefaultCache()
+        composeTestRule.setContent {
+            SWRConfigProvider<String, String>(value = {
+                provider = { cache }
+                scope = testCoroutineScope
+            }) {
+                val (data, error) = useSWR(
+                    key = key,
+                    fetcher = { stringFetcher.fetch(it) }
+                )
+                when {
+                    error != null -> Text("Failure")
+                    data != null -> Text(data)
+                    else -> Text("Loading")
+                }
+            }
+        }
+        assertTextLoading()
+
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+
+        assertEquals("${key}1", cache.get<String, String>(key))
+    }
+
+    @Test
+    fun getKeysFromCustomCache() {
+        val cache = DefaultCache()
+        composeTestRule.setContent {
+            SWRConfigProvider<String, String>(value = {
+                provider = { cache }
+                scope = testCoroutineScope
+            }) {
+                val (data, error) = useSWR(
+                    key = key,
+                    fetcher = { stringFetcher.fetch(it) }
+                )
+                when {
+                    error != null -> Text("Failure")
+                    data != null -> Text(data)
+                    else -> Text("Loading")
+                }
+            }
+        }
+        assertTextLoading()
+
+        assertEquals(setOf<Any>(key), cache.keys())
+    }
+
+    private fun setDefaultContent(
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
         config: SWRConfigBlock<String, String> = {}
     ) {
@@ -509,6 +591,34 @@ class UseSWRTest {
                 else -> Text("Loading")
             }
         }
+    }
+
+    private fun setMutationContent(
+        fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
+        config: SWRConfigBlock<String, String> = {},
+        mutationData: String? = null,
+        shouldRevalidate: Boolean = true
+    ) {
+        composeTestRule.setContent {
+            val (data, error, _, mutate) = useSWR(
+                key = key,
+                fetcher = fetcher,
+                config = config + { scope = testCoroutineScope })
+            when {
+                error != null -> Text("Failure")
+                data != null -> Text(data)
+                else -> Text("Loading")
+            }
+            Button(onClick = {
+                testCoroutineScope.launch { mutate(mutationData, shouldRevalidate) }
+            }) {
+                Text("Mutate")
+            }
+        }
+    }
+
+    private fun clickMutate() {
+        composeTestRule.onNodeWithText("Mutate").performClick()
     }
 
     private fun assertTextRevalidated(count: Int) {
