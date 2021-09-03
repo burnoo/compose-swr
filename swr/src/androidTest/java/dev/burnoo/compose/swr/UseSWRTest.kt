@@ -438,7 +438,7 @@ class UseSWRTest {
     @Test
     fun showSuccessFromGlobal() = runBlockingTest {
         composeTestRule.setContent {
-            val config: SWRConfigBlock<String, String> = {
+            val config: SWRConfigBlock<String, Any> = {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
             }
@@ -459,10 +459,10 @@ class UseSWRTest {
     @Test
     fun nestedConfigProvider() = runBlockingTest {
         composeTestRule.setContent {
-            val parentConfig: SWRConfigBlock<String, String> = {
+            val parentConfig: SWRConfigBlock<String, Any> = {
                 fetcher = { stringFetcher.fetch(it) }
             }
-            val childConfig: SWRConfigBlock<String, String> = {
+            val childConfig: SWRConfigBlock<String, Any> = {
                 scope = testCoroutineScope
             }
             SWRConfigProvider(value = parentConfig) {
@@ -484,7 +484,7 @@ class UseSWRTest {
     @Test
     fun useSWRConfig() = runBlockingTest {
         composeTestRule.setContent {
-            val parentConfig: SWRConfigBlock<String, String> = {
+            val parentConfig: SWRConfigBlock<String, Any> = {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
                 refreshInterval = 123L
@@ -501,7 +501,7 @@ class UseSWRTest {
     fun clearCustomCache() {
         val cache = DefaultCache()
         composeTestRule.setContent {
-            SWRConfigProvider<String, String>(value = {
+            SWRConfigProvider<String>(value = {
                 provider = { cache }
                 scope = testCoroutineScope
             }) {
@@ -529,7 +529,7 @@ class UseSWRTest {
     fun getDataFromCustomCache() {
         val cache = DefaultCache()
         composeTestRule.setContent {
-            SWRConfigProvider<String, String>(value = {
+            SWRConfigProvider<String>(value = {
                 provider = { cache }
                 scope = testCoroutineScope
             }) {
@@ -556,7 +556,7 @@ class UseSWRTest {
     fun getKeysFromCustomCache() {
         val cache = DefaultCache()
         composeTestRule.setContent {
-            SWRConfigProvider<String, String>(value = {
+            SWRConfigProvider<String>(value = {
                 provider = { cache }
                 scope = testCoroutineScope
             }) {

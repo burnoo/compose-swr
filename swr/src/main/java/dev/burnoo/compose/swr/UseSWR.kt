@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import dev.burnoo.compose.swr.domain.LocalCache
 import dev.burnoo.compose.swr.domain.SWR
-import dev.burnoo.compose.swr.domain.getConfigBlockComposition
+import dev.burnoo.compose.swr.domain.getCurrentConfigBlock
 import dev.burnoo.compose.swr.model.SWRConfig
 import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
@@ -25,8 +25,8 @@ inline fun <reified K, reified D> useSWR(
     key: K,
     noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
-    val localConfigBlock = getConfigBlockComposition<K, D>().current
-    val configBlock = localConfigBlock + config
+    val currentConfigBlock = getCurrentConfigBlock<K, D>()
+    val configBlock = currentConfigBlock + config
     val swrConfig = SWRConfig(configBlock)
     return useSWRInternal(key, swrConfig)
 }
