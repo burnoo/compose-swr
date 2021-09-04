@@ -7,8 +7,9 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import dev.burnoo.compose.swr.domain.*
 import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
-import dev.burnoo.compose.swr.model.SWRConfigBlock
-import dev.burnoo.compose.swr.model.plus
+import dev.burnoo.compose.swr.model.config.SWRConfigBlock
+import dev.burnoo.compose.swr.model.config.SWRProviderConfigBlock
+import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -438,7 +439,7 @@ class UseSWRTest {
     @Test
     fun showSuccessFromGlobal() = runBlockingTest {
         composeTestRule.setContent {
-            val config: SWRConfigBlock<String, Any> = {
+            val config: SWRProviderConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
             }
@@ -459,10 +460,10 @@ class UseSWRTest {
     @Test
     fun nestedConfigProvider() = runBlockingTest {
         composeTestRule.setContent {
-            val parentConfig: SWRConfigBlock<String, Any> = {
+            val parentConfig: SWRProviderConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
             }
-            val childConfig: SWRConfigBlock<String, Any> = {
+            val childConfig: SWRProviderConfigBlock<String> = {
                 scope = testCoroutineScope
             }
             SWRConfigProvider(value = parentConfig) {
@@ -484,7 +485,7 @@ class UseSWRTest {
     @Test
     fun useSWRConfig() = runBlockingTest {
         composeTestRule.setContent {
-            val parentConfig: SWRConfigBlock<String, Any> = {
+            val parentConfig: SWRProviderConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
                 refreshInterval = 123L

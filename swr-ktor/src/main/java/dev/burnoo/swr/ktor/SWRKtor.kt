@@ -1,7 +1,7 @@
 package dev.burnoo.swr.ktor
 
 import androidx.compose.runtime.Composable
-import dev.burnoo.compose.swr.model.SWRConfigBlock
+import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
 import dev.burnoo.compose.swr.useSWR
 import io.ktor.client.*

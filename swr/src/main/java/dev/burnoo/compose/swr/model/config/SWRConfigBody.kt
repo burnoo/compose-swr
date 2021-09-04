@@ -1,0 +1,45 @@
+package dev.burnoo.compose.swr.model.config
+
+import dev.burnoo.compose.swr.domain.flow.SWROnRetry
+import kotlinx.coroutines.CoroutineScope
+
+interface SWRConfigBody<K, D> {
+
+    var fetcher: (suspend (K) -> D)?
+    var revalidateOnMount: Boolean?
+    var revalidateIfStale: Boolean
+    var refreshInterval: Long
+    var shouldRetryOnError: Boolean
+    var dedupingInterval: Long
+    var loadingTimeout: Long
+    var errorRetryInterval: Long
+    var errorRetryCount: Int?
+    var fallbackData: D?
+    var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?
+    var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?
+    var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?
+    var onErrorRetry: SWROnRetry<K, D>?
+    var isPaused: () -> Boolean
+    var scope: CoroutineScope?
+}
+
+typealias SWRConfigBlock<K, D> = SWRConfigBody<K, D>.() -> Unit
+
+operator fun <K, D> SWRConfigBlock<K, D>.plus(
+    configBlock: SWRConfigBlock<K, D>
+): SWRConfigBlock<K, D> {
+    return {
+        this@plus(this)
+        configBlock(this)
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <K, D> SWRConfigBlock<K, D>.plusProviderConfigBlock(
+    configBlock: SWRProviderConfigBlock<K>
+): SWRConfigBlock<K, D> {
+    return {
+        this@plusProviderConfigBlock(this)
+        configBlock(this as SWRConfigProviderBody<K>)
+    }
+}

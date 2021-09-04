@@ -5,10 +5,10 @@ import androidx.compose.runtime.LaunchedEffect
 import dev.burnoo.compose.swr.domain.LocalCache
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.domain.getCurrentConfigBlock
-import dev.burnoo.compose.swr.model.SWRConfig
-import dev.burnoo.compose.swr.model.SWRConfigBlock
 import dev.burnoo.compose.swr.model.SWRState
-import dev.burnoo.compose.swr.model.plus
+import dev.burnoo.compose.swr.model.config.SWRConfig
+import dev.burnoo.compose.swr.model.config.SWRConfigBlock
+import dev.burnoo.compose.swr.model.config.plus
 import kotlinx.coroutines.flow.launchIn
 
 @Composable

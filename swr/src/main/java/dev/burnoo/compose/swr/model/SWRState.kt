@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.domain.SWRCache
+import dev.burnoo.compose.swr.model.config.SWRConfig
 import dev.burnoo.compose.swr.model.internal.InternalState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop

@@ -3,7 +3,7 @@ package dev.burnoo.compose.swr.domain
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import dev.burnoo.compose.swr.model.SWRConfigBlock
+import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import kotlin.reflect.KClass
 
 @PublishedApi

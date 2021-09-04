@@ -4,7 +4,7 @@ import dev.burnoo.compose.swr.domain.flow.dedupe
 import dev.burnoo.compose.swr.domain.flow.refresh
 import dev.burnoo.compose.swr.domain.flow.retryOnError
 import dev.burnoo.compose.swr.domain.flow.syncWithGlobal
-import dev.burnoo.compose.swr.model.SWRConfig
+import dev.burnoo.compose.swr.model.config.SWRConfig
 import dev.burnoo.compose.swr.model.internal.Event
 import dev.burnoo.compose.swr.model.internal.InternalState
 import dev.burnoo.compose.swr.model.internal.Request

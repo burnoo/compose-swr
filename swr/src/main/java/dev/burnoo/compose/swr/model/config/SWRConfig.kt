@@ -1,20 +1,8 @@
-package dev.burnoo.compose.swr.model
+package dev.burnoo.compose.swr.model.config
 
-import dev.burnoo.compose.swr.domain.DefaultCache
 import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
-
-typealias SWRConfigBlock<K, D> = SWRConfigBody<K, D>.() -> Unit
-
-operator fun <K, D> SWRConfigBlock<K, D>.plus(
-    configBlock: SWRConfigBlock<K, D>
-): SWRConfigBlock<K, D> {
-    return {
-        this@plus(this)
-        configBlock(this)
-    }
-}
 
 data class SWRConfig<K, D> internal constructor(
     val fetcher: (suspend (K) -> D)?,
@@ -42,7 +30,7 @@ data class SWRConfig<K, D> internal constructor(
 @PublishedApi
 @Suppress("FunctionName")
 internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
-    return SWRConfigBody<K,D>().apply(block).run {
+    return SWRConfigBodyImpl<K, D>().apply(block).run {
         SWRConfig(
             fetcher = fetcher,
             revalidateIfStale = revalidateIfStale,
@@ -63,25 +51,4 @@ internal fun <K, D> SWRConfig(block: SWRConfigBlock<K, D>): SWRConfig<K, D> {
             scope = scope
         )
     }
-}
-
-class SWRConfigBody<K, D> internal constructor() {
-
-    var fetcher: (suspend (K) -> D)? = null
-    var revalidateOnMount: Boolean? = null
-    var revalidateIfStale = true
-    var refreshInterval = 0L
-    var shouldRetryOnError = true
-    var dedupingInterval = 2000L
-    var loadingTimeout = 3000L
-    var errorRetryInterval = 5000L
-    var errorRetryCount: Int? = null
-    var fallbackData: D? = null
-    var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
-    var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null
-    var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)? = null
-    var onErrorRetry: SWROnRetry<K, D>? = null
-    var isPaused: () -> Boolean = { false }
-    var provider: () -> SWRCache = { DefaultCache() }
-    var scope: CoroutineScope? = null
 }

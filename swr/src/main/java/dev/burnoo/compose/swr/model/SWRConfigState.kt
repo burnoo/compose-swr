@@ -3,6 +3,7 @@ package dev.burnoo.compose.swr.model
 import androidx.compose.runtime.Composable
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.domain.SWRCache
+import dev.burnoo.compose.swr.model.config.SWRConfig
 
 class SWRConfigState<K, D> @PublishedApi internal constructor(
     _config: SWRConfig<K, D>,

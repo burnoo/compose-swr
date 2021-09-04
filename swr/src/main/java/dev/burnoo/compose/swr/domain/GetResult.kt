@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr.domain
 
 import dev.burnoo.compose.swr.model.internal.Request
-import dev.burnoo.compose.swr.model.SWRConfig
+import dev.burnoo.compose.swr.model.config.SWRConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
