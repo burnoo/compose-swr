@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
-import dev.burnoo.swr.ktor.useSWRKtor
 import io.ktor.client.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.delay
@@ -78,28 +77,5 @@ fun MutationApp() {
         }) {
             Text("Mutate")
         }
-    }
-}
-
-@Serializable
-data class RandomUserResponse(
-    val results: List<Person>
-) {
-    @Serializable
-    data class Person(val email: String)
-
-    val firstEmail = results[0].email
-}
-
-@Composable
-fun KtorApp() {
-    val state = useSWRKtor<RandomUserResponse>(url = "https://randomuser.me/api/") {
-        refreshInterval = 5000L
-    }
-    val (data, error, isValidating) = state
-    when {
-        error != null -> Text(text = "Failed to load")
-        data != null -> Text(text = "${data.firstEmail} $isValidating")
-        else -> Text(text = "Loading")
     }
 }

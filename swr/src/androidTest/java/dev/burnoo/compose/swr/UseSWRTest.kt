@@ -11,7 +11,7 @@ import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.SWRLocalConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.utils.*
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
