@@ -1,7 +1,7 @@
 buildscript {
     ext {
         lib_version = '0.0.1'
-        compose_version = '1.0.1'
+        compose_version = '1.0.2'
         koin_version = '3.1.2'
         ktor_version = '1.6.2'
         datetime_version = '0.2.1'
