@@ -8,7 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import dev.burnoo.compose.swr.domain.*
 import dev.burnoo.compose.swr.domain.flow.exponentialBackoff
 import dev.burnoo.compose.swr.model.config.SWRConfigBlock
-import dev.burnoo.compose.swr.model.config.SWRProviderConfigBlock
+import dev.burnoo.compose.swr.model.config.SWRLocalConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.utils.*
 import junit.framework.Assert.assertEquals
@@ -40,7 +40,7 @@ class UseSWRTest {
         now = testNow
         restartRandom()
         LocalCache = compositionLocalOf { DefaultCache() }
-        configBlockCompositions.clear()
+        LocalConfigBlocks.clear()
     }
 
     @Test
@@ -439,7 +439,7 @@ class UseSWRTest {
     @Test
     fun showSuccessFromGlobal() = runBlockingTest {
         composeTestRule.setContent {
-            val config: SWRProviderConfigBlock<String> = {
+            val config: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
             }
@@ -460,10 +460,10 @@ class UseSWRTest {
     @Test
     fun nestedConfigProvider() = runBlockingTest {
         composeTestRule.setContent {
-            val parentConfig: SWRProviderConfigBlock<String> = {
+            val parentConfig: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
             }
-            val childConfig: SWRProviderConfigBlock<String> = {
+            val childConfig: SWRLocalConfigBlock<String> = {
                 scope = testCoroutineScope
             }
             SWRConfigProvider(value = parentConfig) {
@@ -485,7 +485,7 @@ class UseSWRTest {
     @Test
     fun useSWRConfig() = runBlockingTest {
         composeTestRule.setContent {
-            val parentConfig: SWRProviderConfigBlock<String> = {
+            val parentConfig: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
                 refreshInterval = 123L

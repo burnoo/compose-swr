@@ -35,11 +35,11 @@ operator fun <K, D> SWRConfigBlock<K, D>.plus(
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <K, D> SWRConfigBlock<K, D>.plusProviderConfigBlock(
-    configBlock: SWRProviderConfigBlock<K>
+fun <K, D> SWRConfigBlock<K, D>.withLocalConfigBlock(
+    configBlock: SWRLocalConfigBlock<K>
 ): SWRConfigBlock<K, D> {
     return {
-        this@plusProviderConfigBlock(this)
-        configBlock(this as SWRConfigProviderBody<K>)
+        this@withLocalConfigBlock(this)
+        configBlock(this as SWRLocalConfigBody<K>)
     }
 }

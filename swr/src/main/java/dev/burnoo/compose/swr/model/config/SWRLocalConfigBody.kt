@@ -4,7 +4,7 @@ import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
 
-interface SWRProviderConfigBodyTyped<K, D> {
+interface SWRLocalConfigBodyTyped<K, D> {
 
     var fetcher: (suspend (K) -> D)?
     var revalidateOnMount: Boolean?
@@ -24,13 +24,15 @@ interface SWRProviderConfigBodyTyped<K, D> {
     var scope: CoroutineScope?
 }
 
-typealias SWRConfigProviderBody<K> = SWRProviderConfigBodyTyped<K, Any>
+internal typealias SWRLocalConfigBlockTyped<K, D> = SWRLocalConfigBodyTyped<K, D>.() -> Unit
 
-typealias SWRProviderConfigBlock<K> = SWRConfigProviderBody<K>.() -> Unit
+typealias SWRLocalConfigBody<K> = SWRLocalConfigBodyTyped<K, Any>
 
-operator fun <K> SWRProviderConfigBlock<K>.plus(
-    configBlock: SWRProviderConfigBlock<K>
-): SWRProviderConfigBlock<K> {
+typealias SWRLocalConfigBlock<K> = SWRLocalConfigBody<K>.() -> Unit
+
+operator fun <K> SWRLocalConfigBlock<K>.plus(
+    configBlock: SWRLocalConfigBlock<K>
+): SWRLocalConfigBlock<K> {
     return {
         this@plus(this)
         configBlock(this)
@@ -38,11 +40,11 @@ operator fun <K> SWRProviderConfigBlock<K>.plus(
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <K, D> SWRProviderConfigBlock<K>.plusConfigBlock(
+fun <K, D> SWRLocalConfigBlock<K>.withConfigBlock(
     configBlock: SWRConfigBlock<K, D>
 ): SWRConfigBlock<K, D> {
     return {
-        this@plusConfigBlock(this as SWRConfigProviderBody<K>)
+        this@withConfigBlock(this as SWRLocalConfigBody<K>)
         configBlock(this)
     }
 }

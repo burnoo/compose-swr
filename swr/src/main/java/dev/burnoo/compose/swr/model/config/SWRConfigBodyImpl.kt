@@ -6,7 +6,7 @@ import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
 
 internal class SWRConfigBodyImpl<K, D> internal constructor() :
-    SWRProviderConfigBodyTyped<K, D>,
+    SWRLocalConfigBodyTyped<K, D>,
     SWRConfigBody<K, D> {
 
     override var fetcher: (suspend (K) -> D)? = null
