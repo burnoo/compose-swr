@@ -11,13 +11,13 @@ import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.SWRLocalConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.utils.*
-import org.junit.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -437,7 +437,7 @@ class UseSWRTest {
     }
 
     @Test
-    fun showSuccessFromGlobal() = runBlockingTest {
+    fun showSuccessFromLocal() = runBlockingTest {
         composeTestRule.setContent {
             val config: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
@@ -575,6 +575,27 @@ class UseSWRTest {
         assertTextLoading()
 
         assertEquals(setOf<Any>(key), cache.keys())
+    }
+
+    @Test
+    fun useFallbackMap() {
+        composeTestRule.setContent {
+            SWRConfigProvider<String>(value = {
+                fetcher = { stringFetcher.fetch(it) }
+                revalidateOnMount = false
+                fallback = mapOf(
+                    key to "${key}0"
+                )
+            }) {
+                val (data, error) = useSWR<String, String>(key)
+                when {
+                    error != null -> Text("Failure")
+                    data != null -> Text(data)
+                    else -> Text("Loading")
+                }
+            }
+        }
+        assertTextRevalidated(0)
     }
 
     private fun setDefaultContent(

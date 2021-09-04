@@ -15,6 +15,7 @@ interface SWRLocalConfigBodyTyped<K, D> {
     var loadingTimeout: Long
     var errorRetryInterval: Long
     var errorRetryCount: Int?
+    var fallback: Map<K, Any>
     var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)?
     var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?
     var onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?

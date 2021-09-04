@@ -18,6 +18,7 @@ internal class SWRConfigBodyImpl<K, D> internal constructor() :
     override var loadingTimeout = 3000L
     override var errorRetryInterval = 5000L
     override var errorRetryCount: Int? = null
+    override var fallback: Map<K, Any> = emptyMap()
     override var fallbackData: D? = null
     override var onLoadingSlow: ((key: K, config: SWRConfig<K, D>) -> Unit)? = null
     override var onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)? = null

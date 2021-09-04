@@ -14,6 +14,7 @@ data class SWRConfig<K, D> internal constructor(
     val loadingTimeout: Long,
     val errorRetryInterval: Long,
     val errorRetryCount: Int?,
+    val fallback: Map<K, Any>,
     val fallbackData: D?,
     val onSuccess: ((data: D, key: K, config: SWRConfig<K, D>) -> Unit)?,
     val onError: ((error: Throwable, key: K, config: SWRConfig<K, D>) -> Unit)?,
@@ -25,6 +26,9 @@ data class SWRConfig<K, D> internal constructor(
 ) {
 
     fun requireFetcher() = fetcher ?: throw IllegalStateException("Fetcher cannot be null")
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun getFallback(key: K): D? = fallbackData ?: (fallback[key] as? D?)
 }
 
 @PublishedApi
@@ -42,6 +46,7 @@ internal fun <K, D> SWRConfig(block: SWRConfigBodyImpl<K, D>.() -> Unit): SWRCon
             errorRetryInterval = errorRetryInterval,
             errorRetryCount = errorRetryCount,
             fallbackData = fallbackData,
+            fallback = fallback,
             onSuccess = onSuccess,
             onError = onError,
             onErrorRetry = onErrorRetry,
