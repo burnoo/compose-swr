@@ -630,6 +630,23 @@ class UseSWRTest {
         assertTextRevalidated(1)
     }
 
+    @Test
+    fun shouldNotRefresh() {
+        setDefaultContent(config = {
+            shouldRefresh = { false }
+            dedupingInterval = 0L
+            refreshInterval = 500L
+            scope = testCoroutineScope
+        })
+        assertTextLoading()
+
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+
+        advanceTimeBy(10_000L)
+        assertTextRevalidated(1)
+    }
+
     private fun setDefaultContent(
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
         config: SWRConfigBlock<String, String> = {}

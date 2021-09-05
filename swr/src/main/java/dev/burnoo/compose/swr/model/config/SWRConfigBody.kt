@@ -9,6 +9,7 @@ interface SWRConfigBody<K, D> {
     var revalidateOnMount: Boolean?
     var revalidateIfStale: Boolean
     var refreshInterval: Long
+    var shouldRefresh: () -> Boolean
     var shouldRetryOnError: Boolean
     var dedupingInterval: Long
     var loadingTimeout: Long

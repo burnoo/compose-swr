@@ -13,6 +13,7 @@ internal class SWRConfigBodyImpl<K, D> internal constructor() :
     override var revalidateOnMount: Boolean? = null
     override var revalidateIfStale = true
     override var refreshInterval = 0L
+    override var shouldRefresh: () -> Boolean = { true }
     override var shouldRetryOnError = true
     override var dedupingInterval = 2000L
     override var loadingTimeout = 3000L

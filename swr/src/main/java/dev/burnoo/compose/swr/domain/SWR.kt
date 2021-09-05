@@ -31,10 +31,12 @@ internal class SWR<K, D>(
                 emit(Unit)
             }
         }
-        val refreshFlow = flowOf(Unit).refresh(
-            refreshInterval = config.refreshInterval,
-            getLastUsageTime = { stateFlow.value.revalidationTime }
-        )
+        val refreshFlow = flowOf(Unit)
+            .refresh(
+                refreshInterval = config.refreshInterval,
+                getLastUsageTime = { stateFlow.value.revalidationTime }
+            )
+            .dropWhile { !config.shouldRefresh() }
         return merge(initialFlow, refreshFlow)
             .buffer(1)
             .dropWhile { config.isPaused() || stateFlow.value.isValidating }
