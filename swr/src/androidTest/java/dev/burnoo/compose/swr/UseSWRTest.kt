@@ -2,7 +2,9 @@ package dev.burnoo.compose.swr
 
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import dev.burnoo.compose.swr.domain.*
@@ -13,6 +15,7 @@ import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.utils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -596,6 +599,35 @@ class UseSWRTest {
             }
         }
         assertTextRevalidated(0)
+    }
+
+    @Test
+    fun immutable() {
+        val delayedFlow = flow {
+            delay(1000)
+            emit(true)
+        }
+        composeTestRule.setContent {
+            val delayedState by delayedFlow.collectAsState(
+                initial = false,
+                context = testCoroutineScope.coroutineContext
+            )
+            val (data, error) = useSWImmutable(
+                key = key,
+                fetcher = { stringFetcher.fetch(it) },
+                config = {
+                    scope = if (!delayedState) testCoroutineScope else null
+                })
+            when {
+                error != null -> Text("Failure")
+                data != null -> Text(data)
+                else -> Text("Loading")
+            }
+        }
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+        advanceTimeBy(9000L)
+        assertTextRevalidated(1)
     }
 
     private fun setDefaultContent(
