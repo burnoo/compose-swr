@@ -2,12 +2,14 @@ package dev.burnoo.compose.swr.model.config
 
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 
 interface SWRConfigBody<K, D> {
 
     var fetcher: (suspend (K) -> D)?
     var revalidateOnMount: Boolean?
     var revalidateIfStale: Boolean
+    var revalidateFlow: Flow<*>
     var refreshInterval: Long
     var shouldRefresh: () -> Boolean
     var shouldRetryOnError: Boolean

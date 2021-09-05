@@ -3,11 +3,13 @@ package dev.burnoo.compose.swr.model.config
 import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 
 data class SWRConfig<K, D> internal constructor(
     val fetcher: (suspend (K) -> D)?,
     val revalidateIfStale: Boolean,
     val revalidateOnMount: Boolean?,
+    val revalidateFlow: Flow<*>,
     val refreshInterval: Long,
     val shouldRefresh: () -> Boolean,
     val shouldRetryOnError: Boolean,
@@ -40,6 +42,7 @@ internal fun <K, D> SWRConfig(block: SWRConfigBodyImpl<K, D>.() -> Unit): SWRCon
             fetcher = fetcher,
             revalidateIfStale = revalidateIfStale,
             revalidateOnMount = revalidateOnMount,
+            revalidateFlow = revalidateFlow,
             refreshInterval = refreshInterval,
             shouldRefresh = shouldRefresh,
             shouldRetryOnError = shouldRetryOnError,

@@ -4,6 +4,8 @@ import dev.burnoo.compose.swr.domain.DefaultCache
 import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.domain.flow.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 internal class SWRConfigBodyImpl<K, D> internal constructor() :
     SWRLocalConfigBodyTyped<K, D>,
@@ -12,6 +14,7 @@ internal class SWRConfigBodyImpl<K, D> internal constructor() :
     override var fetcher: (suspend (K) -> D)? = null
     override var revalidateOnMount: Boolean? = null
     override var revalidateIfStale = true
+    override var revalidateFlow: Flow<*> = emptyFlow<Nothing>()
     override var refreshInterval = 0L
     override var shouldRefresh: () -> Boolean = { true }
     override var shouldRetryOnError = true

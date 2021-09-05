@@ -15,6 +15,7 @@ import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.utils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -645,6 +646,26 @@ class UseSWRTest {
 
         advanceTimeBy(10_000L)
         assertTextRevalidated(1)
+    }
+
+    @Test
+    fun revalidateFlow() = runBlocking {
+        val revalidateFlow = MutableSharedFlow<Unit>()
+        setDefaultContent(config = {
+            this.revalidateFlow = revalidateFlow
+            scope = testCoroutineScope
+        })
+        assertTextLoading()
+
+        advanceTimeBy(100L)
+        assertTextRevalidated(1)
+
+        advanceTimeBy(10_000L)
+        assertTextRevalidated(1)
+
+        revalidateFlow.emit(Unit)
+        advanceTimeBy(100L)
+        assertTextRevalidated(2)
     }
 
     private fun setDefaultContent(

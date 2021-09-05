@@ -37,7 +37,7 @@ internal class SWR<K, D>(
                 getLastUsageTime = { stateFlow.value.revalidationTime }
             )
             .dropWhile { !config.shouldRefresh() }
-        return merge(initialFlow, refreshFlow)
+        return merge(initialFlow, refreshFlow, config.revalidateFlow)
             .buffer(1)
             .dropWhile { config.isPaused() || stateFlow.value.isValidating }
             .dedupe(
