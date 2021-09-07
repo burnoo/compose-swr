@@ -6,7 +6,7 @@ import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 
 @Composable
-inline fun <reified K, reified D> useSWImmutable(
+inline fun <reified K, reified D> useSWRImmutable(
     key: K,
     noinline fetcher: suspend (K) -> D,
     noinline config: SWRConfigBlock<K, D> = {}
