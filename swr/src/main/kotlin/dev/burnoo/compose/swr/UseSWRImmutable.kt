@@ -22,5 +22,5 @@ inline fun <reified K, reified D> useSWRImmutable(
     val immutableConfig: SWRConfigBlock<K, D> = {
         revalidateIfStale = false
     }
-    return useSWR(key, immutableConfig + config)
+    return useSWR(key, config = immutableConfig + config)
 }

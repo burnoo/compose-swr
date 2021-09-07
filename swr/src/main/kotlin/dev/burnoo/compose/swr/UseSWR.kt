@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 @Composable
 inline fun <reified K, reified D> useSWR(
     getKey: () -> K?,
-    noinline fetcher: suspend (K) -> D,
+    noinline fetcher: (suspend (K) -> D)? = null,
     noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
     return useSWR(runCatching(getKey).getOrNull(), fetcher, config)
@@ -25,30 +25,16 @@ inline fun <reified K, reified D> useSWR(
 @Composable
 inline fun <reified K, reified D> useSWR(
     key: K?,
-    noinline fetcher: suspend (K) -> D,
-    noinline config: SWRConfigBlock<K, D> = {}
-): SWRState<D> {
-    return useSWR(key, config + { this.fetcher = fetcher })
-}
-
-@Composable
-inline fun <reified K, reified D> useSWR(
-    getKey: () -> K?,
-    noinline config: SWRConfigBlock<K, D> = {}
-): SWRState<D> {
-    return useSWR(runCatching(getKey).getOrNull(), config)
-}
-
-@Composable
-inline fun <reified K, reified D> useSWR(
-    key: K?,
+    noinline fetcher: (suspend (K) -> D)? = null,
     noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
     if (key == null) return EmptySWRState()
     @Suppress("LocalVariableName")
     val LocalConfigBlock = getLocalConfigBlock<K>()
-    val configBlock = LocalConfigBlock.current.withConfigBlock(config)
+    val configWithFetcher = if (fetcher == null) config else config + { this.fetcher = fetcher }
+    val configBlock = LocalConfigBlock.current.withConfigBlock(configWithFetcher)
     val swrConfig = SWRConfig(configBlock)
+
     return useSWRInternal(key, swrConfig)
 }
 
