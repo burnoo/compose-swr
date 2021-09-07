@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import dev.burnoo.compose.swr.domain.LocalCache
 import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.domain.getLocalConfigBlock
-import dev.burnoo.compose.swr.model.SWRState
+import dev.burnoo.compose.swr.model.state.SWRState
 import dev.burnoo.compose.swr.model.config.SWRConfig
 import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.plus

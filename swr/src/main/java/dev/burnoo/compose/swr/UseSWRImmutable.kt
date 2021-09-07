@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
-import dev.burnoo.compose.swr.model.SWRState
+import dev.burnoo.compose.swr.model.state.SWRState
 import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 

@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.model
+package dev.burnoo.compose.swr.model.state
 
 import androidx.compose.runtime.Composable
 import dev.burnoo.compose.swr.domain.SWR
