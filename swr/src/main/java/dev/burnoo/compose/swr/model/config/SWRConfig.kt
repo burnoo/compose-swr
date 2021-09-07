@@ -36,8 +36,8 @@ data class SWRConfig<K, D> internal constructor(
 
 @PublishedApi
 @Suppress("FunctionName")
-internal fun <K, D> SWRConfig(block: SWRConfigBodyImpl<K, D>.() -> Unit): SWRConfig<K, D> {
-    return SWRConfigBodyImpl<K, D>().apply(block).run {
+internal fun <K, D> SWRConfig(block: DefaultConfigBody<K, D>.() -> Unit): SWRConfig<K, D> {
+    return DefaultConfigBody<K, D>().apply(block).run {
         SWRConfig(
             fetcher = fetcher,
             revalidateIfStale = revalidateIfStale,

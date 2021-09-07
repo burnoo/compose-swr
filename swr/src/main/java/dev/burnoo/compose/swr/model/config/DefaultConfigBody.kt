@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-internal class SWRConfigBodyImpl<K, D> internal constructor() :
+internal class DefaultConfigBody<K, D> internal constructor() :
     SWRLocalConfigBodyTyped<K, D>,
     SWRConfigBody<K, D> {
 
