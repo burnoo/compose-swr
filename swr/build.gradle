@@ -24,7 +24,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
+    sourceSets {
+        androidTest {
+            java.srcDirs += "src/testUtils/kotlin"
+        }
+        test {
+            java.srcDirs += "src/testUtils/kotlin"
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -60,6 +67,9 @@ kotlin.sourceSets.all {
 dependencies {
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version"
+
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1"
 
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     androidTestImplementation "androidx.compose.material:material:$compose_version"
