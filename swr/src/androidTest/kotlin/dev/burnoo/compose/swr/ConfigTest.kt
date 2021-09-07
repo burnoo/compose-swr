@@ -33,11 +33,7 @@ class ConfigTest : BaseTest() {
                     scope = testCoroutineScope
                     fetcher = stringFetcher::fetch
                 })
-            when {
-                error != null -> Text(textFailure)
-                data != null -> Text(data)
-                else -> Text(textLoading)
-            }
+            DataErrorLoading(data, error)
         }
         advanceTimeBy(100L)
         assertTextRevalidated(1)
@@ -52,11 +48,7 @@ class ConfigTest : BaseTest() {
             }
             SWRConfigProvider(value = config) {
                 val (data, error) = useSWR<String, String>(key = key)
-                when {
-                    error != null -> Text(textFailure)
-                    data != null -> Text(data)
-                    else -> Text(textLoading)
-                }
+                DataErrorLoading(data, error)
             }
         }
         assertTextLoading()
@@ -75,11 +67,7 @@ class ConfigTest : BaseTest() {
                 )
             }) {
                 val (data, error) = useSWR<String, String>(key)
-                when {
-                    error != null -> Text("Failure")
-                    data != null -> Text(data)
-                    else -> Text("Loading")
-                }
+                DataErrorLoading(data, error)
             }
         }
         assertTextRevalidated(0)
@@ -97,11 +85,7 @@ class ConfigTest : BaseTest() {
             SWRConfigProvider(value = parentConfig) {
                 SWRConfigProvider(value = childConfig) {
                     val (data, error) = useSWR<String, String>(key = key)
-                    when {
-                        error != null -> Text(textFailure)
-                        data != null -> Text(data)
-                        else -> Text(textLoading)
-                    }
+                    DataErrorLoading(data, error)
                 }
             }
         }

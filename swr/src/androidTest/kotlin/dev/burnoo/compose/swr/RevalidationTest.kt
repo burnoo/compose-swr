@@ -3,8 +3,8 @@ package dev.burnoo.compose.swr
 import androidx.compose.material.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import dev.burnoo.compose.swr.utils.BaseTest
-import dev.burnoo.compose.swr.utils.key
+import dev.burnoo.compose.swr.utils.*
+import dev.burnoo.compose.swr.utils.DataErrorLoading
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -102,11 +102,7 @@ class RevalidationTest : BaseTest() {
                 config = {
                     scope = if (!delayedState) testCoroutineScope else null
                 })
-            when {
-                error != null -> Text("Failure")
-                data != null -> Text(data)
-                else -> Text("Loading")
-            }
+            DataErrorLoading(data, error)
         }
         advanceTimeBy(100L)
         assertTextRevalidated(1)

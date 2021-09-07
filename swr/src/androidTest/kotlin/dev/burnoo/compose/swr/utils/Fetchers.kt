@@ -11,7 +11,7 @@ class StringFetcher(private val delay: Long = 100L) {
     }
 }
 
-class FailingFetcher(private val delay: Long = 100L) {
+internal class FailingFetcher(private val delay: Long = 100L) {
     val exception = Exception("Exception while fetching")
 
     var failCount = 0

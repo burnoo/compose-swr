@@ -2,8 +2,10 @@ package dev.burnoo.compose.swr
 
 import androidx.compose.material.Text
 import dev.burnoo.compose.swr.domain.DefaultCache
-import dev.burnoo.compose.swr.utils.BaseTest
-import dev.burnoo.compose.swr.utils.key
+import dev.burnoo.compose.swr.utils.*
+import dev.burnoo.compose.swr.utils.DataErrorLoading
+import dev.burnoo.compose.swr.utils.textFailure
+import dev.burnoo.compose.swr.utils.textLoading
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert
 import org.junit.Test
@@ -23,11 +25,7 @@ class CustomCacheTest : BaseTest() {
                     key = key,
                     fetcher = { stringFetcher.fetch(it) }
                 )
-                when {
-                    error != null -> Text("Failure")
-                    data != null -> Text(data)
-                    else -> Text("Loading")
-                }
+                DataErrorLoading(data, error)
             }
         }
         assertTextLoading()
@@ -51,11 +49,7 @@ class CustomCacheTest : BaseTest() {
                     key = key,
                     fetcher = { stringFetcher.fetch(it) }
                 )
-                when {
-                    error != null -> Text("Failure")
-                    data != null -> Text(data)
-                    else -> Text("Loading")
-                }
+                DataErrorLoading(data, error)
             }
         }
         assertTextLoading()
@@ -78,11 +72,7 @@ class CustomCacheTest : BaseTest() {
                     key = key,
                     fetcher = { stringFetcher.fetch(it) }
                 )
-                when {
-                    error != null -> Text("Failure")
-                    data != null -> Text(data)
-                    else -> Text("Loading")
-                }
+                DataErrorLoading(data, error)
             }
         }
         assertTextLoading()

@@ -5,8 +5,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import dev.burnoo.compose.swr.domain.*
-import dev.burnoo.compose.swr.domain.testable.*
+import dev.burnoo.compose.swr.domain.DefaultCache
+import dev.burnoo.compose.swr.domain.LocalCache
+import dev.burnoo.compose.swr.domain.LocalConfigBlocks
+import dev.burnoo.compose.swr.domain.random
+import dev.burnoo.compose.swr.domain.testable.now
 import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.useSWR
@@ -48,11 +51,7 @@ abstract class BaseTest {
                 key = key,
                 fetcher = fetcher,
                 config = config + { scope = testCoroutineScope })
-            when {
-                error != null -> Text(textFailure)
-                data != null -> Text(data)
-                else -> Text(textLoading)
-            }
+            DataErrorLoading(data, error)
             Button(onClick = {
                 testCoroutineScope.launch { mutate(mutationData, shouldRevalidate) }
             }) {
@@ -90,3 +89,4 @@ abstract class BaseTest {
         random = Random(0)
     }
 }
+

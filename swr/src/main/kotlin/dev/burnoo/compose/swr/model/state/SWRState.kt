@@ -1,14 +1,10 @@
 package dev.burnoo.compose.swr.model.state
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import dev.burnoo.compose.swr.domain.SWR
 import dev.burnoo.compose.swr.domain.SWRCache
 import dev.burnoo.compose.swr.model.config.SWRConfig
 import dev.burnoo.compose.swr.model.internal.InternalState
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.map
 
 @Suppress("UNCHECKED_CAST", "FunctionName")
 internal fun <K, D> SWRState(
@@ -16,26 +12,19 @@ internal fun <K, D> SWRState(
     config: SWRConfig<K, D>,
     cache: SWRCache
 ): SWRState<D> {
-    return SWRState(
+    return SWRStateImpl(
         stateFlow as StateFlow<InternalState<Any, D>>,
         config as SWRConfig<Any, D>,
         cache
     )
 }
 
-class SWRState<D> internal constructor(
-    private val stateFlow: StateFlow<InternalState<Any, D>>,
-    private val config: SWRConfig<Any, D>,
-    cache: SWRCache
-) {
-
-    private val swr = SWR(stateFlow.value.key, config, cache)
+interface SWRState<D> {
+    @Composable
+    operator fun component1(): D? = data
 
     @Composable
-    operator fun component1() = data
-
-    @Composable
-    operator fun component2() = error
+    operator fun component2(): Throwable? = error
 
     @Composable
     operator fun component3() = isValidating
@@ -45,30 +34,15 @@ class SWRState<D> internal constructor(
 
     val data: D?
         @Composable
-        get() = stateFlow
-            .map { it.data }
-            .run { if (config.getFallback(stateFlow.value.key) != null) drop(1) else this }
-            .collectAsState(
-                initial = config.getFallback(stateFlow.value.key) ?: stateFlow.value.data
-            )
-            .value
+        get
 
     val error: Throwable?
         @Composable
-        get() = stateFlow
-            .map { it.error }
-            .collectAsState(initial = stateFlow.value.error)
-            .value
+        get
 
     val isValidating: Boolean
         @Composable
-        get() = stateFlow
-            .map { it.isValidating }
-            .drop(1)
-            .collectAsState(initial = config.revalidateOnMount != false)
-            .value
+        get
 
-    suspend fun mutate(data: D? = null, shouldRevalidate: Boolean = true) {
-        swr.mutate(data, shouldRevalidate)
-    }
+    suspend fun mutate(data: D? = null, shouldRevalidate: Boolean = true)
 }

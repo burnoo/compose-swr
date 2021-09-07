@@ -2,7 +2,7 @@ package dev.burnoo.compose.swr.utils
 
 import dev.burnoo.compose.swr.model.config.SWRConfig
 
-class OnLoadingSlow {
+internal class OnLoadingSlow {
     val invocations = mutableListOf<Args>()
 
     operator fun invoke(key: String, config: SWRConfig<String, String>) {
@@ -12,7 +12,7 @@ class OnLoadingSlow {
     data class Args(val key: String, val config: SWRConfig<String, String>)
 }
 
-class OnSuccess {
+internal class OnSuccess {
     val invocations = mutableListOf<Args>()
 
     operator fun invoke(data: String, key: String, config: SWRConfig<String, String>) {
@@ -22,7 +22,7 @@ class OnSuccess {
     data class Args(val data: String, val key: String, val config: SWRConfig<String, String>)
 }
 
-class OnError {
+internal class OnError {
     val invocations = mutableListOf<Args>()
 
     operator fun invoke(error: Throwable, key: String, config: SWRConfig<String, String>) {
