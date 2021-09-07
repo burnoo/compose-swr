@@ -1,8 +1,8 @@
-package dev.burnoo.compose.swr.model.config
+package dev.burnoo.compose.swr.config
 
-import dev.burnoo.compose.swr.domain.DefaultCache
-import dev.burnoo.compose.swr.domain.SWRCache
-import dev.burnoo.compose.swr.domain.flow.SWROnRetry
+import dev.burnoo.compose.swr.cache.DefaultCache
+import dev.burnoo.compose.swr.cache.SWRCache
+import dev.burnoo.compose.swr.retry.SWROnRetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

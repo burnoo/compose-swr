@@ -1,6 +1,6 @@
-package dev.burnoo.compose.swr.domain
+package dev.burnoo.compose.swr.cache
 
-import dev.burnoo.compose.swr.model.internal.InternalState
+import dev.burnoo.compose.swr.internal.model.InternalState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -34,8 +34,4 @@ abstract class SWRCache {
     internal fun <K, D> getStateFlow(key: K): MutableStateFlow<InternalState<K, D>> {
         return stateFlowCache[key as Any] as MutableStateFlow<InternalState<K, D>>
     }
-}
-
-internal class DefaultCache : SWRCache() {
-    override fun <K, V> provideMutableMap() = mutableMapOf<K, V>()
 }

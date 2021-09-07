@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.material.Text
-import dev.burnoo.compose.swr.model.config.SWRLocalConfigBlock
+import dev.burnoo.compose.swr.config.SWRLocalConfigBlock
 import dev.burnoo.compose.swr.utils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking

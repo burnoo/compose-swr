@@ -1,11 +1,11 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
-import dev.burnoo.compose.swr.domain.LocalCache
-import dev.burnoo.compose.swr.domain.getLocalConfigBlock
-import dev.burnoo.compose.swr.model.state.SWRConfigState
-import dev.burnoo.compose.swr.model.config.SWRConfig
-import dev.burnoo.compose.swr.model.config.SWRLocalConfigBlockTyped
+import dev.burnoo.compose.swr.internal.LocalCache
+import dev.burnoo.compose.swr.internal.getLocalConfigBlock
+import dev.burnoo.compose.swr.state.SWRConfigState
+import dev.burnoo.compose.swr.config.SWRConfig
+import dev.burnoo.compose.swr.config.SWRLocalConfigBlockTyped
 
 @Suppress("UNCHECKED_CAST")
 @Composable

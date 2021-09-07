@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.domain.testable
+package dev.burnoo.compose.swr.internal.testable
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant

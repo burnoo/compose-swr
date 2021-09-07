@@ -1,9 +1,9 @@
-package dev.burnoo.compose.swr.model.state
+package dev.burnoo.compose.swr.state
 
 import androidx.compose.runtime.Composable
-import dev.burnoo.compose.swr.domain.SWR
-import dev.burnoo.compose.swr.domain.SWRCache
-import dev.burnoo.compose.swr.model.config.SWRConfig
+import dev.burnoo.compose.swr.internal.SWR
+import dev.burnoo.compose.swr.cache.SWRCache
+import dev.burnoo.compose.swr.config.SWRConfig
 
 class SWRConfigState<K, D> @PublishedApi internal constructor(
     _config: SWRConfig<K, D>,

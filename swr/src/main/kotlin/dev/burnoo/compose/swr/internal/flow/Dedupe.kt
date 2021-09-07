@@ -1,6 +1,6 @@
-package dev.burnoo.compose.swr.domain.flow
+package dev.burnoo.compose.swr.internal.flow
 
-import dev.burnoo.compose.swr.domain.testable.now
+import dev.burnoo.compose.swr.internal.testable.now
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow

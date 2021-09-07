@@ -1,9 +1,9 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
-import dev.burnoo.compose.swr.model.state.SWRState
-import dev.burnoo.compose.swr.model.config.SWRConfigBlock
-import dev.burnoo.compose.swr.model.config.plus
+import dev.burnoo.compose.swr.state.SWRState
+import dev.burnoo.compose.swr.config.SWRConfigBlock
+import dev.burnoo.compose.swr.config.plus
 
 @Composable
 inline fun <reified K, reified D> useSWRImmutable(

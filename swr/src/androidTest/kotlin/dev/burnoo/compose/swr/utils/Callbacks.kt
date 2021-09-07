@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr.utils
 
-import dev.burnoo.compose.swr.model.config.SWRConfig
+import dev.burnoo.compose.swr.config.SWRConfig
 
 internal class OnLoadingSlow {
     val invocations = mutableListOf<Args>()

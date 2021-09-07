@@ -1,11 +1,8 @@
 package dev.burnoo.compose.swr
 
-import androidx.compose.material.Text
-import dev.burnoo.compose.swr.domain.DefaultCache
+import dev.burnoo.compose.swr.cache.DefaultCache
 import dev.burnoo.compose.swr.utils.*
 import dev.burnoo.compose.swr.utils.DataErrorLoading
-import dev.burnoo.compose.swr.utils.textFailure
-import dev.burnoo.compose.swr.utils.textLoading
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert
 import org.junit.Test

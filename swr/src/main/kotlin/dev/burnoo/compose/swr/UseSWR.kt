@@ -2,15 +2,15 @@ package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import dev.burnoo.compose.swr.domain.LocalCache
-import dev.burnoo.compose.swr.domain.SWR
-import dev.burnoo.compose.swr.domain.getLocalConfigBlock
-import dev.burnoo.compose.swr.model.config.SWRConfig
-import dev.burnoo.compose.swr.model.config.SWRConfigBlock
-import dev.burnoo.compose.swr.model.config.plus
-import dev.burnoo.compose.swr.model.config.withConfigBlock
-import dev.burnoo.compose.swr.model.state.EmptySWRState
-import dev.burnoo.compose.swr.model.state.SWRState
+import dev.burnoo.compose.swr.internal.LocalCache
+import dev.burnoo.compose.swr.internal.SWR
+import dev.burnoo.compose.swr.internal.getLocalConfigBlock
+import dev.burnoo.compose.swr.config.SWRConfig
+import dev.burnoo.compose.swr.config.SWRConfigBlock
+import dev.burnoo.compose.swr.config.plus
+import dev.burnoo.compose.swr.config.withConfigBlock
+import dev.burnoo.compose.swr.state.EmptySWRState
+import dev.burnoo.compose.swr.state.SWRState
 import kotlinx.coroutines.flow.launchIn
 
 @Composable

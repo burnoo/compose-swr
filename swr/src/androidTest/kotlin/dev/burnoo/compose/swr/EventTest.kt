@@ -1,9 +1,8 @@
 package dev.burnoo.compose.swr
 
-import dev.burnoo.compose.swr.model.config.SWRConfigBlock
+import dev.burnoo.compose.swr.config.SWRConfigBlock
 import dev.burnoo.compose.swr.utils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

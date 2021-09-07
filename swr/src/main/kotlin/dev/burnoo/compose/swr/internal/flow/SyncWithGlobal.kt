@@ -1,7 +1,7 @@
-package dev.burnoo.compose.swr.domain.flow
+package dev.burnoo.compose.swr.internal.flow
 
-import dev.burnoo.compose.swr.model.internal.InternalState
-import dev.burnoo.compose.swr.model.internal.Event
+import dev.burnoo.compose.swr.internal.model.InternalState
+import dev.burnoo.compose.swr.internal.model.Event
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach

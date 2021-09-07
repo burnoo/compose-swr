@@ -1,11 +1,11 @@
-package dev.burnoo.compose.swr.model.state
+package dev.burnoo.compose.swr.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import dev.burnoo.compose.swr.domain.SWR
-import dev.burnoo.compose.swr.domain.SWRCache
-import dev.burnoo.compose.swr.model.config.SWRConfig
-import dev.burnoo.compose.swr.model.internal.InternalState
+import dev.burnoo.compose.swr.internal.SWR
+import dev.burnoo.compose.swr.cache.SWRCache
+import dev.burnoo.compose.swr.config.SWRConfig
+import dev.burnoo.compose.swr.internal.model.InternalState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map

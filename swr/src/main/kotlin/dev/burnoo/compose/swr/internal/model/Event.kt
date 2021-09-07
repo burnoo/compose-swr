@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.model.internal
+package dev.burnoo.compose.swr.internal.model
 
 internal sealed class Event<out D> {
     object StartValidating : Event<Nothing>()

@@ -1,8 +1,10 @@
-package dev.burnoo.compose.swr.domain
+package dev.burnoo.compose.swr.internal
 
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import dev.burnoo.compose.swr.model.config.SWRLocalConfigBlock
+import dev.burnoo.compose.swr.cache.DefaultCache
+import dev.burnoo.compose.swr.cache.SWRCache
+import dev.burnoo.compose.swr.config.SWRLocalConfigBlock
 import kotlin.reflect.KClass
 
 @PublishedApi

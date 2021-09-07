@@ -1,18 +1,14 @@
-package dev.burnoo.compose.swr.domain.flow
+package dev.burnoo.compose.swr.internal.flow
 
 import dev.burnoo.compose.swr.domain.random
-import dev.burnoo.compose.swr.model.config.SWRConfig
-import dev.burnoo.compose.swr.model.internal.Request
+import dev.burnoo.compose.swr.internal.model.Request
+import dev.burnoo.compose.swr.retry.SWROnRetry
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlin.math.floor
-
-typealias SWROnRetry<K, D> = suspend (
-    error: Throwable, key: K, config: SWRConfig<K, D>, attempt: Int
-) -> Boolean
 
 internal fun <K, D> onRetryDefault(): SWROnRetry<K, D> = { _, _, config, attempt ->
     if (config.shouldRetryOnError && config.errorRetryCount.let { it == null || attempt <= it }) {
