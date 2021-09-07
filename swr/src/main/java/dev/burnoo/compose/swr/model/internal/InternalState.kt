@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr.model.internal
 
-import dev.burnoo.compose.swr.domain.now
+import dev.burnoo.compose.swr.domain.testable.now
 import kotlinx.datetime.Instant
 
 internal data class InternalState<K, D> internal constructor(

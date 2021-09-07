@@ -6,6 +6,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import dev.burnoo.compose.swr.domain.*
+import dev.burnoo.compose.swr.domain.testable.*
 import dev.burnoo.compose.swr.model.config.SWRConfigBlock
 import dev.burnoo.compose.swr.model.config.plus
 import dev.burnoo.compose.swr.useSWR
