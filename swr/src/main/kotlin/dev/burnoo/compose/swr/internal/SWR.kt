@@ -1,11 +1,11 @@
 package dev.burnoo.compose.swr.internal
 
 import dev.burnoo.compose.swr.cache.SWRCache
+import dev.burnoo.compose.swr.config.SWRConfig
 import dev.burnoo.compose.swr.internal.flow.dedupe
 import dev.burnoo.compose.swr.internal.flow.refresh
 import dev.burnoo.compose.swr.internal.flow.retryOnError
-import dev.burnoo.compose.swr.internal.flow.syncWithGlobal
-import dev.burnoo.compose.swr.config.SWRConfig
+import dev.burnoo.compose.swr.internal.flow.updateGlobal
 import dev.burnoo.compose.swr.internal.model.Event
 import dev.burnoo.compose.swr.internal.model.InternalState
 import dev.burnoo.compose.swr.internal.model.Request
@@ -47,7 +47,7 @@ internal class SWR<K, D>(
             )
             .map { Request(key, config) }
             .transform { revalidate(it) }
-            .syncWithGlobal(stateFlow)
+            .updateGlobal(stateFlow)
     }
 
     fun getGlobalFlow(): StateFlow<InternalState<K, D>> =
