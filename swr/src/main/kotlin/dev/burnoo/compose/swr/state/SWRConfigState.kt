@@ -19,11 +19,11 @@ class SWRConfigState<K, D> @PublishedApi internal constructor(
     }
 
     @Composable
-    operator fun component1() = cache
+    operator fun component1(): suspend (key: K, data: D?, shouldRevalidate: Boolean) -> Unit =
+        ::mutate
 
     @Composable
-    operator fun component2(): suspend (key: K, data: D?, shouldRevalidate: Boolean) -> Unit =
-        ::mutate
+    operator fun component2(): SWRCache = cache
 
     @Composable
     operator fun component3(): SWRConfig<K, D> = config
