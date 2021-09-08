@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.material.Text
-import dev.burnoo.compose.swr.utils.BaseTest
+import dev.burnoo.compose.swr.utils.AndroidBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.delay
@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
-class IsValidatingTest : BaseTest() {
+class IsValidatingTest : AndroidBaseTest() {
 
     @Test
     fun isValidatingTest() = runBlocking {

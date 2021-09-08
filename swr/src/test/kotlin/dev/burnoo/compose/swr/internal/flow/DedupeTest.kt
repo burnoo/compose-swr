@@ -1,6 +1,7 @@
 package dev.burnoo.compose.swr.internal.flow
 
 import dev.burnoo.compose.swr.internal.testable.now
+import dev.burnoo.compose.swr.utils.BaseTest
 import dev.burnoo.compose.swr.utils.TestNow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -14,15 +15,7 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DedupeTest {
-
-    private val testNow = TestNow()
-    private val testCoroutineScope = TestCoroutineScope()
-
-    @Before
-    fun setUp() {
-        now = testNow
-    }
+class DedupeTest : BaseTest() {
 
     @Test
     fun `filter too frequent elements`() {
@@ -36,7 +29,7 @@ class DedupeTest {
         }
             .dedupe(dedupingInterval = 1000L, getLastUsageTime = { lastUsageTime })
             .onEach {
-                lastUsageTime = testNow()
+                lastUsageTime = now()
                 counter++
             }
             .launchIn(testCoroutineScope)
@@ -54,8 +47,43 @@ class DedupeTest {
         assertEquals(2, counter)
     }
 
-    private fun advanceTimeBy(durationMillis: Long) {
-        testNow.advanceTimeBy(durationMillis)
-        testCoroutineScope.advanceTimeBy(durationMillis)
+    @Test
+    fun `filter all elements if lastUsageTime is updated`() {
+        var counter = 0
+        var lastUsageTime = Instant.Companion.DISTANT_PAST
+        flow {
+            while (true) {
+                delay(500L)
+                emit(Unit)
+            }
+        }
+            .dedupe(dedupingInterval = 1000L, getLastUsageTime = { lastUsageTime })
+            .onEach {
+                lastUsageTime = now()
+                counter++
+            }
+            .launchIn(testCoroutineScope)
+
+        assertEquals(0, counter)
+        advanceTimeBy(250L)
+        lastUsageTime = now()
+        advanceTimeBy(250L)
+        assertEquals(0, counter)
+        advanceTimeBy(250L)
+        lastUsageTime = now()
+        advanceTimeBy(250L)
+        assertEquals(0, counter)
+        advanceTimeBy(250L)
+        lastUsageTime = now()
+        advanceTimeBy(250L)
+        assertEquals(0, counter)
+        advanceTimeBy(250L)
+        lastUsageTime = now()
+        advanceTimeBy(250L)
+        assertEquals(0, counter)
+        advanceTimeBy(250L)
+        lastUsageTime = now()
+        advanceTimeBy(250L)
+        assertEquals(0, counter)
     }
 }

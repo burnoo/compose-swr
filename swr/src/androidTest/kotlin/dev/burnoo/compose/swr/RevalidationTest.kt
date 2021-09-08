@@ -1,6 +1,5 @@
 package dev.burnoo.compose.swr
 
-import androidx.compose.material.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import dev.burnoo.compose.swr.utils.*
@@ -13,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RevalidationTest : BaseTest() {
+class RevalidationTest : AndroidBaseTest() {
 
     @Test
     fun revalidateOnMount() {

@@ -6,36 +6,29 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import dev.burnoo.compose.swr.cache.DefaultCache
-import dev.burnoo.compose.swr.internal.LocalCache
-import dev.burnoo.compose.swr.internal.LocalConfigBlocks
-import dev.burnoo.compose.swr.domain.random
-import dev.burnoo.compose.swr.internal.testable.now
 import dev.burnoo.compose.swr.config.SWRConfigBlock
 import dev.burnoo.compose.swr.config.plus
+import dev.burnoo.compose.swr.internal.LocalCache
+import dev.burnoo.compose.swr.internal.LocalConfigBlocks
 import dev.burnoo.compose.swr.useSWR
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.Before
 import org.junit.Rule
-import kotlin.random.Random
 
 const val key = "k"
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class BaseTest {
+abstract class AndroidBaseTest : BaseTest() {
+
     @get:Rule
     val composeTestRule = createComposeRule()
-
-    protected val testCoroutineScope = TestCoroutineScope()
-    private val testNow = TestNow()
 
     protected val stringFetcher = StringFetcher()
 
     @Before
-    open fun setUp() {
-        now = testNow
-        restartRandom()
+    override fun setUp() {
+        super.setUp()
         LocalCache = compositionLocalOf { DefaultCache() }
         LocalConfigBlocks.clear()
     }
@@ -78,15 +71,6 @@ abstract class BaseTest {
 
     protected fun clickMutate() {
         composeTestRule.onNodeWithText("Mutate").performClick()
-    }
-
-    protected fun advanceTimeBy(durationMillis: Long) {
-        testNow.advanceTimeBy(durationMillis)
-        testCoroutineScope.advanceTimeBy(durationMillis)
-    }
-
-    protected fun restartRandom() {
-        random = Random(0)
     }
 }
 

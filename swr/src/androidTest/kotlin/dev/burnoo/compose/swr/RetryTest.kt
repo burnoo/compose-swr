@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr
 
 import dev.burnoo.compose.swr.internal.flow.exponentialBackoff
-import dev.burnoo.compose.swr.utils.BaseTest
+import dev.burnoo.compose.swr.utils.AndroidBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RetryTest : BaseTest() {
+class RetryTest : AndroidBaseTest() {
 
     @Test
     fun retryDefaultExponentialBackoff() {
