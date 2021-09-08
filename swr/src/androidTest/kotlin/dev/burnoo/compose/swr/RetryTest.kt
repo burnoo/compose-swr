@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr
 
-import dev.burnoo.compose.swr.internal.flow.exponentialBackoff
+import dev.burnoo.compose.swr.retry.exponentialBackoff
 import dev.burnoo.compose.swr.utils.AndroidBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
