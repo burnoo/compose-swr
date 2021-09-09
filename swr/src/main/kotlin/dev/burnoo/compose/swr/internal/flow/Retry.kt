@@ -10,24 +10,20 @@ import kotlinx.coroutines.flow.flow
 
 internal fun <T, R> Flow<T>.retryMap(
     map: suspend (T) -> R,
-    predicate: suspend FlowCollector<R>.(item: T, result: R, attempt: Int) -> Boolean
+    predicate: suspend FlowCollector<R>.(item: T, result: R, attempt: Long) -> Boolean
 ): Flow<R> {
-    var retryCount = 1
-
-    suspend fun FlowCollector<R>.retryCollect(item: T) {
+    tailrec suspend fun FlowCollector<R>.retryCollect(item: T, attempt: Long) {
         val result = map(item)
-        if (predicate(item, result, retryCount)) {
-            retryCount++
-            retryCollect(item)
+        if (predicate(item, result, attempt)) {
+            retryCollect(item, attempt = attempt + 1)
         } else {
-            retryCount = 1
             emit(result)
         }
     }
 
     return flow {
         collect { item ->
-            retryCollect(item)
+            retryCollect(item, attempt = 1L)
         }
     }
 }

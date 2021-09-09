@@ -7,8 +7,8 @@ import kotlin.math.floor
 
 internal fun exponentialBackoff(
     errorRetryInterval: Long,
-    attempt: Int
-) = floor((random.nextDouble() + 0.5) * 1.shl(attempt)).toLong() * errorRetryInterval
+    attempt: Long
+) = floor((random.nextDouble() + 0.5) * 1.shl(attempt.toInt())).toLong() * errorRetryInterval
 
 internal fun <K, D> onRetryDefault(): SWROnRetry<K, D> = { _, _, config, attempt ->
     if (config.shouldRetryOnError && config.errorRetryCount.let { it == null || attempt <= it }) {

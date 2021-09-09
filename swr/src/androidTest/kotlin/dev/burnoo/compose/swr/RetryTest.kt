@@ -16,7 +16,7 @@ class RetryTest : AndroidBaseTest() {
     fun retryDefaultExponentialBackoff() {
         val retryInterval = 3000L
         val failingInstantFetcher = FailingFetcher(delay = 0L)
-        val delays = (1..3).map { attempt -> exponentialBackoff(retryInterval, attempt) }
+        val delays = (1L..3L).map { attempt -> exponentialBackoff(retryInterval, attempt) }
         restartRandom()
         setSWRContent(fetcher = failingInstantFetcher::fetch, config = {
             shouldRetryOnError = true

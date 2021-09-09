@@ -13,7 +13,7 @@ private sealed class TestResult {
     object Success : TestResult()
     object Failure : TestResult()
     open class Loading : TestResult() {
-        data class Retry(val count: Int) : Loading()
+        data class Retry(val count: Long) : Loading()
 
         override fun equals(other: Any?) = javaClass == other?.javaClass
         override fun hashCode() = javaClass.hashCode()
