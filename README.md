@@ -7,7 +7,7 @@ Still working, but you can take a sneak peak:
 - [Usage](https://github.com/burnoo/compose-swr/blob/main/sample/src/main/java/dev/burnoo/compose/swr/sample/MainActivity.kt)
 
 ## TODO
-- global conifg
+- docs
 - publish to MavenCentral
 - add multiplatform support
 

@@ -10,6 +10,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import dev.burnoo.compose.swr.preview.SWRPreview
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
 import io.ktor.client.*
@@ -18,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.get
+import kotlin.reflect.KFunction
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,5 +82,15 @@ fun IpApp() {
         error != null -> Text(text = "Failed to load")
         data != null -> Text(text = data.ip)
         else -> Text(text = "Loading")
+    }
+}
+
+@Preview
+@Composable
+fun IpAppSuccessPreview() {
+    KoinPreview {
+        SWRPreview(data = IpResponse("1.2.3.4")) {
+            IpApp()
+        }
     }
 }
