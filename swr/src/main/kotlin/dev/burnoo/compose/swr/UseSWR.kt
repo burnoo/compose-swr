@@ -2,15 +2,16 @@ package dev.burnoo.compose.swr
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import dev.burnoo.compose.swr.internal.LocalCache
-import dev.burnoo.compose.swr.internal.SWR
-import dev.burnoo.compose.swr.internal.getLocalConfigBlock
 import dev.burnoo.compose.swr.config.SWRConfig
 import dev.burnoo.compose.swr.config.SWRConfigBlock
 import dev.burnoo.compose.swr.config.plus
 import dev.burnoo.compose.swr.config.withConfigBlock
-import dev.burnoo.compose.swr.state.EmptySWRState
+import dev.burnoo.compose.swr.internal.LocalCache
+import dev.burnoo.compose.swr.internal.SWR
+import dev.burnoo.compose.swr.internal.getLocalConfigBlock
+import dev.burnoo.compose.swr.internal.getLocalPreviewState
 import dev.burnoo.compose.swr.state.SWRState
+import dev.burnoo.compose.swr.state.StaticSWRState
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
@@ -28,13 +29,13 @@ inline fun <reified K, reified D> useSWR(
     noinline fetcher: (suspend (K) -> D)? = null,
     noinline config: SWRConfigBlock<K, D> = {}
 ): SWRState<D> {
-    if (key == null) return EmptySWRState()
+    getLocalPreviewState<D>().current?.let { return it }
+    if (key == null) return StaticSWRState()
     @Suppress("LocalVariableName")
     val LocalConfigBlock = getLocalConfigBlock<K>()
     val configWithFetcher = if (fetcher == null) config else config + { this.fetcher = fetcher }
     val configBlock = LocalConfigBlock.current.withConfigBlock(configWithFetcher)
     val swrConfig = SWRConfig(configBlock)
-
     return useSWRInternal(key, swrConfig)
 }
 
