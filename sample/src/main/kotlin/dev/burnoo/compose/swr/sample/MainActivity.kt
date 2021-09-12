@@ -10,7 +10,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import dev.burnoo.compose.swr.preview.SWRPreview
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
@@ -20,16 +19,16 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.koin.androidx.compose.get
-import kotlin.reflect.KFunction
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppTheme {
-                Surface(color = MaterialTheme.colors.background) {
-                    MutationApp()
+            WithKoin {
+                AppTheme {
+                    Surface(color = MaterialTheme.colors.background) {
+                        App()
+                    }
                 }
             }
         }
@@ -39,7 +38,7 @@ class MainActivity : ComponentActivity() {
 var counter = 0
 
 @Composable
-fun MutationApp() {
+fun App() {
     val state = useSWR(
         key = Unit,
         fetcher = {
@@ -88,7 +87,7 @@ fun IpApp() {
 @Preview
 @Composable
 fun IpAppSuccessPreview() {
-    KoinPreview {
+    WithKoin {
         SWRPreview(data = IpResponse("1.2.3.4")) {
             IpApp()
         }

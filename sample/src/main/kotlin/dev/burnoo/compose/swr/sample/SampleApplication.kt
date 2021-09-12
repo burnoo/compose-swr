@@ -19,18 +19,3 @@ val appModule = module {
         }
     }
 }
-
-class SampleApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-        initKoin(this)
-    }
-}
-
-fun initKoin(context: Context) {
-    startKoin {
-        androidContext(context)
-        modules(appModule)
-    }
-}
