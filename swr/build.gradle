@@ -45,6 +45,7 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion '1.5.31'
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
