@@ -6,5 +6,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "compose-swr"
-include ':sample'
-include ':swr'
+include(":sample")
+include(":swr")
