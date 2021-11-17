@@ -16,7 +16,7 @@ internal class FailingFetcher(private val delay: Long = 100L) {
 
     var failCount = 0
 
-    suspend fun fetch(key: String): String {
+    suspend fun fetch(@Suppress("UNUSED_PARAMETER") key: String): String {
         delay(delay)
         failCount++
         throw exception

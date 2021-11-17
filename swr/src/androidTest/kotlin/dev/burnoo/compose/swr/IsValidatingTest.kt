@@ -4,11 +4,13 @@ import androidx.compose.material.Text
 import dev.burnoo.compose.swr.utils.AndroidBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import dev.burnoo.compose.swr.utils.key
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class IsValidatingTest : AndroidBaseTest() {
 
     @Test
