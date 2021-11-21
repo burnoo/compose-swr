@@ -35,6 +35,7 @@ abstract class AndroidBaseTest : BaseTest() {
 
     override fun advanceTimeBy(durationMillis: Long) {
         super.advanceTimeBy(durationMillis)
+        composeTestRule.mainClock.advanceTimeBy(durationMillis)
         composeTestRule.waitForIdle()
     }
 

@@ -54,7 +54,6 @@ class AdvancedKeyTest : AndroidBaseTest() {
         assertTextLoading()
 
         waitForIdle()
-        waitForIdle()
         assertTextRevalidated(1)
     }
 
