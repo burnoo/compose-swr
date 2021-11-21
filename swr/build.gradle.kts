@@ -1,6 +1,7 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.0.0-beta5"
+    id("org.jetbrains.compose") version libs.versions.jetbrainsCompose
 }
 
 kotlin {
@@ -12,8 +13,8 @@ kotlin {
         named("commonMain") {
             dependencies {
                 api(compose.runtime)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${rootProject.extra["datetime_version"]}")
+                implementation(libs.coroutines)
+                implementation(libs.datetime)
             }
         }
         named("jvmTest") {
@@ -21,9 +22,8 @@ kotlin {
                 implementation(compose.uiTestJUnit4)
                 implementation(getSkiaDependency())
                 implementation(compose.material)
-                implementation("junit:junit:4.13.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
-                implementation("androidx.test:core:1.4.0")
+                implementation(libs.coroutines.test)
+                implementation(libs.testCore)
             }
         }
     }

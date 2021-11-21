@@ -1,0 +1,15 @@
+[versions]
+kotlin = "1.5.31"
+gradleAndroid = "4.2.2"
+jetbrainsCompose = "1.0.0-beta5"
+coroutines = "1.5.2"
+datetime = "0.3.1"
+testCore = "1.4.0"
+
+[libraries]
+gradle-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradle-android = { module = "com.android.tools.build:gradle", version.ref = "gradleAndroid" }
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+testCore = { module = "androidx.test:core", version.ref = "testCore" }

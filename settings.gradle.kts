@@ -1,10 +1,4 @@
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-rootProject.name = "compose-swr"
-include(":sample")
+enableFeaturePreview("VERSION_CATALOGS")
+
 include(":swr")
+include(":sample")
