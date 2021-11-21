@@ -20,7 +20,7 @@ class ShowStateTest : AndroidBaseTest() {
     fun showSuccess() = runBlockingTest {
         setSWRContent()
         assertTextLoading()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 
@@ -29,7 +29,7 @@ class ShowStateTest : AndroidBaseTest() {
         val failingFetcher = FailingFetcher()
         setSWRContent(fetcher = failingFetcher::fetch, config = { shouldRetryOnError = false })
         assertTextLoading()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextFailure()
     }
 

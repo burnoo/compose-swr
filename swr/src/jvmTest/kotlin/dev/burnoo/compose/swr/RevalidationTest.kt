@@ -23,7 +23,7 @@ class RevalidationTest : AndroidBaseTest() {
         })
         assertTextRevalidated(0)
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 
@@ -47,7 +47,7 @@ class RevalidationTest : AndroidBaseTest() {
         })
         assertTextRevalidated(0)
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 
@@ -60,14 +60,14 @@ class RevalidationTest : AndroidBaseTest() {
         })
         assertTextLoading()
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
 
         advanceTimeBy(10_000L)
         assertTextRevalidated(1)
 
         revalidateFlow.emit(Unit)
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(2)
     }
 

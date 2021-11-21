@@ -1,71 +1,51 @@
 plugins {
-    id("com.android.library")
-    id("kotlin-android")
-    id("maven-publish")
-    id("signing")
-    id("org.jetbrains.dokka") version "1.5.0"
+    kotlin("multiplatform")
+    id("org.jetbrains.compose") version "1.0.0-beta5"
 }
 
-android {
-    compileSdkVersion(31)
-    buildToolsVersion = "31.0.0"
-
-    defaultConfig {
-        minSdkVersion(24)
-        targetSdkVersion(31)
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
+kotlin {
+    jvm()
     sourceSets {
-        named("androidTest") {
-            java.srcDir("src/testUtils/kotlin")
+        named("commonMain") {
+            dependencies {
+                api(compose.runtime)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${rootProject.extra["datetime_version"]}")
+            }
         }
-        named("test") {
-            java.srcDir("src/testUtils/kotlin")
+        named("jvmTest") {
+            dependencies {
+                implementation(compose.uiTestJUnit4)
+                implementation(getSkiaDependency())
+                implementation(compose.material)
+                implementation("junit:junit:4.13.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
+                implementation("androidx.test:core:1.4.0")
+            }
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.0.5"
-        kotlinCompilerVersion = "1.5.31"
-    }
-    packagingOptions {
-        exclude("META-INF/DEPENDENCIES")
-        exclude("META-INF/LICENSE")
-        exclude("META-INF/LICENSE.txt")
-        exclude("META-INF/license.txt")
-        exclude("META-INF/NOTICE")
-        exclude("META-INF/NOTICE.txt")
-        exclude("META-INF/notice.txt")
-        exclude("META-INF/ASL2.0")
-        exclude("META-INF/AL2.0")
-        exclude("META-INF/LGPL2.1")
-        exclude("META-INF/*.kotlin_module")
+
+    sourceSets.all {
+        languageSettings.optIn("kotlin.RequiresOptIn")
     }
 }
 
-kotlin.sourceSets.all {
-    languageSettings.optIn("kotlin.RequiresOptIn")
-}
+fun getSkiaDependency() : String {
+    val osName = System.getProperty("os.name")
+    val targetOs = when {
+        osName == "Mac OS X" -> "macos"
+        osName.startsWith("Win") -> "windows"
+        osName.startsWith("Linux") -> "linux"
+        else -> error("Unsupported OS: $osName")
+    }
 
-dependencies {
-    implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:${rootProject.extra["datetime_version"]}")
+    val targetArch = when (val osArch = System.getProperty("os.arch")) {
+        "x86_64", "amd64" -> "x64"
+        "aarch64" -> "arm64"
+        else -> error("Unsupported arch: $osArch")
+    }
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
-
-    debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
-    androidTestImplementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
-    androidTestImplementation("androidx.test:core:1.4.0")
+    val version = "0.5.9"
+    val target = "${targetOs}-${targetArch}"
+    return "org.jetbrains.skiko:skiko-jvm-runtime-$target:$version"
 }

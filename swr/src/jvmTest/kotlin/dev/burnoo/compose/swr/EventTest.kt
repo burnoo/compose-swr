@@ -38,7 +38,7 @@ class EventTest : AndroidBaseTest() {
         assertTextLoading()
         assertEquals(0, onLoadingSlow.invocations.size)
 
-        testCoroutineScope.advanceTimeBy(2000L)
+        advanceTimeBy(2000L)
         assertTextRevalidated(1)
         assertEquals(0, onLoadingSlow.invocations.size)
     }
@@ -52,7 +52,7 @@ class EventTest : AndroidBaseTest() {
         assertTextLoading()
         assertEquals(0, onSuccess.invocations.size)
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
         assertEquals(key, onSuccess.invocations[0].key)
         assertEquals("${key}1", onSuccess.invocations[0].data)
@@ -71,7 +71,7 @@ class EventTest : AndroidBaseTest() {
         assertTextLoading()
         assertEquals(0, onError.invocations.size)
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextFailure()
         assertEquals(key, onError.invocations[0].key)
         assertEquals(failingFetcher.exception, onError.invocations[0].error)

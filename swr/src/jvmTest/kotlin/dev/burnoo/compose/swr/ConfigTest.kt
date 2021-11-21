@@ -52,7 +52,7 @@ class ConfigTest : AndroidBaseTest() {
             }
         }
         assertTextLoading()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 
@@ -90,7 +90,7 @@ class ConfigTest : AndroidBaseTest() {
             }
         }
         assertTextLoading()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 

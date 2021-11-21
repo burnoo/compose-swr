@@ -31,6 +31,7 @@ class CustomCacheTest : AndroidBaseTest() {
         assertTextRevalidated(1)
 
         cache.clear()
+        composeTestRule.waitForIdle()
         assertTextLoading()
     }
 

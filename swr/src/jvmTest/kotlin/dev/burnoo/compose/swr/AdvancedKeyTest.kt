@@ -27,7 +27,7 @@ class AdvancedKeyTest : AndroidBaseTest() {
         advanceTimeBy(1000L)
         assertTextLoading()
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 
@@ -53,7 +53,7 @@ class AdvancedKeyTest : AndroidBaseTest() {
         advanceTimeBy(1000L)
         assertTextLoading()
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 
@@ -77,7 +77,7 @@ class AdvancedKeyTest : AndroidBaseTest() {
         advanceTimeBy(1000L)
         assertTextLoading()
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
     }
 }

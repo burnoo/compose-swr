@@ -9,7 +9,6 @@ Still working, but you can take a sneak peak:
 ## TODO
 - docs
 - publish to MavenCentral
-- add multiplatform support
 
 ## Already implemented:
 ```kotlin

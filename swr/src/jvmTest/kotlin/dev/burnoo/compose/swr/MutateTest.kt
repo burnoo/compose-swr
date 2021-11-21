@@ -17,15 +17,15 @@ class MutateTest : AndroidBaseTest() {
         setSWRContent()
         assertTextLoading()
 
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(1)
 
         clickMutate()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(2)
 
         clickMutate()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertTextRevalidated(3)
     }
 
@@ -37,7 +37,7 @@ class MutateTest : AndroidBaseTest() {
         })
         assertTextLoading()
         clickMutate()
-        testCoroutineScope.advanceUntilIdle()
+        waitForIdle()
         assertEquals(2, onSuccess.invocations.size)
     }
 

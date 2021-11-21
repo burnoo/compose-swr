@@ -21,7 +21,7 @@ abstract class BaseTest {
         restartRandom()
     }
 
-    protected fun advanceTimeBy(durationMillis: Long) {
+    protected open fun advanceTimeBy(durationMillis: Long) {
         testNow.advanceTimeBy(durationMillis)
         testCoroutineScope.advanceTimeBy(durationMillis)
     }

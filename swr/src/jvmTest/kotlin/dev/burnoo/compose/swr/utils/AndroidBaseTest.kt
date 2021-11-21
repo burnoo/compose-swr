@@ -33,6 +33,16 @@ abstract class AndroidBaseTest : BaseTest() {
         LocalConfigBlocks.clear()
     }
 
+    override fun advanceTimeBy(durationMillis: Long) {
+        super.advanceTimeBy(durationMillis)
+        composeTestRule.waitForIdle()
+    }
+
+    protected fun waitForIdle() {
+        testCoroutineScope.advanceUntilIdle()
+        composeTestRule.waitForIdle()
+    }
+
     protected fun setSWRContent(
         fetcher: suspend (String) -> String = { stringFetcher.fetch(it) },
         config: SWRConfigBlock<String, String> = {},

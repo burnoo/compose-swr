@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    kotlin("android")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.5.21"
 }
 
