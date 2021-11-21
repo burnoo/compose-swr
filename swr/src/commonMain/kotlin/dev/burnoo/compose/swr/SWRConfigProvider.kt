@@ -10,12 +10,12 @@ import dev.burnoo.compose.swr.config.plus
 
 @Composable
 inline fun <reified K> SWRConfigProvider(
-    noinline value: SWRLocalConfigBlock<K>,
+    noinline config: SWRLocalConfigBlock<K>,
     noinline content: @Composable () -> Unit
 ) {
     @Suppress("LocalVariableName")
     val LocalConfigBlock = getLocalConfigBlock<K>()
-    val configBlock = LocalConfigBlock.current + value
+    val configBlock = LocalConfigBlock.current + config
     CompositionLocalProvider(
         LocalConfigBlock provides configBlock,
         LocalCache provides SWRConfig(configBlock).provider()

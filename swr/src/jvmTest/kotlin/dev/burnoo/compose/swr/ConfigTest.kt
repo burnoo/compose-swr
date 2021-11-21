@@ -46,7 +46,7 @@ class ConfigTest : ComposeBaseTest() {
                 fetcher = { stringFetcher.fetch(it) }
                 scope = testCoroutineScope
             }
-            SWRConfigProvider(value = config) {
+            SWRConfigProvider(config = config) {
                 val (data, error) = useSWR<String, String>(key = key)
                 DataErrorLoading(data, error)
             }
@@ -59,7 +59,7 @@ class ConfigTest : ComposeBaseTest() {
     @Test
     fun useFallbackFromLocalConfig() {
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = {
+            SWRConfigProvider<String>(config = {
                 fetcher = { stringFetcher.fetch(it) }
                 revalidateOnMount = false
                 fallback = mapOf(
@@ -82,8 +82,8 @@ class ConfigTest : ComposeBaseTest() {
             val childConfig: SWRLocalConfigBlock<String> = {
                 scope = testCoroutineScope
             }
-            SWRConfigProvider(value = parentConfig) {
-                SWRConfigProvider(value = childConfig) {
+            SWRConfigProvider(config = parentConfig) {
+                SWRConfigProvider(config = childConfig) {
                     val (data, error) = useSWR<String, String>(key = key)
                     DataErrorLoading(data, error)
                 }
@@ -102,7 +102,7 @@ class ConfigTest : ComposeBaseTest() {
                 scope = testCoroutineScope
                 refreshInterval = 123L
             }
-            SWRConfigProvider(value = parentConfig) {
+            SWRConfigProvider(config = parentConfig) {
                 val (_, _, config) = useSWRConfig<String, String>()
                 Text(text = config.refreshInterval.toString())
             }

@@ -13,13 +13,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
 import dev.burnoo.cokoin.get
 import dev.burnoo.compose.swr.preview.SWRPreview
+import dev.burnoo.compose.swr.sample.model.IpResponse
 import dev.burnoo.compose.swr.sample.ui.theme.AppTheme
 import dev.burnoo.compose.swr.useSWR
-import io.ktor.client.*
-import io.ktor.client.request.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,15 +65,12 @@ fun App() {
     }
 }
 
-@Serializable
-data class IpResponse(val ip: String)
-
 @Composable
 fun IpApp() {
-    val client = get<HttpClient>() // Using Koin for Jetpack Compose
+    val repository = get<Repository>() // Using cokoin
     val (data, error) = useSWR(
         key = "https://api.ipify.org?format=json",
-        fetcher = { client.request<IpResponse>(it) }
+        fetcher = { repository.fetchIpResponse() }
     )
 
     when {

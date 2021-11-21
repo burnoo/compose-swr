@@ -13,7 +13,7 @@ class AdvancedKeyTest : ComposeBaseTest() {
     @Test
     fun getKeySuspend() {
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = { scope = testCoroutineScope }) {
+            SWRConfigProvider<String>(config = { scope = testCoroutineScope }) {
                 val (fetchedKey) = useSWR("key1", { _ ->
                     delay(1000L)
                     key
@@ -34,7 +34,7 @@ class AdvancedKeyTest : ComposeBaseTest() {
     @Test
     fun getKeyThrowable() {
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = {
+            SWRConfigProvider<String>(config = {
                 scope = testCoroutineScope
             }) {
                 val (fetchedKey) = useSWR("key1", { _ ->
@@ -60,7 +60,7 @@ class AdvancedKeyTest : ComposeBaseTest() {
     @Test
     fun getKeyThrowableLocalFetcher() {
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = {
+            SWRConfigProvider<String>(config = {
                 fetcher = stringFetcher::fetch
                 scope = testCoroutineScope
             }) {

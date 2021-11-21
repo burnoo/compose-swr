@@ -17,7 +17,7 @@ data class IpResponse(val ip: String)
 
 @Composable
 fun App() {
-    val client = get<HttpClient>() // Using Koin for Jetpack Compose
+    val client = get<HttpClient>() // Using ktor and cokoin
     val (data, error) = useSWR(
         key = "https://api.ipify.org?format=json",
         fetcher = { client.request<IpResponse>(it) }

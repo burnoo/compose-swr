@@ -14,7 +14,7 @@ class CustomCacheTest : ComposeBaseTest() {
     fun clearCustomCache() {
         val cache = DefaultCache()
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = {
+            SWRConfigProvider<String>(config = {
                 provider = { cache }
                 scope = testCoroutineScope
             }) {
@@ -39,7 +39,7 @@ class CustomCacheTest : ComposeBaseTest() {
     fun getDataFromCustomCache() {
         val cache = DefaultCache()
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = {
+            SWRConfigProvider<String>(config = {
                 provider = { cache }
                 scope = testCoroutineScope
             }) {
@@ -62,7 +62,7 @@ class CustomCacheTest : ComposeBaseTest() {
     fun getKeysFromCustomCache() {
         val cache = DefaultCache()
         composeTestRule.setContent {
-            SWRConfigProvider<String>(value = {
+            SWRConfigProvider<String>(config = {
                 provider = { cache }
                 scope = testCoroutineScope
             }) {
