@@ -38,7 +38,7 @@ android {
 dependencies {
 
     val jetpackComposeVersion = "1.0.5"
-    val ktorVersion = "1.6.4"
+    val ktorVersion = "1.6.5"
 
     implementation(project(":swr"))
     implementation("androidx.compose.ui:ui:$jetpackComposeVersion")
