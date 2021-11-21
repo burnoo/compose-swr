@@ -1,9 +1,9 @@
 # compose-swr
-React SWR ported for Compose (for now only android, but I will try multiplatform)
+React SWR ported for Compose (Jetpack + Multiplatform)
 
 # Coding in progress... 👨🏽‍💻
 Still working, but you can take a sneak peak:
-- [Libarary API (useSWR)](https://github.com/burnoo/compose-swr/blob/main/swr/src/main/java/dev/burnoo/compose/swr/UseSWR.kt)
+- [Libarary API (useSWR)](https://github.com/burnoo/compose-swr/blob/main/swr/src/commonMain/kotlin/dev/burnoo/compose/swr/UseSWR.kt)
 - [Usage](https://github.com/burnoo/compose-swr/blob/main/sample/src/main/java/dev/burnoo/compose/swr/sample/MainActivity.kt)
 
 ## TODO
