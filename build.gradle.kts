@@ -20,7 +20,3 @@ buildscript {
 plugins {
     id("maven-publish")
 }
-
-tasks.register<Delete>("clean").configure {
-    delete(rootProject.buildDir)
-}
