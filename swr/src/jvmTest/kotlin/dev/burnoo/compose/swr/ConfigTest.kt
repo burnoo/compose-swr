@@ -10,7 +10,7 @@ import org.junit.Assert
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ConfigTest : AndroidBaseTest() {
+class ConfigTest : ComposeBaseTest() {
 
     @Test
     fun useFetcherFromParameterOverrideConfig() {

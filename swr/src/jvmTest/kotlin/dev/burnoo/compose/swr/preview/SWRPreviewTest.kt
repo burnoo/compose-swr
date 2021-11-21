@@ -1,12 +1,12 @@
 package dev.burnoo.compose.swr.preview
 
 import dev.burnoo.compose.swr.useSWR
-import dev.burnoo.compose.swr.utils.AndroidBaseTest
+import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.DataErrorLoading
 import dev.burnoo.compose.swr.utils.key
 import org.junit.Test
 
-class SWRPreviewTest : AndroidBaseTest() {
+class SWRPreviewTest : ComposeBaseTest() {
 
     @Test
     fun showDataInPreview() {

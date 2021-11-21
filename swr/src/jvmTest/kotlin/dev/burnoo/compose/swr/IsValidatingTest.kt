@@ -1,7 +1,7 @@
 package dev.burnoo.compose.swr
 
 import androidx.compose.material.Text
-import dev.burnoo.compose.swr.utils.AndroidBaseTest
+import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,7 +11,7 @@ import org.junit.Assert
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class IsValidatingTest : AndroidBaseTest() {
+class IsValidatingTest : ComposeBaseTest() {
 
     @Test
     fun isValidatingTest() = runBlocking {

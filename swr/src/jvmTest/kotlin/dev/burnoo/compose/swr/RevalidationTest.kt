@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RevalidationTest : AndroidBaseTest() {
+class RevalidationTest : ComposeBaseTest() {
 
     @Test
     fun revalidateOnMount() {

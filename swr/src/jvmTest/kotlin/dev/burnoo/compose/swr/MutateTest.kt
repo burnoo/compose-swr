@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr
 
-import dev.burnoo.compose.swr.utils.AndroidBaseTest
+import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.OnSuccess
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,7 +10,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MutateTest : AndroidBaseTest() {
+class MutateTest : ComposeBaseTest() {
 
     @Test
     fun mutate() = runBlockingTest {

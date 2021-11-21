@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr
 
-import dev.burnoo.compose.swr.utils.AndroidBaseTest
+import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.DataErrorLoading
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AdvancedKeyTest : AndroidBaseTest() {
+class AdvancedKeyTest : ComposeBaseTest() {
 
     @Test
     fun getKeySuspend() {

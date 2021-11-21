@@ -7,7 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class EventTest : AndroidBaseTest() {
+class EventTest : ComposeBaseTest() {
     
     @Test
     fun triggerOnLoadingSlowEvent() {

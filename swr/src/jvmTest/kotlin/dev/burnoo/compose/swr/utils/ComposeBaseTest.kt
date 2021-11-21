@@ -19,7 +19,7 @@ import org.junit.Rule
 const val key = "k"
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class AndroidBaseTest : BaseTest() {
+abstract class ComposeBaseTest : BaseTest() {
 
     @get:Rule
     val composeTestRule = createComposeRule()

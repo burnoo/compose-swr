@@ -8,7 +8,7 @@ import org.junit.Assert
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CustomCacheTest : AndroidBaseTest() {
+class CustomCacheTest : ComposeBaseTest() {
 
     @Test
     fun clearCustomCache() {

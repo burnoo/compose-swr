@@ -1,6 +1,6 @@
 package dev.burnoo.compose.swr
 
-import dev.burnoo.compose.swr.utils.AndroidBaseTest
+import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class ShowStateTest : AndroidBaseTest() {
+class ShowStateTest : ComposeBaseTest() {
 
     @Test
     fun showLoading() {

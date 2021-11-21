@@ -1,13 +1,13 @@
 package dev.burnoo.compose.swr
 
-import dev.burnoo.compose.swr.utils.AndroidBaseTest
+import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.StringFetcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RefreshTest : AndroidBaseTest() {
+class RefreshTest : ComposeBaseTest() {
 
     @Test
     fun refreshWithoutDeduping() = runBlocking {
