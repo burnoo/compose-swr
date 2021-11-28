@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
 }
 
 android {
@@ -38,16 +37,13 @@ android {
 dependencies {
 
     val jetpackComposeVersion = "1.0.5"
-    val ktorVersion = "1.6.5"
 
     implementation(project(":swr"))
+    implementation(project(":example:common"))
     implementation("androidx.compose.ui:ui:$jetpackComposeVersion")
     implementation("androidx.compose.material:material:$jetpackComposeVersion")
     implementation("androidx.compose.ui:ui-tooling:$jetpackComposeVersion")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("com.google.android.material:material:1.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
-    implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("io.ktor:ktor-client-serialization:$ktorVersion")
     implementation("dev.burnoo:cokoin:0.3.1")
 }

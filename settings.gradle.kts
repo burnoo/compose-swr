@@ -1,4 +1,5 @@
 enableFeaturePreview("VERSION_CATALOGS")
 
 include(":swr")
-include(":sample")
+include(":example:android")
+include(":example:common")
