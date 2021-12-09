@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.5.31"
-gradleAndroid = "4.2.2"
+gradleAndroid = "7.0.4"
 jetbrainsCompose = "1.0.0-beta5"
 coroutines = "1.5.2"
 datetime = "0.3.1"
