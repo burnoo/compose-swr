@@ -1,3 +1,6 @@
+@file:Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
+import org.jetbrains.compose.ExperimentalComposeLibrary
+
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform")
@@ -19,6 +22,7 @@ kotlin {
         }
         named("jvmTest") {
             dependencies {
+                @OptIn(ExperimentalComposeLibrary::class)
                 implementation(compose.uiTestJUnit4)
                 implementation(getSkiaDependency())
                 implementation(compose.material)
@@ -48,7 +52,7 @@ fun getSkiaDependency() : String {
         else -> error("Unsupported arch: $osArch")
     }
 
-    val version = "0.6.0"
+    val version = "0.6.7"
     val target = "${targetOs}-${targetArch}"
     return "org.jetbrains.skiko:skiko-jvm-runtime-$target:$version"
 }
