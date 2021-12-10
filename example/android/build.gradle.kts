@@ -45,5 +45,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling:$jetpackComposeVersion")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("com.google.android.material:material:1.4.0")
+    implementation("io.ktor:ktor-client-android:1.6.5")
     implementation("dev.burnoo:cokoin:0.3.1")
 }
