@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.network
+package dev.burnoo.compose.swr.example.network
 
 import io.ktor.client.*
 import io.ktor.client.request.*

@@ -1,8 +1,8 @@
-package dev.burnoo.compose.swr.sample
+package dev.burnoo.compose.swr.example
 
 import androidx.compose.runtime.Composable
 import dev.burnoo.cokoin.Koin
-import dev.burnoo.compose.swr.di.apiModule
+import dev.burnoo.compose.swr.example.di.apiModule
 
 @Composable
 fun WithKoin(content: @Composable () -> Unit) {

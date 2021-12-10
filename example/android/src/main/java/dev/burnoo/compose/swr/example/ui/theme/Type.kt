@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.sample.ui.theme
+package dev.burnoo.compose.swr.example.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.network.model
+package dev.burnoo.compose.swr.example.network.model
 
 import kotlinx.serialization.Serializable
 

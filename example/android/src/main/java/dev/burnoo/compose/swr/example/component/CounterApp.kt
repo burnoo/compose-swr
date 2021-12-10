@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.sample
+package dev.burnoo.compose.swr.example
 
 import androidx.compose.material.Button
 import androidx.compose.material.Text

@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.ui
+package dev.burnoo.compose.swr.example.ui
 
 sealed class IpUiState {
     object Loading : IpUiState()

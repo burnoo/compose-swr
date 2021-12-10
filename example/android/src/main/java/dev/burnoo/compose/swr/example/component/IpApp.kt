@@ -1,13 +1,13 @@
-package dev.burnoo.compose.swr.sample.component
+package dev.burnoo.compose.swr.example.component
 
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import dev.burnoo.compose.swr.WithIpSuccessPreview
-import dev.burnoo.compose.swr.sample.WithKoin
-import dev.burnoo.compose.swr.ui.IpUiState
-import dev.burnoo.compose.swr.useIp
+import dev.burnoo.compose.swr.example.WithIpSuccessPreview
+import dev.burnoo.compose.swr.example.WithKoin
+import dev.burnoo.compose.swr.example.ui.IpUiState
+import dev.burnoo.compose.swr.example.useIp
 
 @Composable
 fun IpApp() {

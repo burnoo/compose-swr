@@ -1,4 +1,4 @@
-package dev.burnoo.compose.swr.sample.ui.theme
+package dev.burnoo.compose.swr.example.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

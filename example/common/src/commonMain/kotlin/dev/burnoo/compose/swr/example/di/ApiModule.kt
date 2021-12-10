@@ -1,6 +1,6 @@
-package dev.burnoo.compose.swr.di
+package dev.burnoo.compose.swr.example.di
 
-import dev.burnoo.compose.swr.network.Fetcher
+import dev.burnoo.compose.swr.example.network.Fetcher
 import io.ktor.client.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*

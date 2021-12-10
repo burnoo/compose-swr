@@ -1,12 +1,13 @@
-package dev.burnoo.compose.swr
+package dev.burnoo.compose.swr.example
 
 import androidx.compose.runtime.Composable
 import dev.burnoo.cokoin.get
-import dev.burnoo.compose.swr.network.Fetcher
-import dev.burnoo.compose.swr.network.model.IpResponse
-import dev.burnoo.compose.swr.network.Request
-import dev.burnoo.compose.swr.ui.IpUiState
+import dev.burnoo.compose.swr.example.network.Fetcher
+import dev.burnoo.compose.swr.example.network.model.IpResponse
+import dev.burnoo.compose.swr.example.network.Request
+import dev.burnoo.compose.swr.example.ui.IpUiState
 import dev.burnoo.compose.swr.preview.SWRPreview
+import dev.burnoo.compose.swr.useSWR
 
 @Composable
 fun useIp(): IpUiState {
