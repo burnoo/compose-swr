@@ -8,12 +8,7 @@ import org.koin.dsl.module
 
 val apiModule = module {
     single {
-        HttpClient {
-            install(JsonFeature) {
-                val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-                serializer = KotlinxSerializer(json)
-            }
-        }
+        HttpClient { install(JsonFeature) }
     }
 
     single { Fetcher(get()) }
