@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/nightOwl');
 const config = {
   title: 'compose-swr',
   url: 'https://burnoo.github.io',
-  baseUrl: '/',
+  baseUrl: '/compose-swr/',
   organizationName: 'burnoo',
   projectName: 'compose-swr',
   deploymentBranch: "gh-pages",
