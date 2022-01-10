@@ -16,7 +16,7 @@ class CustomCacheTest : ComposeBaseTest() {
         composeTestRule.setContent {
             SWRConfigProvider<String>(config = {
                 provider = { cache }
-                scope = testCoroutineScope
+                scope = testScope
             }) {
                 val (data, error) = useSWR(
                     key = key,
@@ -41,7 +41,7 @@ class CustomCacheTest : ComposeBaseTest() {
         composeTestRule.setContent {
             SWRConfigProvider<String>(config = {
                 provider = { cache }
-                scope = testCoroutineScope
+                scope = testScope
             }) {
                 val (data, error) = useSWR(
                     key = key,
@@ -64,7 +64,7 @@ class CustomCacheTest : ComposeBaseTest() {
         composeTestRule.setContent {
             SWRConfigProvider<String>(config = {
                 provider = { cache }
-                scope = testCoroutineScope
+                scope = testScope
             }) {
                 val (data, error) = useSWR(
                     key = key,

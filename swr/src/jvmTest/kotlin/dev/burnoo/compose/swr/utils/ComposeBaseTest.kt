@@ -13,6 +13,7 @@ import dev.burnoo.compose.swr.internal.LocalConfigBlocks
 import dev.burnoo.compose.swr.useSWR
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Rule
 
@@ -40,7 +41,7 @@ abstract class ComposeBaseTest : BaseTest() {
     }
 
     protected fun waitForIdle() {
-        testCoroutineScope.advanceUntilIdle()
+        testScope.advanceUntilIdle()
         composeTestRule.waitForIdle()
     }
 
@@ -54,10 +55,10 @@ abstract class ComposeBaseTest : BaseTest() {
             val (data, error, _, mutate) = useSWR(
                 key = key,
                 fetcher = fetcher,
-                config = config + { scope = testCoroutineScope })
+                config = config + { scope = testScope })
             DataErrorLoading(data, error)
             Button(onClick = {
-                testCoroutineScope.launch { mutate(mutationData, shouldRevalidate) }
+                testScope.launch { mutate(mutationData, shouldRevalidate) }
             }) {
                 Text("Mutate")
             }

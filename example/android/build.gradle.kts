@@ -29,8 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.0.5"
-        kotlinCompilerVersion = "1.5.31"
+        kotlinCompilerExtensionVersion = "1.1.0-rc02"
     }
 }
 
@@ -46,5 +45,5 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("com.google.android.material:material:1.4.0")
     implementation("io.ktor:ktor-client-android:1.6.7")
-    implementation("dev.burnoo:cokoin:0.3.2")
+    implementation("dev.burnoo:cokoin:0.3.3")
 }

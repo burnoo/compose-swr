@@ -6,6 +6,7 @@ import dev.burnoo.compose.swr.utils.FailingFetcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceTimeBy
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -64,19 +65,19 @@ class RetryTest : ComposeBaseTest() {
         assertEquals(1, failingFetcher.failCount)
         assertTextFailure()
 
-        testCoroutineScope.advanceTimeBy(2900)
+        testScope.advanceTimeBy(2900)
         assertEquals(1, failingFetcher.failCount)
         assertTextFailure()
 
-        testCoroutineScope.advanceTimeBy(200)
+        testScope.advanceTimeBy(200)
         assertEquals(2, failingFetcher.failCount)
         assertTextFailure()
 
-        testCoroutineScope.advanceTimeBy(3100)
+        testScope.advanceTimeBy(3100)
         assertEquals(3, failingFetcher.failCount)
         assertTextFailure()
 
-        testCoroutineScope.advanceTimeBy(3100)
+        testScope.advanceTimeBy(3100)
         assertEquals(4, failingFetcher.failCount)
         assertTextFailure()
     }

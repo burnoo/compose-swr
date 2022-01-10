@@ -56,7 +56,7 @@ class RevalidationTest : ComposeBaseTest() {
         val revalidateFlow = MutableSharedFlow<Unit>()
         setSWRContent(config = {
             this.revalidateFlow = revalidateFlow
-            scope = testCoroutineScope
+            scope = testScope
         })
         assertTextLoading()
 
@@ -93,13 +93,13 @@ class RevalidationTest : ComposeBaseTest() {
         composeTestRule.setContent {
             val delayedState by delayedFlow.collectAsState(
                 initial = false,
-                context = testCoroutineScope.coroutineContext
+                context = testScope.coroutineContext
             )
             val (data, error) = useSWRImmutable(
                 key = key,
                 fetcher = { stringFetcher.fetch(it) },
                 config = {
-                    scope = if (!delayedState) testCoroutineScope else null
+                    scope = if (!delayedState) testScope else null
                 })
             DataErrorLoading(data, error)
         }

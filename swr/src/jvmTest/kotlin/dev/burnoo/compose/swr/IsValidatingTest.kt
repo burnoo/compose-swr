@@ -27,7 +27,7 @@ class IsValidatingTest : ComposeBaseTest() {
                         delay(errorDelay)
                         true
                     }
-                    scope = testCoroutineScope
+                    scope = testScope
                 })
             recompositionCount++
             Text(text = isValidating.toString())

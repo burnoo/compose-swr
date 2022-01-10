@@ -35,7 +35,7 @@ dependencies {
     implementation(compose.material)
     implementation(project(":example:common"))
     implementation("io.ktor:ktor-client-cio:1.6.7")
-    implementation("dev.burnoo:cokoin:0.3.2")
+    implementation("dev.burnoo:cokoin:0.3.3")
 }
 
 fun getSkiaDependency() : String {

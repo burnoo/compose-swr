@@ -17,8 +17,8 @@ kotlin {
                 val ktorVersion = "1.6.7"
 
                 implementation(project(":swr"))
-                implementation("dev.burnoo:cokoin:0.3.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
+                implementation("dev.burnoo:cokoin:0.3.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
             }

@@ -46,7 +46,7 @@ class MutateTest : ComposeBaseTest() {
         setSWRContent(config = {
             refreshInterval = 2000L
             dedupingInterval = 1000L
-            scope = testCoroutineScope
+            scope = testScope
         })
         assertTextLoading()
 
@@ -73,7 +73,7 @@ class MutateTest : ComposeBaseTest() {
         setSWRContent(config = {
             refreshInterval = 2000L
             dedupingInterval = 1000L
-            scope = testCoroutineScope
+            scope = testScope
         }, mutationData = "${key}0", shouldRevalidate = false)
         assertTextLoading()
         advanceTimeBy(100L)

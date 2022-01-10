@@ -69,7 +69,7 @@ class RefreshTest : ComposeBaseTest() {
             shouldRefresh = { false }
             dedupingInterval = 0L
             refreshInterval = 500L
-            scope = testCoroutineScope
+            scope = testScope
         })
         assertTextLoading()
 

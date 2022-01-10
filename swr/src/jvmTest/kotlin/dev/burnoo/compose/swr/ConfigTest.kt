@@ -30,7 +30,7 @@ class ConfigTest : ComposeBaseTest() {
             val (data, error) = useSWR<String, String>(
                 key = key,
                 config = {
-                    scope = testCoroutineScope
+                    scope = testScope
                     fetcher = stringFetcher::fetch
                 })
             DataErrorLoading(data, error)
@@ -44,7 +44,7 @@ class ConfigTest : ComposeBaseTest() {
         composeTestRule.setContent {
             val config: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
-                scope = testCoroutineScope
+                scope = testScope
             }
             SWRConfigProvider(config = config) {
                 val (data, error) = useSWR<String, String>(key = key)
@@ -80,7 +80,7 @@ class ConfigTest : ComposeBaseTest() {
                 fetcher = { stringFetcher.fetch(it) }
             }
             val childConfig: SWRLocalConfigBlock<String> = {
-                scope = testCoroutineScope
+                scope = testScope
             }
             SWRConfigProvider(config = parentConfig) {
                 SWRConfigProvider(config = childConfig) {
@@ -99,7 +99,7 @@ class ConfigTest : ComposeBaseTest() {
         composeTestRule.setContent {
             val parentConfig: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
-                scope = testCoroutineScope
+                scope = testScope
                 refreshInterval = 123L
             }
             SWRConfigProvider(config = parentConfig) {

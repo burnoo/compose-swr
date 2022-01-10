@@ -24,7 +24,7 @@ kotlin {
             dependencies {
                 @OptIn(ExperimentalComposeLibrary::class)
                 implementation(compose.uiTestJUnit4)
-                implementation(getSkiaDependency())
+                implementation(compose.desktop.currentOs)
                 implementation(compose.material)
                 implementation(libs.coroutines.test)
                 implementation(libs.testCore)
