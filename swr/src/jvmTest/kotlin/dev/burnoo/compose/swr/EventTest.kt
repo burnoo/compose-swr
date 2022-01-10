@@ -4,6 +4,7 @@ import dev.burnoo.compose.swr.config.SWRConfigBlock
 import dev.burnoo.compose.swr.utils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -21,7 +22,7 @@ class EventTest : ComposeBaseTest() {
         assertTextLoading()
         assertEquals(0, onLoadingSlow.invocations.size)
 
-        testScope.advanceTimeBy(2000L)
+        advanceTimeBy(2000L)
         assertTextLoading()
         assertEquals(key, onLoadingSlow.invocations[0].key)
         assertEquals(2000L, onLoadingSlow.invocations[0].config.loadingTimeout)

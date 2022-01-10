@@ -5,15 +5,14 @@ import dev.burnoo.compose.swr.utils.OnSuccess
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MutateTest : ComposeBaseTest() {
 
     @Test
-    fun mutate() = runBlockingTest {
+    fun mutate() = runBlocking {
         setSWRContent()
         assertTextLoading()
 
@@ -34,11 +33,12 @@ class MutateTest : ComposeBaseTest() {
         val onSuccess = OnSuccess()
         setSWRContent(config = {
             this.onSuccess = onSuccess::invoke
+            dedupingInterval = 0L
         })
         assertTextLoading()
         clickMutate()
         waitForIdle()
-        assertEquals(2, onSuccess.invocations.size)
+        assertEquals(1, onSuccess.invocations.size)
     }
 
     @Test

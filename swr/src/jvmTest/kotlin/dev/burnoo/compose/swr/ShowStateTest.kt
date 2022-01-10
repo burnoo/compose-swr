@@ -4,7 +4,7 @@ import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.FailingFetcher
 import dev.burnoo.compose.swr.utils.key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
@@ -17,7 +17,7 @@ class ShowStateTest : ComposeBaseTest() {
     }
 
     @Test
-    fun showSuccess() = runBlockingTest {
+    fun showSuccess() = runBlocking {
         setSWRContent()
         assertTextLoading()
         waitForIdle()
@@ -25,7 +25,7 @@ class ShowStateTest : ComposeBaseTest() {
     }
 
     @Test
-    fun showError() = runBlockingTest {
+    fun showError() = runBlocking {
         val failingFetcher = FailingFetcher()
         setSWRContent(fetcher = failingFetcher::fetch, config = { shouldRetryOnError = false })
         assertTextLoading()

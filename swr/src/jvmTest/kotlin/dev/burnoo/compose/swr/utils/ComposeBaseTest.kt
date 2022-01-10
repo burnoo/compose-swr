@@ -14,6 +14,7 @@ import dev.burnoo.compose.swr.useSWR
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Before
 import org.junit.Rule
 
@@ -32,6 +33,11 @@ abstract class ComposeBaseTest : BaseTest() {
         super.setUp()
         LocalCache = compositionLocalOf { DefaultCache() }
         LocalConfigBlocks.clear()
+    }
+
+    protected fun runCurrent() {
+        testScope.runCurrent()
+        composeTestRule.waitForIdle()
     }
 
     override fun advanceTimeBy(durationMillis: Long) {

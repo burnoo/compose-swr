@@ -4,6 +4,7 @@ import dev.burnoo.compose.swr.utils.ComposeBaseTest
 import dev.burnoo.compose.swr.utils.StringFetcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -16,6 +17,8 @@ class RefreshTest : ComposeBaseTest() {
             refreshInterval = 1000L
             dedupingInterval = 0L
         })
+        testScope.runCurrent()
+        composeTestRule.waitForIdle()
         assertTextRevalidated(1)
 
         advanceTimeBy(1000L)
@@ -35,6 +38,7 @@ class RefreshTest : ComposeBaseTest() {
             refreshInterval = 1000L
             dedupingInterval = 2000L
         })
+        runCurrent()
         assertTextRevalidated(1)
 
         advanceTimeBy(1000L)

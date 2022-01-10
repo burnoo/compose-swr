@@ -53,7 +53,7 @@ class RevalidationTest : ComposeBaseTest() {
 
     @Test
     fun useRevalidateFlow() = runBlocking {
-        val revalidateFlow = MutableSharedFlow<Unit>()
+        val revalidateFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         setSWRContent(config = {
             this.revalidateFlow = revalidateFlow
             scope = testScope

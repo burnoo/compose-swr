@@ -3,7 +3,7 @@ package dev.burnoo.compose.swr.utils
 import dev.burnoo.compose.swr.internal.testable.Now
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
 class TestNow : Now {
@@ -13,6 +13,6 @@ class TestNow : Now {
 
     @OptIn(ExperimentalTime::class)
     fun advanceTimeBy(timeMillis: Long) {
-        currentInstant += Duration.milliseconds(timeMillis)
+        currentInstant += timeMillis.milliseconds
     }
 }

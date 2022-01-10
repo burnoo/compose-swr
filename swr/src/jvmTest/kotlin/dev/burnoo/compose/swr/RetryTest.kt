@@ -24,6 +24,7 @@ class RetryTest : ComposeBaseTest() {
             errorRetryInterval = retryInterval
             errorRetryCount = 3
         })
+        runCurrent()
         assertEquals(1, failingInstantFetcher.failCount)
         assertTextFailure()
 
@@ -65,19 +66,19 @@ class RetryTest : ComposeBaseTest() {
         assertEquals(1, failingFetcher.failCount)
         assertTextFailure()
 
-        testScope.advanceTimeBy(2900)
+        advanceTimeBy(2900)
         assertEquals(1, failingFetcher.failCount)
         assertTextFailure()
 
-        testScope.advanceTimeBy(200)
+        advanceTimeBy(200)
         assertEquals(2, failingFetcher.failCount)
         assertTextFailure()
 
-        testScope.advanceTimeBy(3100)
+        advanceTimeBy(3100)
         assertEquals(3, failingFetcher.failCount)
         assertTextFailure()
 
-        testScope.advanceTimeBy(3100)
+        advanceTimeBy(3100)
         assertEquals(4, failingFetcher.failCount)
         assertTextFailure()
     }

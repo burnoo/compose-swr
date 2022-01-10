@@ -5,7 +5,6 @@ import dev.burnoo.compose.swr.config.SWRLocalConfigBlock
 import dev.burnoo.compose.swr.utils.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert
 import org.junit.Test
 
@@ -95,7 +94,7 @@ class ConfigTest : ComposeBaseTest() {
     }
 
     @Test
-    fun useSWRConfig() = runBlockingTest {
+    fun useSWRConfig() = runBlocking {
         composeTestRule.setContent {
             val parentConfig: SWRLocalConfigBlock<String> = {
                 fetcher = { stringFetcher.fetch(it) }
