@@ -2,13 +2,16 @@
 [React SWR](https://swr.vercel.app/) ported for Compose (Jetpack + Multiplatform)
 
 ## Quick Start:
+TODO: Publish to Maven Central
+
 ```kotlin
+val client = HttpClient { install(JsonFeature) }
+
 @Serializable
 data class IpResponse(val ip: String)
 
 @Composable
 fun App() {
-    val client = get<HttpClient>() // Using ktor and cokoin
     val (data, error) = useSWR(
         key = "https://api.ipify.org?format=json",
         fetcher = { client.request<IpResponse>(it) }
@@ -31,6 +34,9 @@ of `fetcher` and recompose the component.
 
 Note that `fetcher` can be any suspend function, you can use your favourite data-fetching
 library to handle that part (e.g. Ktor Client).
+
+## Docs
+https://burnoo.github.io/compose-swr/
 
 ## About
 
