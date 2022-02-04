@@ -5,7 +5,7 @@ jetbrainsCompose = "1.0.1"
 coroutines = "1.6.0"
 datetime = "0.3.2"
 testCore = "1.4.0"
-dependencyUpdates = "0.41.0"
+dependencyUpdates = "0.42.0"
 
 [libraries]
 gradle-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
