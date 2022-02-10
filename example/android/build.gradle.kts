@@ -35,7 +35,7 @@ android {
 
 dependencies {
 
-    val jetpackComposeVersion = "1.0.5"
+    val jetpackComposeVersion = "1.1.0"
 
     implementation(project(":swr"))
     implementation(project(":example:common"))
