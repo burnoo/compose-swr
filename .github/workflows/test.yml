@@ -9,6 +9,7 @@ on:
       - '.github/workflows/deployDocs.yml'
   pull_request:
     branches: [ main ]
+    paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/workflows/deployDocs.yml'
@@ -27,5 +28,4 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
 
-      - name: Run JVM Tests
         run: ./gradlew jvmTest
