@@ -27,5 +27,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-
+      
+      - name: Run JVM Tests
         run: ./gradlew jvmTest
