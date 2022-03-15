@@ -34,7 +34,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material)
     implementation(project(":example:common"))
-    implementation("io.ktor:ktor-client-cio:1.6.7")
+    implementation("io.ktor:ktor-client-cio:1.6.8")
     implementation("dev.burnoo:cokoin:0.3.3")
 }
 
