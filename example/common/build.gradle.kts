@@ -14,7 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
 
-                val ktorVersion = "1.6.7"
+                val ktorVersion = "1.6.8"
 
                 implementation(project(":swr"))
                 implementation("dev.burnoo:cokoin:0.3.3")
