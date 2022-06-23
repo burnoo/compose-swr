@@ -2,7 +2,7 @@
 kotlin = "1.6.10"
 gradleAndroid = "7.1.2"
 jetbrainsCompose = "1.0.1"
-coroutines = "1.6.0"
+coroutines = "1.6.3"
 datetime = "0.3.2"
 testCore = "1.4.0"
 dependencyUpdates = "0.42.0"
